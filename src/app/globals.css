@@ -12,6 +12,7 @@
   --border: #27272a;
   --success: #22c55e;
   --warning: #eab308;
+  --accent-orange: #d97706;
 }
 
 @theme inline {
@@ -26,6 +27,7 @@
   --color-border: var(--border);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-accent-orange: var(--accent-orange);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 }
