@@ -1,0 +1,10 @@
+{
+  "id": "bc1263b22291",
+  "session_id": "",
+  "commit_hash": "0eb066541ddb74d7e79d1a30cb382231b05a7a3e",
+  "branch": "partio-app-checkpoints",
+  "created_at": "2026-02-20T10:03:25+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "0eb066541ddb74d7e79d1a30cb382231b05a7a3e"
+}
