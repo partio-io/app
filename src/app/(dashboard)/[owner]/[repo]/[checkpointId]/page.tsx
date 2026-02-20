@@ -1,20 +1,37 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import {
   useCheckpoint,
   useSession as useCheckpointSession,
   useDiff,
 } from "@/hooks/use-checkpoints";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TranscriptViewer } from "@/components/ui/transcript-viewer";
 import { DiffViewer } from "@/components/ui/diff-viewer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
-type Tab = "transcript" | "diff";
+type Tab = "sessions" | "files";
+
+function countDiffFiles(diff: string | undefined): number {
+  if (!diff) return 0;
+  return (diff.match(/^diff --git/gm) || []).length;
+}
+
+function extractToolCount(messages: { content: string }[]): number {
+  const tools = new Set<string>();
+  for (const msg of messages) {
+    const matches = msg.content.match(/\[Tool: (.+?)\]/g);
+    if (matches) {
+      for (const m of matches) {
+        tools.add(m.replace("[Tool: ", "").replace("]", ""));
+      }
+    }
+  }
+  return tools.size;
+}
 
 export default function CheckpointDetailPage({
   params,
@@ -35,10 +52,27 @@ export default function CheckpointDetailPage({
   const { diff, isLoading: diffLoading } = useDiff(
     owner,
     repo,
-    checkpoint?.commit_hash || ""
+    checkpointId
   );
 
-  const [activeTab, setActiveTab] = useState<Tab>("transcript");
+  const [activeTab, setActiveTab] = useState<Tab>("sessions");
+
+  const pageTitle = useMemo(() => {
+    if (!messages || messages.length === 0) return null;
+    const firstHuman = messages.find(
+      (m) => m.role === "human" || m.role === "user"
+    );
+    if (!firstHuman) return null;
+    const text = firstHuman.content.trim();
+    return text.length > 100 ? text.slice(0, 100) + "..." : text;
+  }, [messages]);
+
+  const totalTokens = useMemo(() => {
+    if (!messages) return 0;
+    return messages.reduce((sum, m) => sum + (m.tokens || 0), 0);
+  }, [messages]);
+
+  const fileCount = useMemo(() => countDiffFiles(diff), [diff]);
 
   if (cpLoading) {
     return (
@@ -79,87 +113,144 @@ export default function CheckpointDetailPage({
         ]}
       />
 
-      <div className="rounded-xl border border-border bg-surface p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h2 className="font-mono text-base font-semibold text-foreground">
-              {checkpointId}
-            </h2>
-            <Badge>{checkpoint.branch}</Badge>
-          </div>
-          <span className="text-sm text-muted">
+      {/* Header */}
+      <div className="space-y-3">
+        <h1 className="text-lg font-semibold text-foreground leading-snug">
+          {pageTitle || checkpointId}
+        </h1>
+
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+          {/* ID pill */}
+          <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
+            {checkpointId.slice(0, 8)}
+          </span>
+
+          {/* Commit hash pill */}
+          <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
+            {checkpoint.commit_hash.slice(0, 8)}
+          </span>
+
+          <span className="text-muted/60">·</span>
+
+          {/* Date */}
+          <span>
             {formatDistanceToNow(new Date(checkpoint.created_at), {
               addSuffix: true,
             })}
           </span>
-        </div>
 
-        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
-          <span>
-            commit{" "}
-            <span className="font-mono text-foreground">
-              {checkpoint.commit_hash.slice(0, 8)}
-            </span>
+          <span className="text-muted/60">·</span>
+
+          {/* Branch */}
+          <span className="inline-flex items-center gap-1">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-muted"
+            >
+              <line x1="6" y1="3" x2="6" y2="15" />
+              <circle cx="18" cy="6" r="3" />
+              <circle cx="6" cy="18" r="3" />
+              <path d="M18 9a9 9 0 0 1-9 9" />
+            </svg>
+            <span className="text-foreground">{checkpoint.branch}</span>
           </span>
-          {checkpoint.agent && (
-            <span>
-              agent{" "}
-              <span className="text-foreground">{checkpoint.agent}</span>
-            </span>
+
+          {totalTokens > 0 && (
+            <>
+              <span className="text-muted/60">·</span>
+              <span>{totalTokens.toLocaleString()} tokens</span>
+            </>
           )}
-          <span>
-            attribution{" "}
-            <span className="font-mono text-accent-light">
-              {checkpoint.agent_percent}%
-            </span>
-          </span>
+
+          {checkpoint.agent && (
+            <>
+              <span className="text-muted/60">·</span>
+              <span className="inline-flex items-center rounded-full bg-accent-orange/15 px-2 py-0.5 text-xs font-medium text-accent-orange border border-accent-orange/30">
+                {checkpoint.agent}
+              </span>
+              <span className="font-mono text-xs text-accent-orange">
+                {checkpoint.agent_percent}%
+              </span>
+            </>
+          )}
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
         <button
-          onClick={() => setActiveTab("transcript")}
+          onClick={() => setActiveTab("sessions")}
           className={cn(
-            "px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
-            activeTab === "transcript"
+            "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+            activeTab === "sessions"
               ? "border-b-2 border-accent text-foreground"
               : "text-muted hover:text-foreground"
           )}
         >
-          Transcript
+          Sessions
+          <span
+            className={cn(
+              "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs",
+              activeTab === "sessions"
+                ? "bg-accent/20 text-accent-light"
+                : "bg-surface-light text-muted"
+            )}
+          >
+            1
+          </span>
         </button>
         <button
-          onClick={() => setActiveTab("diff")}
+          onClick={() => setActiveTab("files")}
           className={cn(
-            "px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
-            activeTab === "diff"
+            "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+            activeTab === "files"
               ? "border-b-2 border-accent text-foreground"
               : "text-muted hover:text-foreground"
           )}
         >
-          Diff
+          Files
+          <span
+            className={cn(
+              "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs",
+              activeTab === "files"
+                ? "bg-accent/20 text-accent-light"
+                : "bg-surface-light text-muted"
+            )}
+          >
+            {fileCount}
+          </span>
         </button>
       </div>
 
-      {activeTab === "transcript" && (
-        sessionLoading ? (
+      {/* Tab content */}
+      {activeTab === "sessions" &&
+        (sessionLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-20" />
             <Skeleton className="h-32" />
             <Skeleton className="h-20" />
           </div>
         ) : (
-          <TranscriptViewer messages={messages || []} />
-        )
-      )}
+          <TranscriptViewer
+            messages={messages || []}
+            agentName={checkpoint.agent || undefined}
+            agentPercent={checkpoint.agent_percent}
+          />
+        ))}
 
-      {activeTab === "diff" && (
-        diffLoading ? (
+      {activeTab === "files" &&
+        (diffLoading ? (
           <Skeleton className="h-64" />
         ) : (
           <DiffViewer diff={diff || ""} />
-        )
-      )}
+        ))}
     </div>
   );
 }

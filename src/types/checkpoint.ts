@@ -20,6 +20,7 @@ export interface Message {
   content: string;
   timestamp: string;
   tokens?: number;
+  toolNames?: string[];
 }
 
 export interface RepoWithCheckpoints {

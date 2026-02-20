@@ -46,10 +46,10 @@ export function useSession(owner: string, repo: string, id: string) {
   };
 }
 
-export function useDiff(owner: string, repo: string, commitHash: string) {
+export function useDiff(owner: string, repo: string, checkpointId: string) {
   const { data, error, isLoading } = useSWR<{ diff: string }>(
-    commitHash
-      ? `/api/github/repos/${owner}/${repo}/diff/${commitHash}`
+    checkpointId
+      ? `/api/github/repos/${owner}/${repo}/checkpoints/${checkpointId}/diff`
       : null,
     fetcher
   );

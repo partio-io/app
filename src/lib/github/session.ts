@@ -32,7 +32,7 @@ export async function getSessionData(
       recursive: "1",
     });
 
-    const sessionPath = `${shard}/${rest}/full.jsonl`;
+    const sessionPath = `${shard}/${rest}/0/full.jsonl`;
     const entry = (tree.tree || []).find((e) => e.path === sessionPath);
 
     if (!entry?.sha) return [];
@@ -46,35 +46,71 @@ export async function getSessionData(
     const content = Buffer.from(blob.content, "base64").toString("utf-8");
     const lines = content.split("\n").filter((line) => line.trim());
 
-    return lines.map((line) => {
-      const parsed = JSON.parse(line);
-      return {
-        role: parsed.role || "unknown",
-        content: extractText(parsed.content),
-        timestamp: parsed.timestamp || "",
-        tokens: parsed.tokens,
-      } satisfies Message;
-    });
+    const MESSAGE_TYPES = new Set(["user", "human", "assistant"]);
+
+    return lines
+      .map((line) => JSON.parse(line))
+      .filter((parsed: any) => MESSAGE_TYPES.has(parsed.type || parsed.role))
+      .map((parsed: any) => {
+        return {
+          role: parsed.type || parsed.role || "unknown",
+          content: stripSystemTags(extractText(parsed)),
+          timestamp: parsed.timestamp || "",
+          tokens: parsed.tokens,
+        } satisfies Message;
+      })
+      .filter((msg) => msg.content.trim() !== "");
   } catch {
     return [];
   }
 }
 
-function extractText(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) {
-    return content
-      .map((block) => {
-        if (typeof block === "string") return block;
-        if (block?.type === "text") return block.text || "";
-        if (block?.type === "tool_use")
-          return `[Tool: ${block.name || "unknown"}]`;
-        if (block?.type === "tool_result")
-          return `[Tool Result: ${typeof block.content === "string" ? block.content.slice(0, 200) : "..."}]`;
-        return "";
-      })
-      .filter(Boolean)
-      .join("\n");
+function extractContentBlocks(blocks: any[]): string {
+  return blocks
+    .map((block: any) => {
+      if (typeof block === "string") return block;
+      if (block?.type === "text") return block.text || "";
+      if (block?.type === "tool_use")
+        return `[Tool: ${block.name || "unknown"}]`;
+      if (block?.type === "tool_result")
+        return `[Tool Result: ${typeof block.content === "string" ? block.content.slice(0, 200) : "..."}]`;
+      // Skip thinking, redacted_thinking, and unknown block types
+      return "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+const SYSTEM_TAG_RE =
+  /<(local-command-caveat|command-name|command-message|command-args|local-command-stdout|system-reminder|user-prompt-submit-hook)>[\s\S]*?<\/\1>/g;
+
+function stripSystemTags(text: string): string {
+  return text.replace(SYSTEM_TAG_RE, "");
+}
+
+function extractText(entry: Record<string, unknown>): string {
+  // 1. Try contentBlocks (top-level array of {type, text})
+  if (Array.isArray(entry.contentBlocks)) {
+    return extractContentBlocks(entry.contentBlocks);
   }
-  return String(content ?? "");
+
+  // 2. Try message field
+  if (entry.message != null) {
+    if (typeof entry.message === "string") return entry.message;
+    const msg = entry.message as any;
+    if (typeof msg.content === "string") return msg.content;
+    if (Array.isArray(msg.content)) {
+      return extractContentBlocks(msg.content);
+    }
+  }
+
+  // 3. Try content field
+  if (entry.content != null) {
+    if (typeof entry.content === "string") return entry.content;
+    if (Array.isArray(entry.content)) {
+      return extractContentBlocks(entry.content as any[]);
+    }
+  }
+
+  return "";
 }
