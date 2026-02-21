@@ -1,0 +1,517 @@
+diff --git a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx
+index 9dc05ef..47c9bd4 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx
+@@ -1,10 +1,13 @@
+ "use client";
+ 
+ import { use, useState, useMemo } from "react";
++import { useSearchParams } from "next/navigation";
++import { useSession } from "next-auth/react";
+ import {
+   useCheckpoint,
+   useSession as useCheckpointSession,
+   useDiff,
++  usePlan,
+ } from "@/hooks/use-checkpoints";
+ import { Breadcrumb } from "@/components/ui/breadcrumb";
+ import { Skeleton } from "@/components/ui/skeleton";
+@@ -13,7 +16,7 @@ import { DiffViewer } from "@/components/ui/diff-viewer";
+ import { formatDistanceToNow } from "date-fns";
+ import { cn } from "@/lib/utils";
+ 
+-type Tab = "sessions" | "files";
++type Tab = "sessions" | "files" | "plan";
+ 
+ function countDiffFiles(diff: string | undefined): number {
+   if (!diff) return 0;
+@@ -39,6 +42,8 @@ export default function CheckpointDetailPage({
+   params: Promise<{ owner: string; repo: string; checkpointId: string }>;
+ }) {
+   const { owner, repo, checkpointId } = use(params);
++  const searchParams = useSearchParams();
++  const { data: session } = useSession();
+   const { checkpoint, isLoading: cpLoading } = useCheckpoint(
+     owner,
+     repo,
+@@ -54,8 +59,16 @@ export default function CheckpointDetailPage({
+     repo,
+     checkpointId
+   );
++  const { plan, isLoading: planLoading } = usePlan(
++    owner,
++    repo,
++    checkpointId
++  );
+ 
+-  const [activeTab, setActiveTab] = useState<Tab>("sessions");
++  const initialTab = searchParams.get("tab");
++  const [activeTab, setActiveTab] = useState<Tab>(
++    initialTab === "plan" || initialTab === "files" ? initialTab : "sessions"
++  );
+ 
+   const pageTitle = useMemo(() => {
+     if (!messages || messages.length === 0) return null;
+@@ -227,6 +240,19 @@ export default function CheckpointDetailPage({
+             {fileCount}
+           </span>
+         </button>
++        {checkpoint.plan_slug && (
++          <button
++            onClick={() => setActiveTab("plan")}
++            className={cn(
++              "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
++              activeTab === "plan"
++                ? "border-b-2 border-accent text-foreground"
++                : "text-muted hover:text-foreground"
++            )}
++          >
++            Plan
++          </button>
++        )}
+       </div>
+ 
+       {/* Tab content */}
+@@ -242,6 +268,8 @@ export default function CheckpointDetailPage({
+             messages={messages || []}
+             agentName={checkpoint.agent || undefined}
+             agentPercent={checkpoint.agent_percent}
++            userName={session?.user?.login || undefined}
++            userImage={session?.user?.image || undefined}
+           />
+         ))}
+ 
+@@ -251,6 +279,21 @@ export default function CheckpointDetailPage({
+         ) : (
+           <DiffViewer diff={diff || ""} />
+         ))}
++
++      {activeTab === "plan" &&
++        (planLoading ? (
++          <Skeleton className="h-64" />
++        ) : plan ? (
++          <div className="rounded-xl border border-border bg-surface p-5">
++            <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
++              {plan}
++            </div>
++          </div>
++        ) : (
++          <div className="rounded-xl border border-border bg-surface p-8 text-center">
++            <p className="text-sm text-muted">No plan data available</p>
++          </div>
++        ))}
+     </div>
+   );
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+index 23f38a1..f4d409d 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+@@ -67,6 +67,15 @@ export default function RepoDetailPage({
+                   {cp.agent && (
+                     <span className="text-xs text-muted">{cp.agent}</span>
+                   )}
++                  {cp.plan_slug && (
++                    <Link
++                      href={`/${owner}/${repo}/${cp.id}?tab=plan`}
++                      onClick={(e) => e.stopPropagation()}
++                      className="inline-flex items-center rounded-md bg-accent/10 border border-accent/20 px-1.5 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
++                    >
++                      Plan
++                    </Link>
++                  )}
+                 </div>
+                 <div className="flex items-center gap-4">
+                   <span className="font-mono text-sm text-accent-light">
+diff --git a/src/app/api/github/repos/[owner]/[repo]/checkpoints/[id]/plan/route.ts b/src/app/api/github/repos/[owner]/[repo]/checkpoints/[id]/plan/route.ts
+new file mode 100644
+index 0000000..592543f
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/checkpoints/[id]/plan/route.ts
+@@ -0,0 +1,19 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getCheckpointPlan } from "@/lib/github/plan";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string; id: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo, id } = await params;
++  const octokit = createOctokit(session.accessToken);
++  const plan = await getCheckpointPlan(octokit, owner, repo, id);
++  return NextResponse.json({ plan });
++}
+diff --git a/src/components/ui/tool-badge.tsx b/src/components/ui/tool-badge.tsx
+index da3f42a..1d6aa5e 100644
+--- a/src/components/ui/tool-badge.tsx
++++ b/src/components/ui/tool-badge.tsx
+@@ -1,3 +1,6 @@
++"use client";
++
++import { useState } from "react";
+ import { cn } from "@/lib/utils";
+ 
+ interface ToolBadgeProps {
+@@ -36,21 +39,40 @@ interface ToolUsagePillProps {
+ }
+ 
+ export function ToolUsagePill({ toolNames, className }: ToolUsagePillProps) {
++  const [expanded, setExpanded] = useState(false);
++
+   if (toolNames.length === 0) return null;
+ 
+   const unique = [...new Set(toolNames)];
+   const count = unique.length;
+ 
+   return (
+-    <span
+-      className={cn(
+-        "inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-light px-2.5 py-1 text-xs text-muted",
+-        className
+-      )}
+-    >
+-      {unique.slice(0, 3).map((_, i) => (
++    <div>
++      <button
++        onClick={() => setExpanded(!expanded)}
++        className={cn(
++          "inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-light px-2.5 py-1 text-xs text-muted cursor-pointer hover:bg-surface-light/80 transition-colors",
++          className
++        )}
++      >
++        {unique.slice(0, 3).map((_, i) => (
++          <svg
++            key={i}
++            width="12"
++            height="12"
++            viewBox="0 0 24 24"
++            fill="none"
++            stroke="currentColor"
++            strokeWidth="2"
++            strokeLinecap="round"
++            strokeLinejoin="round"
++            className="text-muted"
++          >
++            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
++          </svg>
++        ))}
++        <span>{count} tools used</span>
+         <svg
+-          key={i}
+           width="12"
+           height="12"
+           viewBox="0 0 24 24"
+@@ -59,25 +81,18 @@ export function ToolUsagePill({ toolNames, className }: ToolUsagePillProps) {
+           strokeWidth="2"
+           strokeLinecap="round"
+           strokeLinejoin="round"
+-          className="text-muted"
++          className={cn("text-muted transition-transform", expanded && "rotate-90")}
+         >
+-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
++          <polyline points="9 18 15 12 9 6" />
+         </svg>
+-      ))}
+-      <span>{count} tools used</span>
+-      <svg
+-        width="12"
+-        height="12"
+-        viewBox="0 0 24 24"
+-        fill="none"
+-        stroke="currentColor"
+-        strokeWidth="2"
+-        strokeLinecap="round"
+-        strokeLinejoin="round"
+-        className="text-muted"
+-      >
+-        <polyline points="9 18 15 12 9 6" />
+-      </svg>
+-    </span>
++      </button>
++      {expanded && (
++        <div className="mt-1.5 flex flex-wrap gap-1">
++          {unique.map((name) => (
++            <ToolBadge key={name} name={name} />
++          ))}
++        </div>
++      )}
++    </div>
+   );
+ }
+diff --git a/src/components/ui/transcript-viewer.tsx b/src/components/ui/transcript-viewer.tsx
+index aa340b3..be7d7d0 100644
+--- a/src/components/ui/transcript-viewer.tsx
++++ b/src/components/ui/transcript-viewer.tsx
+@@ -9,6 +9,8 @@ interface TranscriptViewerProps {
+   messages: Message[];
+   agentName?: string;
+   agentPercent?: number;
++  userName?: string;
++  userImage?: string;
+   className?: string;
+ }
+ 
+@@ -118,22 +120,26 @@ function AttributionBar({
+   );
+ }
+ 
+-function HumanAvatar() {
++function HumanAvatar({ userImage }: { userImage?: string }) {
++  if (userImage) {
++    return (
++      <img
++        src={userImage}
++        alt=""
++        className="h-8 w-8 shrink-0 rounded-full border border-border"
++      />
++    );
++  }
+   return (
+     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-light border border-border">
+       <svg
+         width="16"
+         height="16"
+-        viewBox="0 0 24 24"
+-        fill="none"
+-        stroke="currentColor"
+-        strokeWidth="2"
+-        strokeLinecap="round"
+-        strokeLinejoin="round"
++        viewBox="0 0 16 16"
++        fill="currentColor"
+         className="text-muted"
+       >
+-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+-        <circle cx="12" cy="7" r="4" />
++        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+       </svg>
+     </div>
+   );
+@@ -147,7 +153,7 @@ function AssistantAvatar() {
+   );
+ }
+ 
+-function MessageRow({ message }: { message: Message }) {
++function MessageRow({ message, userName, userImage }: { message: Message; userName?: string; userImage?: string }) {
+   const [expanded, setExpanded] = useState(false);
+   const isHuman = message.role === "human" || message.role === "user";
+   const toolNames = extractToolNames(message.content);
+@@ -162,11 +168,11 @@ function MessageRow({ message }: { message: Message }) {
+ 
+   return (
+     <div className="flex gap-3 py-3">
+-      {isHuman ? <HumanAvatar /> : <AssistantAvatar />}
++      {isHuman ? <HumanAvatar userImage={userImage} /> : <AssistantAvatar />}
+       <div className={cn("flex-1 min-w-0", !isHuman && "border-l-2 border-accent-orange/60 pl-3")}>
+         <div className="mb-1 flex items-center gap-2">
+           <span className="text-xs font-medium text-foreground">
+-            {isHuman ? "You" : "Assistant"}
++            {isHuman ? (userName ?? "You") : "Assistant"}
+           </span>
+           {message.tokens != null && message.tokens > 0 && (
+             <span className="text-xs text-muted">
+@@ -174,9 +180,11 @@ function MessageRow({ message }: { message: Message }) {
+             </span>
+           )}
+         </div>
+-        <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
+-          {displayContent}
+-        </div>
++        {displayContent && (
++          <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
++            {displayContent}
++          </div>
++        )}
+         {!isHuman && toolNames.length > 0 && (
+           <div className="mt-2">
+             <ToolUsagePill toolNames={toolNames} />
+@@ -195,17 +203,49 @@ function MessageRow({ message }: { message: Message }) {
+   );
+ }
+ 
++function groupMessages(messages: Message[]): Message[] {
++  const result: Message[] = [];
++  for (const msg of messages) {
++    const isAssistant = msg.role === "assistant";
++    const textContent = isAssistant ? stripToolPatterns(msg.content).trim() : "";
++    const toolNames = isAssistant ? extractToolNames(msg.content) : [];
++    const isToolOnly = isAssistant && textContent === "" && toolNames.length > 0;
++
++    const prev = result[result.length - 1];
++    if (
++      isToolOnly &&
++      prev &&
++      prev.role === "assistant" &&
++      stripToolPatterns(prev.content).trim() === "" &&
++      extractToolNames(prev.content).length > 0
++    ) {
++      // Merge: append tool markers to previous message's content
++      prev.content += "\n" + msg.content;
++      // Keep the later timestamp and sum tokens
++      prev.tokens = (prev.tokens || 0) + (msg.tokens || 0);
++    } else {
++      result.push({ ...msg });
++    }
++  }
++  return result;
++}
++
+ function SessionAccordion({
+   messages,
+   agentName,
+   agentPercent,
++  userName,
++  userImage,
+ }: {
+   messages: Message[];
+   agentName?: string;
+   agentPercent?: number;
++  userName?: string;
++  userImage?: string;
+ }) {
+   const [open, setOpen] = useState(true);
+   const stats = computeSessionStats(messages);
++  const grouped = groupMessages(messages);
+ 
+   return (
+     <div className="rounded-xl border border-border bg-surface overflow-hidden">
+@@ -253,8 +293,8 @@ function SessionAccordion({
+ 
+       {open && (
+         <div className="border-t border-border px-5 pb-4 divide-y divide-border/50">
+-          {messages.map((msg, idx) => (
+-            <MessageRow key={idx} message={msg} />
++          {grouped.map((msg, idx) => (
++            <MessageRow key={idx} message={msg} userName={userName} userImage={userImage} />
+           ))}
+         </div>
+       )}
+@@ -266,6 +306,8 @@ export function TranscriptViewer({
+   messages,
+   agentName,
+   agentPercent,
++  userName,
++  userImage,
+   className,
+ }: TranscriptViewerProps) {
+   if (messages.length === 0) {
+@@ -287,6 +329,8 @@ export function TranscriptViewer({
+         messages={messages}
+         agentName={agentName}
+         agentPercent={agentPercent}
++        userName={userName}
++        userImage={userImage}
+       />
+     </div>
+   );
+diff --git a/src/hooks/use-checkpoints.ts b/src/hooks/use-checkpoints.ts
+index 8f88b43..a6bdb56 100644
+--- a/src/hooks/use-checkpoints.ts
++++ b/src/hooks/use-checkpoints.ts
+@@ -60,3 +60,18 @@ export function useDiff(owner: string, repo: string, checkpointId: string) {
+     isError: !!error,
+   };
+ }
++
++export function usePlan(owner: string, repo: string, checkpointId: string) {
++  const { data, error, isLoading } = useSWR<{ plan: string }>(
++    checkpointId
++      ? `/api/github/repos/${owner}/${repo}/checkpoints/${checkpointId}/plan`
++      : null,
++    fetcher
++  );
++
++  return {
++    plan: data?.plan,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/lib/github/plan.ts b/src/lib/github/plan.ts
+new file mode 100644
+index 0000000..6ac6f08
+--- /dev/null
++++ b/src/lib/github/plan.ts
+@@ -0,0 +1,49 @@
++import { Octokit } from "@octokit/rest";
++
++const CHECKPOINT_BRANCH = "partio/checkpoints/v1";
++
++export async function getCheckpointPlan(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  checkpointId: string
++): Promise<string> {
++  const shard = checkpointId.slice(0, 2);
++  const rest = checkpointId.slice(2);
++
++  try {
++    const { data: ref } = await octokit.git.getRef({
++      owner,
++      repo,
++      ref: `heads/${CHECKPOINT_BRANCH}`,
++    });
++
++    const { data: commit } = await octokit.git.getCommit({
++      owner,
++      repo,
++      commit_sha: ref.object.sha,
++    });
++
++    const { data: tree } = await octokit.git.getTree({
++      owner,
++      repo,
++      tree_sha: commit.tree.sha,
++      recursive: "1",
++    });
++
++    const planPath = `${shard}/${rest}/0/plan.md`;
++    const entry = (tree.tree || []).find((e) => e.path === planPath);
++
++    if (!entry?.sha) return "";
++
++    const { data: blob } = await octokit.git.getBlob({
++      owner,
++      repo,
++      file_sha: entry.sha,
++    });
++
++    return Buffer.from(blob.content, "base64").toString("utf-8");
++  } catch {
++    return "";
++  }
++}
+diff --git a/src/lib/github/session.ts b/src/lib/github/session.ts
+index 1ddc184..20fdc42 100644
+--- a/src/lib/github/session.ts
++++ b/src/lib/github/session.ts
+@@ -72,8 +72,7 @@ function extractContentBlocks(blocks: any[]): string {
+       if (block?.type === "text") return block.text || "";
+       if (block?.type === "tool_use")
+         return `[Tool: ${block.name || "unknown"}]`;
+-      if (block?.type === "tool_result")
+-        return `[Tool Result: ${typeof block.content === "string" ? block.content.slice(0, 200) : "..."}]`;
++      if (block?.type === "tool_result") return "";
+       // Skip thinking, redacted_thinking, and unknown block types
+       return "";
+     })
+diff --git a/src/types/checkpoint.ts b/src/types/checkpoint.ts
+index 67bebf8..030d1ba 100644
+--- a/src/types/checkpoint.ts
++++ b/src/types/checkpoint.ts
+@@ -7,6 +7,7 @@ export interface CheckpointMetadata {
+   agent: string;
+   agent_percent: number;
+   content_hash: string;
++  plan_slug?: string;
+ }
+ 
+ export interface SessionMetadata {
