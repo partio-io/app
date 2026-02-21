@@ -9,6 +9,8 @@ interface TranscriptViewerProps {
   messages: Message[];
   agentName?: string;
   agentPercent?: number;
+  userName?: string;
+  userImage?: string;
   className?: string;
 }
 
@@ -118,22 +120,26 @@ function AttributionBar({
   );
 }
 
-function HumanAvatar() {
+function HumanAvatar({ userImage }: { userImage?: string }) {
+  if (userImage) {
+    return (
+      <img
+        src={userImage}
+        alt=""
+        className="h-8 w-8 shrink-0 rounded-full border border-border"
+      />
+    );
+  }
   return (
     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-light border border-border">
       <svg
         width="16"
         height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        viewBox="0 0 16 16"
+        fill="currentColor"
         className="text-muted"
       >
-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
       </svg>
     </div>
   );
@@ -147,7 +153,7 @@ function AssistantAvatar() {
   );
 }
 
-function MessageRow({ message }: { message: Message }) {
+function MessageRow({ message, userName, userImage }: { message: Message; userName?: string; userImage?: string }) {
   const [expanded, setExpanded] = useState(false);
   const isHuman = message.role === "human" || message.role === "user";
   const toolNames = extractToolNames(message.content);
@@ -162,11 +168,11 @@ function MessageRow({ message }: { message: Message }) {
 
   return (
     <div className="flex gap-3 py-3">
-      {isHuman ? <HumanAvatar /> : <AssistantAvatar />}
+      {isHuman ? <HumanAvatar userImage={userImage} /> : <AssistantAvatar />}
       <div className={cn("flex-1 min-w-0", !isHuman && "border-l-2 border-accent-orange/60 pl-3")}>
         <div className="mb-1 flex items-center gap-2">
           <span className="text-xs font-medium text-foreground">
-            {isHuman ? "You" : "Assistant"}
+            {isHuman ? (userName ?? "You") : "Assistant"}
           </span>
           {message.tokens != null && message.tokens > 0 && (
             <span className="text-xs text-muted">
@@ -174,9 +180,11 @@ function MessageRow({ message }: { message: Message }) {
             </span>
           )}
         </div>
-        <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
-          {displayContent}
-        </div>
+        {displayContent && (
+          <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
+            {displayContent}
+          </div>
+        )}
         {!isHuman && toolNames.length > 0 && (
           <div className="mt-2">
             <ToolUsagePill toolNames={toolNames} />
@@ -195,17 +203,49 @@ function MessageRow({ message }: { message: Message }) {
   );
 }
 
+function groupMessages(messages: Message[]): Message[] {
+  const result: Message[] = [];
+  for (const msg of messages) {
+    const isAssistant = msg.role === "assistant";
+    const textContent = isAssistant ? stripToolPatterns(msg.content).trim() : "";
+    const toolNames = isAssistant ? extractToolNames(msg.content) : [];
+    const isToolOnly = isAssistant && textContent === "" && toolNames.length > 0;
+
+    const prev = result[result.length - 1];
+    if (
+      isToolOnly &&
+      prev &&
+      prev.role === "assistant" &&
+      stripToolPatterns(prev.content).trim() === "" &&
+      extractToolNames(prev.content).length > 0
+    ) {
+      // Merge: append tool markers to previous message's content
+      prev.content += "\n" + msg.content;
+      // Keep the later timestamp and sum tokens
+      prev.tokens = (prev.tokens || 0) + (msg.tokens || 0);
+    } else {
+      result.push({ ...msg });
+    }
+  }
+  return result;
+}
+
 function SessionAccordion({
   messages,
   agentName,
   agentPercent,
+  userName,
+  userImage,
 }: {
   messages: Message[];
   agentName?: string;
   agentPercent?: number;
+  userName?: string;
+  userImage?: string;
 }) {
   const [open, setOpen] = useState(true);
   const stats = computeSessionStats(messages);
+  const grouped = groupMessages(messages);
 
   return (
     <div className="rounded-xl border border-border bg-surface overflow-hidden">
@@ -253,8 +293,8 @@ function SessionAccordion({
 
       {open && (
         <div className="border-t border-border px-5 pb-4 divide-y divide-border/50">
-          {messages.map((msg, idx) => (
-            <MessageRow key={idx} message={msg} />
+          {grouped.map((msg, idx) => (
+            <MessageRow key={idx} message={msg} userName={userName} userImage={userImage} />
           ))}
         </div>
       )}
@@ -266,6 +306,8 @@ export function TranscriptViewer({
   messages,
   agentName,
   agentPercent,
+  userName,
+  userImage,
   className,
 }: TranscriptViewerProps) {
   if (messages.length === 0) {
@@ -287,6 +329,8 @@ export function TranscriptViewer({
         messages={messages}
         agentName={agentName}
         agentPercent={agentPercent}
+        userName={userName}
+        userImage={userImage}
       />
     </div>
   );

@@ -60,3 +60,18 @@ export function useDiff(owner: string, repo: string, checkpointId: string) {
     isError: !!error,
   };
 }
+
+export function usePlan(owner: string, repo: string, checkpointId: string) {
+  const { data, error, isLoading } = useSWR<{ plan: string }>(
+    checkpointId
+      ? `/api/github/repos/${owner}/${repo}/checkpoints/${checkpointId}/plan`
+      : null,
+    fetcher
+  );
+
+  return {
+    plan: data?.plan,
+    isLoading,
+    isError: !!error,
+  };
+}

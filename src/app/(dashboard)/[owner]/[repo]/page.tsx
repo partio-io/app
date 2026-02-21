@@ -67,6 +67,15 @@ export default function RepoDetailPage({
                   {cp.agent && (
                     <span className="text-xs text-muted">{cp.agent}</span>
                   )}
+                  {cp.plan_slug && (
+                    <Link
+                      href={`/${owner}/${repo}/${cp.id}?tab=plan`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center rounded-md bg-accent/10 border border-accent/20 px-1.5 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
+                    >
+                      Plan
+                    </Link>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="font-mono text-sm text-accent-light">
