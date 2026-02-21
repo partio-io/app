@@ -7,6 +7,7 @@ export interface CheckpointMetadata {
   agent: string;
   agent_percent: number;
   content_hash: string;
+  plan_slug?: string;
 }
 
 export interface SessionMetadata {

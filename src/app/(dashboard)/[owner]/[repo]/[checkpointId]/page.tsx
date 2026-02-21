@@ -1,10 +1,13 @@
 "use client";
 
 import { use, useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   useCheckpoint,
   useSession as useCheckpointSession,
   useDiff,
+  usePlan,
 } from "@/hooks/use-checkpoints";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,7 +16,7 @@ import { DiffViewer } from "@/components/ui/diff-viewer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
-type Tab = "sessions" | "files";
+type Tab = "sessions" | "files" | "plan";
 
 function countDiffFiles(diff: string | undefined): number {
   if (!diff) return 0;
@@ -39,6 +42,8 @@ export default function CheckpointDetailPage({
   params: Promise<{ owner: string; repo: string; checkpointId: string }>;
 }) {
   const { owner, repo, checkpointId } = use(params);
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const { checkpoint, isLoading: cpLoading } = useCheckpoint(
     owner,
     repo,
@@ -54,8 +59,16 @@ export default function CheckpointDetailPage({
     repo,
     checkpointId
   );
+  const { plan, isLoading: planLoading } = usePlan(
+    owner,
+    repo,
+    checkpointId
+  );
 
-  const [activeTab, setActiveTab] = useState<Tab>("sessions");
+  const initialTab = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<Tab>(
+    initialTab === "plan" || initialTab === "files" ? initialTab : "sessions"
+  );
 
   const pageTitle = useMemo(() => {
     if (!messages || messages.length === 0) return null;
@@ -227,6 +240,19 @@ export default function CheckpointDetailPage({
             {fileCount}
           </span>
         </button>
+        {checkpoint.plan_slug && (
+          <button
+            onClick={() => setActiveTab("plan")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+              activeTab === "plan"
+                ? "border-b-2 border-accent text-foreground"
+                : "text-muted hover:text-foreground"
+            )}
+          >
+            Plan
+          </button>
+        )}
       </div>
 
       {/* Tab content */}
@@ -242,6 +268,8 @@ export default function CheckpointDetailPage({
             messages={messages || []}
             agentName={checkpoint.agent || undefined}
             agentPercent={checkpoint.agent_percent}
+            userName={session?.user?.login || undefined}
+            userImage={session?.user?.image || undefined}
           />
         ))}
 
@@ -250,6 +278,21 @@ export default function CheckpointDetailPage({
           <Skeleton className="h-64" />
         ) : (
           <DiffViewer diff={diff || ""} />
+        ))}
+
+      {activeTab === "plan" &&
+        (planLoading ? (
+          <Skeleton className="h-64" />
+        ) : plan ? (
+          <div className="rounded-xl border border-border bg-surface p-5">
+            <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
+              {plan}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-surface p-8 text-center">
+            <p className="text-sm text-muted">No plan data available</p>
+          </div>
         ))}
     </div>
   );

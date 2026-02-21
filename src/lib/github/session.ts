@@ -72,8 +72,7 @@ function extractContentBlocks(blocks: any[]): string {
       if (block?.type === "text") return block.text || "";
       if (block?.type === "tool_use")
         return `[Tool: ${block.name || "unknown"}]`;
-      if (block?.type === "tool_result")
-        return `[Tool Result: ${typeof block.content === "string" ? block.content.slice(0, 200) : "..."}]`;
+      if (block?.type === "tool_result") return "";
       // Skip thinking, redacted_thinking, and unknown block types
       return "";
     })
