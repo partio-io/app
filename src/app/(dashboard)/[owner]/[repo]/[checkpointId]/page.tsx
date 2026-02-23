@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TranscriptViewer } from "@/components/ui/transcript-viewer";
 import { DiffViewer } from "@/components/ui/diff-viewer";
 import { PlanViewer } from "@/components/ui/plan-viewer";
+import { CheckpointActions } from "@/components/ui/checkpoint-actions";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -128,10 +129,11 @@ export default function CheckpointDetailPage({
       />
 
       {/* Header */}
-      <div className="space-y-3">
-        <h1 className="text-lg font-semibold text-foreground leading-snug">
-          {pageTitle || checkpointId}
-        </h1>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-3 min-w-0">
+          <h1 className="text-lg font-semibold text-foreground leading-snug">
+            {pageTitle || checkpointId}
+          </h1>
 
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
           {/* ID pill */}
@@ -195,6 +197,9 @@ export default function CheckpointDetailPage({
             </>
           )}
         </div>
+        </div>
+
+        <CheckpointActions checkpointId={checkpointId} plan={plan} activeTab={activeTab} />
       </div>
 
       {/* Tabs */}
@@ -220,6 +225,19 @@ export default function CheckpointDetailPage({
             1
           </span>
         </button>
+        {checkpoint.plan_slug && (
+          <button
+            onClick={() => setActiveTab("plan")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
+              activeTab === "plan"
+                ? "border-b-2 border-accent text-foreground"
+                : "text-muted hover:text-foreground"
+            )}
+          >
+            Plan
+          </button>
+        )}
         <button
           onClick={() => setActiveTab("files")}
           className={cn(
@@ -241,19 +259,6 @@ export default function CheckpointDetailPage({
             {fileCount}
           </span>
         </button>
-        {checkpoint.plan_slug && (
-          <button
-            onClick={() => setActiveTab("plan")}
-            className={cn(
-              "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
-              activeTab === "plan"
-                ? "border-b-2 border-accent text-foreground"
-                : "text-muted hover:text-foreground"
-            )}
-          >
-            Plan
-          </button>
-        )}
       </div>
 
       {/* Tab content */}
