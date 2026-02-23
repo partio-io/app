@@ -1,48 +1,17 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Button } from "@/components/ui/button";
 
 interface PlanViewerProps {
   plan: string;
 }
 
 export function PlanViewer({ plan }: PlanViewerProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(plan);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [plan]);
-
-  const handleDownload = useCallback(() => {
-    const blob = new Blob([plan], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "plan.md";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [plan]);
-
   return (
     <div className="rounded-xl border border-border bg-surface">
-      {/* Sticky toolbar */}
-      <div className="sticky top-0 z-10 flex items-center justify-end gap-2 border-b border-border bg-surface/80 backdrop-blur px-4 py-2 rounded-t-xl">
-        <Button variant="ghost" size="sm" onClick={handleCopy}>
-          {copied ? "Copied!" : "Copy"}
-        </Button>
-        <Button variant="ghost" size="sm" onClick={handleDownload}>
-          Download
-        </Button>
-      </div>
-
-      {/* Markdown content */}
       <div className="p-5">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}

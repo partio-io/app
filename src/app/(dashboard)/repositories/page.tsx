@@ -29,7 +29,7 @@ export default function RepositoriesPage() {
   const router = useRouter();
   const { repos, isLoading } = useRepos();
   const [search, setSearch] = useState("");
-  const [showWithCheckpoints, setShowWithCheckpoints] = useState(false);
+  const [showWithCheckpoints, setShowWithCheckpoints] = useState(true);
 
   const filtered = (repos ?? [])
     .filter((r) => {
@@ -55,7 +55,7 @@ export default function RepositoriesPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">
-        All Repositories
+        {showWithCheckpoints ? "Repositories with Checkpoints" : "All Repositories"}
       </h2>
 
       <div className="flex items-center gap-3">
@@ -67,13 +67,9 @@ export default function RepositoriesPage() {
         />
         <button
           onClick={() => setShowWithCheckpoints(!showWithCheckpoints)}
-          className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
-            showWithCheckpoints
-              ? "border-accent/50 bg-accent/10 text-accent-light"
-              : "border-border bg-surface text-muted hover:text-foreground"
-          }`}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted transition-colors hover:text-foreground cursor-pointer"
         >
-          With checkpoints
+          {showWithCheckpoints ? "See all repositories" : "See repositories with checkpoints"}
         </button>
       </div>
 
