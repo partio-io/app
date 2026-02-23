@@ -1,0 +1,11 @@
+{
+  "id": "bb25569cc336",
+  "session_id": "0d1498a0-c21b-4733-b157-ae1f6a384d5e",
+  "commit_hash": "fcfe271393387da1b56947f773e13636dcd593aa",
+  "branch": "partio-app-demo",
+  "created_at": "2026-02-23T17:53:27+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "fcfe271393387da1b56947f773e13636dcd593aa",
+  "plan_slug": "playful-crunching-tome"
+}

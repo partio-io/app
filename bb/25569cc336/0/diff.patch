@@ -1,0 +1,56 @@
+diff --git a/README.md b/README.md
+index f21eb36..804c0b3 100644
+--- a/README.md
++++ b/README.md
+@@ -5,10 +5,15 @@ Dashboard for viewing and exploring AI agent checkpoint data stored in GitHub re
+ ## Features
+ 
+ - **GitHub OAuth** sign-in via NextAuth
+-- **Repository browser** with search and filtering
++- **Repository browser** with search and filtering (defaults to repos with checkpoints)
+ - **Checkpoint list** per repo (read from the `partio/checkpoints/v1` branch)
+-- **Checkpoint detail** with session transcript viewer and commit diff viewer
++- **Checkpoint detail** with tabbed interface:
++  - **Sessions** tab — transcript viewer with collapsible sessions, tool usage pills, user avatars, and merged assistant messages
++  - **Plan** tab — rendered markdown with syntax-highlighted code blocks, GFM table support, copy/download actions
++  - **Files** tab — commit diff viewer
++- **Checkpoint actions** — contextual action cards per tab (e.g. "Resume Claude Code Session" with CLI command)
+ - **Overview dashboard** with stats and activity heatmap
++- **Deep-linking** via `?tab=` query parameters
+ 
+ ## Tech Stack
+ 
+@@ -19,6 +24,8 @@ Dashboard for viewing and exploring AI agent checkpoint data stored in GitHub re
+ - [Tailwind CSS](https://tailwindcss.com/) v4
+ - [SWR](https://swr.vercel.app/) for data fetching
+ - [Framer Motion](https://www.framer.com/motion/) for animations
++- [react-markdown](https://github.com/remarkjs/react-markdown) + [remark-gfm](https://github.com/remarkjs/remark-gfm) for markdown rendering
++- [react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) for code block highlighting
+ - TypeScript
+ 
+ ## Getting Started
+@@ -74,15 +81,23 @@ src/
+     api/
+       auth/               NextAuth route handler
+       github/             GitHub API proxy routes
++        repos/[owner]/[repo]/checkpoints/[id]/
++          diff/           Checkpoint diff API
++          plan/           Checkpoint plan API
++          session/        Checkpoint session API
+   components/
+     layout/               Sidebar, topbar, nav items
+     providers/            Session provider
+     ui/                   Reusable UI components
++      checkpoint-actions.tsx  Contextual action cards per tab
++      plan-viewer.tsx     Markdown plan renderer
++      tool-badge.tsx      Tool usage pill component
+   hooks/                  SWR data-fetching hooks
+   lib/
+     auth.ts               NextAuth configuration
+     github.ts             Octokit factory
+-    github/               GitHub API helpers (repos, checkpoints, diff, session)
++    github/               GitHub API helpers (repos, checkpoints, diff, session, plan)
++      plan.ts             Plan markdown fetching/parsing
+     utils.ts              Utility functions
+   middleware.ts           Auth middleware (redirects unauthenticated users to /login)
+   types/                  TypeScript type definitions
