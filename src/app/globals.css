@@ -13,6 +13,9 @@
   --success: #22c55e;
   --warning: #eab308;
   --accent-orange: #d97706;
+  --info: #3b82f6;
+  --purple-pr: #8b5cf6;
+  --danger: #ef4444;
 }
 
 @theme inline {
@@ -28,6 +31,9 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-accent-orange: var(--accent-orange);
+  --color-info: var(--info);
+  --color-purple-pr: var(--purple-pr);
+  --color-danger: var(--danger);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 }

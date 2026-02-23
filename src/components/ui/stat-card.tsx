@@ -4,10 +4,12 @@ interface StatCardProps {
   label: string;
   value: string | number;
   unit?: string;
+  subtitle?: string;
+  trend?: number;
   className?: string;
 }
 
-export function StatCard({ label, value, unit, className }: StatCardProps) {
+export function StatCard({ label, value, unit, subtitle, trend, className }: StatCardProps) {
   return (
     <div
       className={cn(
@@ -23,7 +25,20 @@ export function StatCard({ label, value, unit, className }: StatCardProps) {
           {value}
         </span>
         {unit && <span className="text-sm text-muted">{unit}</span>}
+        {trend !== undefined && trend !== 0 && (
+          <span
+            className={cn(
+              "ml-1 text-xs font-medium",
+              trend > 0 ? "text-green-400" : "text-red-400"
+            )}
+          >
+            {trend > 0 ? "\u2191" : "\u2193"} {Math.abs(trend)}%
+          </span>
+        )}
       </div>
+      {subtitle && (
+        <p className="mt-1 text-xs text-muted">{subtitle}</p>
+      )}
     </div>
   );
 }

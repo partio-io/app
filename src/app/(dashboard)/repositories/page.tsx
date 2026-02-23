@@ -86,6 +86,7 @@ export default function RepositoriesPage() {
         <DataTable<RepoWithCheckpoints>
           data={filtered}
           onRowClick={(r) => router.push(`/${r.owner}/${r.name}`)}
+          rowClassName={(r) => r.checkpoint_count === 0 ? "opacity-40" : ""}
           columns={[
             {
               key: "name",

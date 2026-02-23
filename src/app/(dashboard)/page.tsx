@@ -1,11 +1,12 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRepos } from "@/hooks/use-repos";
-import { StatCard } from "@/components/ui/stat-card";
+import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
+import { OverviewStatsRow } from "@/components/ui/overview-stats";
 import { Heatmap } from "@/components/ui/heatmap";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RecentCommitsTable } from "@/components/repo/recent-commits-table";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -16,34 +17,25 @@ function getGreeting(): string {
 
 export default function OverviewPage() {
   const { data: session } = useSession();
-  const { repos, isLoading } = useRepos();
+  const { items, heatmap, stats, isLoading } = useRecentCheckpoints();
 
   const firstName = session?.user?.name?.split(" ")[0] || "there";
-  const totalCheckpoints = repos?.reduce((sum, r) => sum + r.checkpoint_count, 0) ?? 0;
-  const reposWithCheckpoints = repos?.filter((r) => r.checkpoint_count > 0).length ?? 0;
 
-  // Build heatmap data from repo updated_at as a proxy (real data would come from checkpoints)
-  const heatmapData: Record<string, number> = {};
-  if (repos) {
-    for (const repo of repos) {
-      if (repo.checkpoint_count > 0) {
-        const date = repo.updated_at.split("T")[0];
-        heatmapData[date] = (heatmapData[date] || 0) + repo.checkpoint_count;
-      }
-    }
-  }
+  const heatmapData = heatmap ?? {};
+  const hasCheckpoints = (items?.length ?? 0) > 0;
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
         </div>
-        <Skeleton className="h-40" />
+        <Skeleton className="h-32" />
+        <Skeleton className="h-48" />
       </div>
     );
   }
@@ -54,23 +46,18 @@ export default function OverviewPage() {
         {getGreeting()}, {firstName}
       </h2>
 
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Checkpoints" value={totalCheckpoints} />
-        <StatCard label="Repositories" value={reposWithCheckpoints} />
-        <StatCard
-          label="Total Repos"
-          value={repos?.length ?? 0}
-        />
-        <StatCard
-          label="Streak"
-          value={Object.keys(heatmapData).length}
-          unit="days"
-        />
-      </div>
+      {stats && <OverviewStatsRow stats={stats} />}
 
       <Heatmap data={heatmapData} />
 
-      {totalCheckpoints === 0 && (
+      {hasCheckpoints && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-muted">Recent Activity</h3>
+          <RecentCommitsTable />
+        </div>
+      )}
+
+      {!hasCheckpoints && (
         <EmptyState
           title="No checkpoints yet"
           description="Run partio commit in a repo to capture your first checkpoint."

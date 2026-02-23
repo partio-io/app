@@ -11,6 +11,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   onRowClick?: (item: T) => void;
+  rowClassName?: (item: T) => string;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function DataTable<T>({
   columns,
   data,
   onRowClick,
+  rowClassName,
   className,
 }: DataTableProps<T>) {
   return (
@@ -50,7 +52,8 @@ export function DataTable<T>({
               onClick={() => onRowClick?.(item)}
               className={cn(
                 "border-b border-border bg-surface/50 transition-colors last:border-b-0",
-                onRowClick && "cursor-pointer hover:bg-surface-light"
+                onRowClick && "cursor-pointer hover:bg-surface-light",
+                rowClassName?.(item)
               )}
             >
               {columns.map((col) => (
