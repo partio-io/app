@@ -1,0 +1,330 @@
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index 95cb935..e76e7b9 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -6,6 +6,7 @@ import { StatCard } from "@/components/ui/stat-card";
+ import { Heatmap } from "@/components/ui/heatmap";
+ import { EmptyState } from "@/components/ui/empty-state";
+ import { Skeleton } from "@/components/ui/skeleton";
++import { RecentCommitsTable } from "@/components/repo/recent-commits-table";
+ 
+ function getGreeting(): string {
+   const hour = new Date().getHours();
+@@ -70,6 +71,13 @@ export default function OverviewPage() {
+ 
+       <Heatmap data={heatmapData} />
+ 
++      {reposWithCheckpoints > 0 && (
++        <div className="space-y-3">
++          <h3 className="text-sm font-medium text-muted">Recent Activity</h3>
++          <RecentCommitsTable />
++        </div>
++      )}
++
+       {totalCheckpoints === 0 && (
+         <EmptyState
+           title="No checkpoints yet"
+diff --git a/src/app/(dashboard)/repositories/page.tsx b/src/app/(dashboard)/repositories/page.tsx
+index 7501478..4b15cb0 100644
+--- a/src/app/(dashboard)/repositories/page.tsx
++++ b/src/app/(dashboard)/repositories/page.tsx
+@@ -90,6 +90,7 @@ export default function RepositoriesPage() {
+         <DataTable<RepoWithCheckpoints>
+           data={filtered}
+           onRowClick={(r) => router.push(`/${r.owner}/${r.name}`)}
++          rowClassName={(r) => r.checkpoint_count === 0 ? "opacity-40" : ""}
+           columns={[
+             {
+               key: "name",
+diff --git a/src/app/api/github/repos/recent-commits/route.ts b/src/app/api/github/repos/recent-commits/route.ts
+new file mode 100644
+index 0000000..3f8f6ae
+--- /dev/null
++++ b/src/app/api/github/repos/recent-commits/route.ts
+@@ -0,0 +1,19 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listReposWithCheckpoints } from "@/lib/github/repos";
++import { getRecentCheckpointsForRepos } from "@/lib/github/recent-commits";
++
++export async function GET() {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const octokit = createOctokit(session.accessToken);
++  const repos = await listReposWithCheckpoints(octokit);
++  const checkpointRepos = repos.filter((r) => r.checkpoint_count > 0);
++
++  const results = await getRecentCheckpointsForRepos(octokit, checkpointRepos);
++  return NextResponse.json(results);
++}
+diff --git a/src/components/repo/recent-commits-table.tsx b/src/components/repo/recent-commits-table.tsx
+new file mode 100644
+index 0000000..70e55ff
+--- /dev/null
++++ b/src/components/repo/recent-commits-table.tsx
+@@ -0,0 +1,98 @@
++"use client";
++
++import { useRouter } from "next/navigation";
++import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
++import { DataTable } from "@/components/ui/data-table";
++import { Avatar } from "@/components/ui/avatar";
++import { Skeleton } from "@/components/ui/skeleton";
++import { formatDistanceToNow } from "date-fns";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++
++export function RecentCommitsTable() {
++  const router = useRouter();
++  const { items, isLoading } = useRecentCheckpoints();
++
++  if (isLoading) {
++    return <Skeleton className="h-48" />;
++  }
++
++  if (!items || items.length === 0) {
++    return null;
++  }
++
++  return (
++    <DataTable<RepoLatestCheckpoint>
++      data={items}
++      onRowClick={(item) =>
++        router.push(
++          `/${item.owner}/${item.repo}/checkpoints/${item.checkpoint.id}`
++        )
++      }
++      rowClassName={(item) => (item.commit === null ? "opacity-40" : "")}
++      columns={[
++        {
++          key: "repo",
++          header: "Repository",
++          render: (item) => (
++            <span className="text-sm font-medium text-foreground">
++              {item.owner}/{item.repo}
++            </span>
++          ),
++          className: "w-48",
++        },
++        {
++          key: "message",
++          header: "Commit",
++          render: (item) => {
++            const text =
++              item.summary || item.commit?.message.split("\n")[0] || null;
++            return (
++              <div className="flex items-center gap-2">
++                {text && (
++                  <span className="truncate text-sm text-foreground">
++                    {text}
++                  </span>
++                )}
++                <span className="shrink-0 font-mono text-xs text-muted">
++                  {item.checkpoint.commit_hash.slice(0, 7)}
++                </span>
++              </div>
++            );
++          },
++        },
++        {
++          key: "agent",
++          header: "Agent",
++          render: (item) => (
++            <div className="flex items-center gap-2">
++              <Avatar
++                src={item.commit?.author?.avatar_url ?? null}
++                alt={item.commit?.author?.login ?? item.checkpoint.agent}
++                size={20}
++              />
++              <span className="whitespace-nowrap text-sm text-muted">
++                {item.checkpoint.agent}
++              </span>
++              <span className="font-mono text-xs text-accent-light">
++                {item.checkpoint.agent_percent}%
++              </span>
++            </div>
++          ),
++          className: "w-52",
++        },
++        {
++          key: "date",
++          header: "When",
++          render: (item) => (
++            <span className="text-sm text-muted">
++              {formatDistanceToNow(new Date(item.checkpoint.created_at), {
++                addSuffix: true,
++              })}
++            </span>
++          ),
++          className: "w-36",
++        },
++      ]}
++    />
++  );
++}
+diff --git a/src/components/ui/data-table.tsx b/src/components/ui/data-table.tsx
+index 191a099..3a5b5ef 100644
+--- a/src/components/ui/data-table.tsx
++++ b/src/components/ui/data-table.tsx
+@@ -11,6 +11,7 @@ interface DataTableProps<T> {
+   columns: Column<T>[];
+   data: T[];
+   onRowClick?: (item: T) => void;
++  rowClassName?: (item: T) => string;
+   className?: string;
+ }
+ 
+@@ -18,6 +19,7 @@ export function DataTable<T>({
+   columns,
+   data,
+   onRowClick,
++  rowClassName,
+   className,
+ }: DataTableProps<T>) {
+   return (
+@@ -50,7 +52,8 @@ export function DataTable<T>({
+               onClick={() => onRowClick?.(item)}
+               className={cn(
+                 "border-b border-border bg-surface/50 transition-colors last:border-b-0",
+-                onRowClick && "cursor-pointer hover:bg-surface-light"
++                onRowClick && "cursor-pointer hover:bg-surface-light",
++                rowClassName?.(item)
+               )}
+             >
+               {columns.map((col) => (
+diff --git a/src/hooks/use-recent-commits.ts b/src/hooks/use-recent-commits.ts
+new file mode 100644
+index 0000000..2a2bb42
+--- /dev/null
++++ b/src/hooks/use-recent-commits.ts
+@@ -0,0 +1,16 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++
++export function useRecentCheckpoints() {
++  const { data, error, isLoading } = useSWR<RepoLatestCheckpoint[]>(
++    "/api/github/repos/recent-commits",
++    fetcher
++  );
++
++  return {
++    items: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/lib/github/recent-commits.ts b/src/lib/github/recent-commits.ts
+new file mode 100644
+index 0000000..0f3dcec
+--- /dev/null
++++ b/src/lib/github/recent-commits.ts
+@@ -0,0 +1,82 @@
++import { Octokit } from "@octokit/rest";
++import { listCheckpoints } from "@/lib/github/checkpoints";
++import { listCommits } from "@/lib/github/commits";
++import { getSessionData } from "@/lib/github/session";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++
++export async function getRecentCheckpointsForRepos(
++  octokit: Octokit,
++  repos: { owner: string; name: string }[]
++): Promise<RepoLatestCheckpoint[]> {
++  const results = await Promise.allSettled(
++    repos.map(async (repo) => {
++      const checkpoints = await listCheckpoints(
++        octokit,
++        repo.owner,
++        repo.name
++      );
++      if (checkpoints.length === 0) return null;
++
++      const latest = checkpoints[0];
++
++      // Try to fetch the commit for context (message, author)
++      let commit = null;
++      try {
++        const commits = await listCommits(octokit, repo.owner, repo.name, {
++          sha: latest.commit_hash,
++          per_page: 1,
++        });
++        if (commits.length > 0) commit = commits[0];
++      } catch {
++        // Commit may no longer exist — that's fine
++      }
++
++      // Extract the first human message from the session transcript as a summary
++      let summary: string | null = null;
++      try {
++        const messages = await getSessionData(
++          octokit,
++          repo.owner,
++          repo.name,
++          latest.id
++        );
++        const firstHuman = messages.find(
++          (m) => m.role === "human" || m.role === "user"
++        );
++        if (firstHuman) {
++          const text = firstHuman.content.split("\n")[0].trim();
++          summary = text.length > 100 ? text.slice(0, 100) + "…" : text;
++        }
++      } catch {
++        // Session data may not be available — that's fine
++      }
++
++      return {
++        owner: repo.owner,
++        repo: repo.name,
++        checkpoint: {
++          id: latest.id,
++          commit_hash: latest.commit_hash,
++          branch: latest.branch,
++          created_at: latest.created_at,
++          agent: latest.agent,
++          agent_percent: latest.agent_percent,
++        },
++        commit,
++        summary,
++      } satisfies RepoLatestCheckpoint;
++    })
++  );
++
++  return results
++    .filter(
++      (r): r is PromiseFulfilledResult<RepoLatestCheckpoint> =>
++        r.status === "fulfilled" && r.value !== null
++    )
++    .map((r) => r.value)
++    .sort(
++      (a, b) =>
++        new Date(b.checkpoint.created_at).getTime() -
++        new Date(a.checkpoint.created_at).getTime()
++    );
++}
+diff --git a/src/types/repository.ts b/src/types/repository.ts
+index 93c6943..52838bc 100644
+--- a/src/types/repository.ts
++++ b/src/types/repository.ts
+@@ -132,3 +132,18 @@ export interface WeeklyActivity {
+   total: number;
+   days: number[];
+ }
++
++export interface RepoLatestCheckpoint {
++  owner: string;
++  repo: string;
++  checkpoint: {
++    id: string;
++    commit_hash: string;
++    branch: string;
++    created_at: string;
++    agent: string;
++    agent_percent: number;
++  };
++  commit: CommitSummary | null;
++  summary: string | null;
++}
