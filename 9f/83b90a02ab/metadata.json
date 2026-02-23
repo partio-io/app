@@ -1,0 +1,11 @@
+{
+  "id": "9f83b90a02ab",
+  "session_id": "c2d292c8-6f65-455e-97f8-76c6b6f3a27f",
+  "commit_hash": "9230e6548119796db1d2cee2176c566ded18988b",
+  "branch": "partio-demo",
+  "created_at": "2026-02-23T17:42:53+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "9230e6548119796db1d2cee2176c566ded18988b",
+  "plan_slug": "agile-purring-lantern"
+}
