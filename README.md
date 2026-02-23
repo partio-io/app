@@ -8,6 +8,9 @@ Dashboard for viewing and exploring AI agent checkpoint data stored in GitHub re
 - **Repository browser** with search and filtering
 - **Checkpoint list** per repo (read from the `partio/checkpoints/v1` branch)
 - **Checkpoint detail** with session transcript viewer and commit diff viewer
+- **Plan viewer** with GitHub Flavored Markdown rendering and syntax highlighting
+- **Session transcript** parsed from JSONL with tool usage tracking
+- **Checkpoint actions** (copy resume command, download plan)
 - **Overview dashboard** with stats and activity heatmap
 
 ## Tech Stack
@@ -19,6 +22,10 @@ Dashboard for viewing and exploring AI agent checkpoint data stored in GitHub re
 - [Tailwind CSS](https://tailwindcss.com/) v4
 - [SWR](https://swr.vercel.app/) for data fetching
 - [Framer Motion](https://www.framer.com/motion/) for animations
+- [react-markdown](https://github.com/remarkjs/react-markdown) + [remark-gfm](https://github.com/remarkjs/remark-gfm) for Markdown rendering
+- [react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) for code blocks
+- [date-fns](https://date-fns.org/) for date formatting
+- [clsx](https://github.com/lukeed/clsx) for class name composition
 - TypeScript
 
 ## Getting Started
@@ -74,15 +81,27 @@ src/
     api/
       auth/               NextAuth route handler
       github/             GitHub API proxy routes
+        repos/            Repo listing
+        [owner]/[repo]/
+          checkpoints/    Checkpoint listing & detail
+            [id]/
+              plan/       Plan markdown endpoint
+              session/    Session transcript endpoint
   components/
     layout/               Sidebar, topbar, nav items
     providers/            Session provider
     ui/                   Reusable UI components
+      checkpoint-actions.tsx  Context-aware actions (copy resume cmd, download plan)
+      plan-viewer.tsx         Markdown renderer for plans
+      tool-badge.tsx          Tool usage visualization
   hooks/                  SWR data-fetching hooks
+    use-checkpoints.ts    Exports useCheckpoints, useSession, useDiff, usePlan
   lib/
     auth.ts               NextAuth configuration
     github.ts             Octokit factory
     github/               GitHub API helpers (repos, checkpoints, diff, session)
+      plan.ts             Fetches plan markdown from checkpoint branch
+      session.ts          Parses JSONL session transcripts
     utils.ts              Utility functions
   middleware.ts           Auth middleware (redirects unauthenticated users to /login)
   types/                  TypeScript type definitions

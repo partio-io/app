@@ -19,6 +19,9 @@ Partio App is a Next.js 16 dashboard for browsing AI agent checkpoint data store
 - **Data fetching**: SWR hooks in `src/hooks/` call internal API routes under `src/app/api/github/`. API routes use Octokit with the user's GitHub access token from the session.
 - **Styling**: Tailwind CSS v4 with dark theme. CSS variables defined in `src/app/globals.css`.
 - **Route groups**: `(auth)` for the login page, `(dashboard)` for the authenticated layout with sidebar/topbar.
+- **Plan viewer**: `react-markdown` + `remark-gfm` + `react-syntax-highlighter` renders plan markdown in `PlanViewer` component.
+- **Session parsing**: `src/lib/github/session.ts` parses JSONL transcripts from the checkpoint branch, extracting messages, tool names, and token counts.
+- **Checkpoint data sharding**: files are stored at `{id.slice(0,2)}/{id.slice(2)}/0/{file}` on the `partio/checkpoints/v1` branch.
 
 ## Conventions
 
@@ -27,6 +30,8 @@ Partio App is a Next.js 16 dashboard for browsing AI agent checkpoint data store
 - API route handlers authenticate via `auth()` from `@/lib/auth` and return early with 401 if no session
 - UI components live in `src/components/ui/`, layout components in `src/components/layout/`
 - Types are in `src/types/`
+- Checkpoint detail page uses tabbed UI (Sessions / Plan / Files)
+- Checkpoint data files use ID sharding: `{checkpointId.slice(0,2)}/{checkpointId.slice(2)}/0/`
 
 ## Key Files
 
@@ -35,6 +40,12 @@ Partio App is a Next.js 16 dashboard for browsing AI agent checkpoint data store
 - `src/app/api/github/repos/route.ts` — lists repos with checkpoint counts
 - `src/types/checkpoint.ts` — shared TypeScript interfaces
 - `src/hooks/use-repos.ts` / `src/hooks/use-checkpoints.ts` — SWR hooks
+- `src/lib/github/plan.ts` — fetches plan markdown from checkpoint branch
+- `src/lib/github/session.ts` — parses JSONL session transcripts
+- `src/components/ui/plan-viewer.tsx` — Markdown renderer for plans
+- `src/components/ui/checkpoint-actions.tsx` — context-aware actions (copy resume cmd, download plan)
+- `src/components/ui/tool-badge.tsx` — tool usage visualization
+- `src/hooks/use-checkpoints.ts` — also exports `useSession`, `useDiff`, `usePlan` hooks
 
 ## Common Pitfalls
 
