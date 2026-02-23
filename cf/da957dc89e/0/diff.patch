@@ -1,0 +1,5061 @@
+diff --git a/package-lock.json b/package-lock.json
+index 042b448..4d9a0d4 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -19,7 +19,9 @@
+         "react-dom": "19.2.3",
+         "react-markdown": "^10.1.0",
+         "react-syntax-highlighter": "^16.1.0",
++        "rehype-raw": "^7.0.0",
+         "remark-gfm": "^4.0.1",
++        "shiki": "^3.22.0",
+         "swr": "^2.3.3"
+       },
+       "devDependencies": {
+@@ -1474,6 +1476,73 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@shikijs/core": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/core/-/core-3.22.0.tgz",
++      "integrity": "sha512-iAlTtSDDbJiRpvgL5ugKEATDtHdUVkqgHDm/gbD2ZS9c88mx7G1zSYjjOxp5Qa0eaW0MAQosFRmJSk354PRoQA==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/types": "3.22.0",
++        "@shikijs/vscode-textmate": "^10.0.2",
++        "@types/hast": "^3.0.4",
++        "hast-util-to-html": "^9.0.5"
++      }
++    },
++    "node_modules/@shikijs/engine-javascript": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/engine-javascript/-/engine-javascript-3.22.0.tgz",
++      "integrity": "sha512-jdKhfgW9CRtj3Tor0L7+yPwdG3CgP7W+ZEqSsojrMzCjD1e0IxIbwUMDDpYlVBlC08TACg4puwFGkZfLS+56Tw==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/types": "3.22.0",
++        "@shikijs/vscode-textmate": "^10.0.2",
++        "oniguruma-to-es": "^4.3.4"
++      }
++    },
++    "node_modules/@shikijs/engine-oniguruma": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/engine-oniguruma/-/engine-oniguruma-3.22.0.tgz",
++      "integrity": "sha512-DyXsOG0vGtNtl7ygvabHd7Mt5EY8gCNqR9Y7Lpbbd/PbJvgWrqaKzH1JW6H6qFkuUa8aCxoiYVv8/YfFljiQxA==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/types": "3.22.0",
++        "@shikijs/vscode-textmate": "^10.0.2"
++      }
++    },
++    "node_modules/@shikijs/langs": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/langs/-/langs-3.22.0.tgz",
++      "integrity": "sha512-x/42TfhWmp6H00T6uwVrdTJGKgNdFbrEdhaDwSR5fd5zhQ1Q46bHq9EO61SCEWJR0HY7z2HNDMaBZp8JRmKiIA==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/types": "3.22.0"
++      }
++    },
++    "node_modules/@shikijs/themes": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/themes/-/themes-3.22.0.tgz",
++      "integrity": "sha512-o+tlOKqsr6FE4+mYJG08tfCFDS+3CG20HbldXeVoyP+cYSUxDhrFf3GPjE60U55iOkkjbpY2uC3It/eeja35/g==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/types": "3.22.0"
++      }
++    },
++    "node_modules/@shikijs/types": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/@shikijs/types/-/types-3.22.0.tgz",
++      "integrity": "sha512-491iAekgKDBFE67z70Ok5a8KBMsQ2IJwOWw3us/7ffQkIBCyOQfm/aNwVMBUriP02QshIfgHCBSIYAl3u2eWjg==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/vscode-textmate": "^10.0.2",
++        "@types/hast": "^3.0.4"
++      }
++    },
++    "node_modules/@shikijs/vscode-textmate": {
++      "version": "10.0.2",
++      "resolved": "https://registry.npmjs.org/@shikijs/vscode-textmate/-/vscode-textmate-10.0.2.tgz",
++      "integrity": "sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==",
++      "license": "MIT"
++    },
+     "node_modules/@swc/helpers": {
+       "version": "0.5.15",
+       "resolved": "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.15.tgz",
+@@ -3269,6 +3338,18 @@
+         "node": ">=10.13.0"
+       }
+     },
++    "node_modules/entities": {
++      "version": "6.0.1",
++      "resolved": "https://registry.npmjs.org/entities/-/entities-6.0.1.tgz",
++      "integrity": "sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==",
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=0.12"
++      },
++      "funding": {
++        "url": "https://github.com/fb55/entities?sponsor=1"
++      }
++    },
+     "node_modules/es-abstract": {
+       "version": "1.24.1",
+       "resolved": "https://registry.npmjs.org/es-abstract/-/es-abstract-1.24.1.tgz",
+@@ -4408,6 +4489,26 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/hast-util-from-parse5": {
++      "version": "8.0.3",
++      "resolved": "https://registry.npmjs.org/hast-util-from-parse5/-/hast-util-from-parse5-8.0.3.tgz",
++      "integrity": "sha512-3kxEVkEKt0zvcZ3hCRYI8rqrgwtlIOFMWkbclACvjlDw8Li9S2hk/d51OI0nr/gIpdMHNepwgOKqZ/sy0Clpyg==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/hast": "^3.0.0",
++        "@types/unist": "^3.0.0",
++        "devlop": "^1.0.0",
++        "hastscript": "^9.0.0",
++        "property-information": "^7.0.0",
++        "vfile": "^6.0.0",
++        "vfile-location": "^5.0.0",
++        "web-namespaces": "^2.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
+     "node_modules/hast-util-parse-selector": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/hast-util-parse-selector/-/hast-util-parse-selector-4.0.0.tgz",
+@@ -4421,6 +4522,54 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/hast-util-raw": {
++      "version": "9.1.0",
++      "resolved": "https://registry.npmjs.org/hast-util-raw/-/hast-util-raw-9.1.0.tgz",
++      "integrity": "sha512-Y8/SBAHkZGoNkpzqqfCldijcuUKh7/su31kEBp67cFY09Wy0mTRgtsLYsiIxMJxlu0f6AA5SUTbDR8K0rxnbUw==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/hast": "^3.0.0",
++        "@types/unist": "^3.0.0",
++        "@ungap/structured-clone": "^1.0.0",
++        "hast-util-from-parse5": "^8.0.0",
++        "hast-util-to-parse5": "^8.0.0",
++        "html-void-elements": "^3.0.0",
++        "mdast-util-to-hast": "^13.0.0",
++        "parse5": "^7.0.0",
++        "unist-util-position": "^5.0.0",
++        "unist-util-visit": "^5.0.0",
++        "vfile": "^6.0.0",
++        "web-namespaces": "^2.0.0",
++        "zwitch": "^2.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
++    "node_modules/hast-util-to-html": {
++      "version": "9.0.5",
++      "resolved": "https://registry.npmjs.org/hast-util-to-html/-/hast-util-to-html-9.0.5.tgz",
++      "integrity": "sha512-OguPdidb+fbHQSU4Q4ZiLKnzWo8Wwsf5bZfbvu7//a9oTYoqD/fWpe96NuHkoS9h0ccGOTe0C4NGXdtS0iObOw==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/hast": "^3.0.0",
++        "@types/unist": "^3.0.0",
++        "ccount": "^2.0.0",
++        "comma-separated-tokens": "^2.0.0",
++        "hast-util-whitespace": "^3.0.0",
++        "html-void-elements": "^3.0.0",
++        "mdast-util-to-hast": "^13.0.0",
++        "property-information": "^7.0.0",
++        "space-separated-tokens": "^2.0.0",
++        "stringify-entities": "^4.0.0",
++        "zwitch": "^2.0.4"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
+     "node_modules/hast-util-to-jsx-runtime": {
+       "version": "2.3.6",
+       "resolved": "https://registry.npmjs.org/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.6.tgz",
+@@ -4448,6 +4597,25 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/hast-util-to-parse5": {
++      "version": "8.0.1",
++      "resolved": "https://registry.npmjs.org/hast-util-to-parse5/-/hast-util-to-parse5-8.0.1.tgz",
++      "integrity": "sha512-MlWT6Pjt4CG9lFCjiz4BH7l9wmrMkfkJYCxFwKQic8+RTZgWPuWxwAfjJElsXkex7DJjfSJsQIt931ilUgmwdA==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/hast": "^3.0.0",
++        "comma-separated-tokens": "^2.0.0",
++        "devlop": "^1.0.0",
++        "property-information": "^7.0.0",
++        "space-separated-tokens": "^2.0.0",
++        "web-namespaces": "^2.0.0",
++        "zwitch": "^2.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
+     "node_modules/hast-util-whitespace": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/hast-util-whitespace/-/hast-util-whitespace-3.0.0.tgz",
+@@ -4520,6 +4688,16 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/html-void-elements": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/html-void-elements/-/html-void-elements-3.0.0.tgz",
++      "integrity": "sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==",
++      "license": "MIT",
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/wooorm"
++      }
++    },
+     "node_modules/ignore": {
+       "version": "5.3.2",
+       "resolved": "https://registry.npmjs.org/ignore/-/ignore-5.3.2.tgz",
+@@ -5617,9 +5795,9 @@
+       }
+     },
+     "node_modules/mdast-util-from-markdown": {
+-      "version": "2.0.3",
+-      "resolved": "https://registry.npmjs.org/mdast-util-from-markdown/-/mdast-util-from-markdown-2.0.3.tgz",
+-      "integrity": "sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==",
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/mdast-util-from-markdown/-/mdast-util-from-markdown-2.0.2.tgz",
++      "integrity": "sha512-uZhTV/8NBuw0WHkPTrCqDOl0zVe1BIng5ZtHoDk49ME1qqcjYmmLmOf0gELgcRMxN4w2iuIeVso5/6QymSrgmA==",
+       "license": "MIT",
+       "dependencies": {
+         "@types/mdast": "^4.0.0",
+@@ -6808,6 +6986,23 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/oniguruma-parser": {
++      "version": "0.12.1",
++      "resolved": "https://registry.npmjs.org/oniguruma-parser/-/oniguruma-parser-0.12.1.tgz",
++      "integrity": "sha512-8Unqkvk1RYc6yq2WBYRj4hdnsAxVze8i7iPfQr8e4uSP3tRv0rpZcbGUDvxfQQcdwHt/e9PrMvGCsa8OqG9X3w==",
++      "license": "MIT"
++    },
++    "node_modules/oniguruma-to-es": {
++      "version": "4.3.4",
++      "resolved": "https://registry.npmjs.org/oniguruma-to-es/-/oniguruma-to-es-4.3.4.tgz",
++      "integrity": "sha512-3VhUGN3w2eYxnTzHn+ikMI+fp/96KoRSVK9/kMTcFqj1NRDh2IhQCKvYxDnWePKRXY/AqH+Fuiyb7VHSzBjHfA==",
++      "license": "MIT",
++      "dependencies": {
++        "oniguruma-parser": "^0.12.1",
++        "regex": "^6.0.1",
++        "regex-recursion": "^6.0.2"
++      }
++    },
+     "node_modules/optionator": {
+       "version": "0.9.4",
+       "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz",
+@@ -6914,6 +7109,18 @@
+       "integrity": "sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==",
+       "license": "MIT"
+     },
++    "node_modules/parse5": {
++      "version": "7.3.0",
++      "resolved": "https://registry.npmjs.org/parse5/-/parse5-7.3.0.tgz",
++      "integrity": "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==",
++      "license": "MIT",
++      "dependencies": {
++        "entities": "^6.0.0"
++      },
++      "funding": {
++        "url": "https://github.com/inikulin/parse5?sponsor=1"
++      }
++    },
+     "node_modules/path-exists": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/path-exists/-/path-exists-4.0.0.tgz",
+@@ -7204,6 +7411,30 @@
+         "url": "https://github.com/sponsors/wooorm"
+       }
+     },
++    "node_modules/regex": {
++      "version": "6.1.0",
++      "resolved": "https://registry.npmjs.org/regex/-/regex-6.1.0.tgz",
++      "integrity": "sha512-6VwtthbV4o/7+OaAF9I5L5V3llLEsoPyq9P1JVXkedTP33c7MfCG0/5NOPcSJn0TzXcG9YUrR0gQSWioew3LDg==",
++      "license": "MIT",
++      "dependencies": {
++        "regex-utilities": "^2.3.0"
++      }
++    },
++    "node_modules/regex-recursion": {
++      "version": "6.0.2",
++      "resolved": "https://registry.npmjs.org/regex-recursion/-/regex-recursion-6.0.2.tgz",
++      "integrity": "sha512-0YCaSCq2VRIebiaUviZNs0cBz1kg5kVS2UKUfNIx8YVs1cN3AV7NTctO5FOKBA+UT2BPJIWZauYHPqJODG50cg==",
++      "license": "MIT",
++      "dependencies": {
++        "regex-utilities": "^2.3.0"
++      }
++    },
++    "node_modules/regex-utilities": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/regex-utilities/-/regex-utilities-2.3.0.tgz",
++      "integrity": "sha512-8VhliFJAWRaUiVvREIiW2NXXTmHs4vMNnSzuJVhscgmGav3g9VDxLrQndI3dZZVVdp0ZO/5v0xmX516/7M9cng==",
++      "license": "MIT"
++    },
+     "node_modules/regexp.prototype.flags": {
+       "version": "1.5.4",
+       "resolved": "https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.5.4.tgz",
+@@ -7225,6 +7456,21 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/rehype-raw": {
++      "version": "7.0.0",
++      "resolved": "https://registry.npmjs.org/rehype-raw/-/rehype-raw-7.0.0.tgz",
++      "integrity": "sha512-/aE8hCfKlQeA8LmyeyQvQF3eBiLRGNlfBJEvWH7ivp9sBqs7TNqBL5X3v157rM4IFETqDnIOO+z5M/biZbo9Ww==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/hast": "^3.0.0",
++        "hast-util-raw": "^9.0.0",
++        "vfile": "^6.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
+     "node_modules/remark-gfm": {
+       "version": "4.0.1",
+       "resolved": "https://registry.npmjs.org/remark-gfm/-/remark-gfm-4.0.1.tgz",
+@@ -7568,6 +7814,22 @@
+         "node": ">=8"
+       }
+     },
++    "node_modules/shiki": {
++      "version": "3.22.0",
++      "resolved": "https://registry.npmjs.org/shiki/-/shiki-3.22.0.tgz",
++      "integrity": "sha512-LBnhsoYEe0Eou4e1VgJACes+O6S6QC0w71fCSp5Oya79inkwkm15gQ1UF6VtQ8j/taMDh79hAB49WUk8ALQW3g==",
++      "license": "MIT",
++      "dependencies": {
++        "@shikijs/core": "3.22.0",
++        "@shikijs/engine-javascript": "3.22.0",
++        "@shikijs/engine-oniguruma": "3.22.0",
++        "@shikijs/langs": "3.22.0",
++        "@shikijs/themes": "3.22.0",
++        "@shikijs/types": "3.22.0",
++        "@shikijs/vscode-textmate": "^10.0.2",
++        "@types/hast": "^3.0.4"
++      }
++    },
+     "node_modules/side-channel": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/side-channel/-/side-channel-1.1.0.tgz",
+@@ -8408,6 +8670,20 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/vfile-location": {
++      "version": "5.0.3",
++      "resolved": "https://registry.npmjs.org/vfile-location/-/vfile-location-5.0.3.tgz",
++      "integrity": "sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==",
++      "license": "MIT",
++      "dependencies": {
++        "@types/unist": "^3.0.0",
++        "vfile": "^6.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/unified"
++      }
++    },
+     "node_modules/vfile-message": {
+       "version": "4.0.3",
+       "resolved": "https://registry.npmjs.org/vfile-message/-/vfile-message-4.0.3.tgz",
+@@ -8422,6 +8698,16 @@
+         "url": "https://opencollective.com/unified"
+       }
+     },
++    "node_modules/web-namespaces": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/web-namespaces/-/web-namespaces-2.0.1.tgz",
++      "integrity": "sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==",
++      "license": "MIT",
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/wooorm"
++      }
++    },
+     "node_modules/which": {
+       "version": "2.0.2",
+       "resolved": "https://registry.npmjs.org/which/-/which-2.0.2.tgz",
+diff --git a/package.json b/package.json
+index 1c87bbc..fe9fdc9 100644
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,9 @@
+     "react-dom": "19.2.3",
+     "react-markdown": "^10.1.0",
+     "react-syntax-highlighter": "^16.1.0",
++    "rehype-raw": "^7.0.0",
+     "remark-gfm": "^4.0.1",
++    "shiki": "^3.22.0",
+     "swr": "^2.3.3"
+   },
+   "devDependencies": {
+diff --git a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
+similarity index 85%
+rename from src/app/(dashboard)/[owner]/[repo]/[checkpointId]/loading.tsx
+rename to src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
+index 448005a..7eb705a 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
+@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
+ export default function CheckpointDetailLoading() {
+   return (
+     <div className="space-y-4">
+-      <Skeleton className="h-5 w-64" />
+       <Skeleton className="h-8 w-96" />
+       <Skeleton className="h-96" />
+     </div>
+diff --git a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+similarity index 60%
+rename from src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx
+rename to src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+index 7008c45..db5a0b6 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/[checkpointId]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+@@ -9,7 +9,6 @@ import {
+   useDiff,
+   usePlan,
+ } from "@/hooks/use-checkpoints";
+-import { Breadcrumb } from "@/components/ui/breadcrumb";
+ import { Skeleton } from "@/components/ui/skeleton";
+ import { TranscriptViewer } from "@/components/ui/transcript-viewer";
+ import { DiffViewer } from "@/components/ui/diff-viewer";
+@@ -25,19 +24,6 @@ function countDiffFiles(diff: string | undefined): number {
+   return (diff.match(/^diff --git/gm) || []).length;
+ }
+ 
+-function extractToolCount(messages: { content: string }[]): number {
+-  const tools = new Set<string>();
+-  for (const msg of messages) {
+-    const matches = msg.content.match(/\[Tool: (.+?)\]/g);
+-    if (matches) {
+-      for (const m of matches) {
+-        tools.add(m.replace("[Tool: ", "").replace("]", ""));
+-      }
+-    }
+-  }
+-  return tools.size;
+-}
+-
+ export default function CheckpointDetailPage({
+   params,
+ }: {
+@@ -92,7 +78,6 @@ export default function CheckpointDetailPage({
+   if (cpLoading) {
+     return (
+       <div className="space-y-4">
+-        <Skeleton className="h-5 w-64" />
+         <Skeleton className="h-8 w-96" />
+         <Skeleton className="h-96" />
+       </div>
+@@ -101,109 +86,76 @@ export default function CheckpointDetailPage({
+ 
+   if (!checkpoint) {
+     return (
+-      <div className="space-y-4">
+-        <Breadcrumb
+-          items={[
+-            { label: "Repositories", href: "/repositories" },
+-            { label: owner },
+-            { label: repo, href: `/${owner}/${repo}` },
+-            { label: checkpointId },
+-          ]}
+-        />
+-        <div className="rounded-xl border border-border bg-surface p-8 text-center">
+-          <p className="text-sm text-muted">Checkpoint not found</p>
+-        </div>
++      <div className="rounded-xl border border-border bg-surface p-8 text-center">
++        <p className="text-sm text-muted">Checkpoint not found</p>
+       </div>
+     );
+   }
+ 
+   return (
+-    <div className="space-y-4">
+-      <Breadcrumb
+-        items={[
+-          { label: "Repositories", href: "/repositories" },
+-          { label: owner },
+-          { label: repo, href: `/${owner}/${repo}` },
+-          { label: checkpointId.slice(0, 8) },
+-        ]}
+-      />
+-
++    <div className="space-y-2">
+       {/* Header */}
+-      <div className="flex items-start justify-between gap-4">
+-        <div className="space-y-3 min-w-0">
+-          <h1 className="text-lg font-semibold text-foreground leading-snug">
+-            {pageTitle || checkpointId}
+-          </h1>
++      <div className="space-y-2">
++        <h1 className="text-lg font-semibold text-foreground leading-snug">
++          {pageTitle || checkpointId}
++        </h1>
+ 
+         <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+-          {/* ID pill */}
+-          <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
+-            {checkpointId.slice(0, 8)}
+-          </span>
+-
+-          {/* Commit hash pill */}
+-          <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
+-            {checkpoint.commit_hash.slice(0, 8)}
+-          </span>
+-
+-          <span className="text-muted/60">·</span>
+-
+-          {/* Date */}
+-          <span>
+-            {formatDistanceToNow(new Date(checkpoint.created_at), {
+-              addSuffix: true,
+-            })}
+-          </span>
+-
+-          <span className="text-muted/60">·</span>
+-
+-          {/* Branch */}
+-          <span className="inline-flex items-center gap-1">
+-            <svg
+-              width="14"
+-              height="14"
+-              viewBox="0 0 24 24"
+-              fill="none"
+-              stroke="currentColor"
+-              strokeWidth="2"
+-              strokeLinecap="round"
+-              strokeLinejoin="round"
+-              className="text-muted"
+-            >
+-              <line x1="6" y1="3" x2="6" y2="15" />
+-              <circle cx="18" cy="6" r="3" />
+-              <circle cx="6" cy="18" r="3" />
+-              <path d="M18 9a9 9 0 0 1-9 9" />
+-            </svg>
+-            <span className="text-foreground">{checkpoint.branch}</span>
+-          </span>
+-
+-          {totalTokens > 0 && (
+-            <>
+-              <span className="text-muted/60">·</span>
+-              <span>{totalTokens.toLocaleString()} tokens</span>
+-            </>
+-          )}
+-
+-          {checkpoint.agent && (
+-            <>
+-              <span className="text-muted/60">·</span>
+-              <span className="inline-flex items-center rounded-full bg-accent-orange/15 px-2 py-0.5 text-xs font-medium text-accent-orange border border-accent-orange/30">
+-                {checkpoint.agent}
+-              </span>
+-              <span className="font-mono text-xs text-accent-orange">
+-                {checkpoint.agent_percent}%
+-              </span>
+-            </>
+-          )}
+-        </div>
++            <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
++              {checkpointId.slice(0, 8)}
++            </span>
++            <span className="inline-flex items-center rounded-md bg-surface-light border border-border px-2 py-0.5 font-mono text-xs text-muted">
++              {checkpoint.commit_hash.slice(0, 8)}
++            </span>
++            <span className="text-muted/60">&middot;</span>
++            <span>
++              {formatDistanceToNow(new Date(checkpoint.created_at), {
++                addSuffix: true,
++              })}
++            </span>
++            <span className="text-muted/60">&middot;</span>
++            <span className="inline-flex items-center gap-1">
++              <svg
++                width="14"
++                height="14"
++                viewBox="0 0 24 24"
++                fill="none"
++                stroke="currentColor"
++                strokeWidth="2"
++                strokeLinecap="round"
++                strokeLinejoin="round"
++                className="text-muted"
++              >
++                <line x1="6" y1="3" x2="6" y2="15" />
++                <circle cx="18" cy="6" r="3" />
++                <circle cx="6" cy="18" r="3" />
++                <path d="M18 9a9 9 0 0 1-9 9" />
++              </svg>
++              <span className="text-foreground">{checkpoint.branch}</span>
++            </span>
++            {totalTokens > 0 && (
++              <>
++                <span className="text-muted/60">&middot;</span>
++                <span>{totalTokens.toLocaleString()} tokens</span>
++              </>
++            )}
++            {checkpoint.agent && (
++              <>
++                <span className="text-muted/60">&middot;</span>
++                <span className="inline-flex items-center rounded-full bg-accent-orange/15 px-2 py-0.5 text-xs font-medium text-accent-orange border border-accent-orange/30">
++                  {checkpoint.agent}
++                </span>
++                <span className="font-mono text-xs text-accent-orange">
++                  {checkpoint.agent_percent}%
++                </span>
++              </>
++            )}
+         </div>
+-
+-        <CheckpointActions checkpointId={checkpointId} plan={plan} activeTab={activeTab} />
+       </div>
+ 
+-      {/* Tabs */}
+-      <div className="flex gap-1 border-b border-border">
++      {/* Tabs + Actions */}
++      <div className="relative">
++        <div className="flex gap-1 border-b border-border">
+         <button
+           onClick={() => setActiveTab("sessions")}
+           className={cn(
+@@ -259,6 +211,10 @@ export default function CheckpointDetailPage({
+             {fileCount}
+           </span>
+         </button>
++        </div>
++        <div className="absolute right-0 bottom-2">
++          <CheckpointActions checkpointId={checkpointId} plan={plan} activeTab={activeTab} />
++        </div>
+       </div>
+ 
+       {/* Tab content */}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx
+new file mode 100644
+index 0000000..bdd9293
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx
+@@ -0,0 +1,11 @@
++import { Skeleton } from "@/components/ui/skeleton";
++
++export default function CheckpointsLoading() {
++  return (
++    <div className="space-y-2">
++      <Skeleton className="h-16" />
++      <Skeleton className="h-16" />
++      <Skeleton className="h-16" />
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx
+new file mode 100644
+index 0000000..9a9c238
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx
+@@ -0,0 +1,122 @@
++"use client";
++
++import { use, useMemo } from "react";
++import Link from "next/link";
++import { useCheckpoints, usePlan } from "@/hooks/use-checkpoints";
++import { useCommits } from "@/hooks/use-commits";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++import { Badge } from "@/components/ui/badge";
++import { formatDistanceToNow } from "date-fns";
++
++function PlanTitle({ owner, repo, checkpointId }: { owner: string; repo: string; checkpointId: string }) {
++  const { plan } = usePlan(owner, repo, checkpointId);
++  if (!plan) return null;
++  const heading = plan.split("\n").find((l) => /^#+\s/.test(l));
++  const title = heading?.replace(/^#+\s*/, "").trim();
++  if (!title) return null;
++  return (
++    <>
++      <span className="truncate text-foreground/60">{title}</span>
++      <span>&middot;</span>
++    </>
++  );
++}
++
++export default function CheckpointsPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string }>;
++}) {
++  const { owner, repo } = use(params);
++  const { checkpoints, isLoading } = useCheckpoints(owner, repo);
++  const { commits } = useCommits(owner, repo);
++
++  // Map commit SHA prefix → commit message
++  const commitMessages = useMemo(() => {
++    const map = new Map<string, string>();
++    if (commits) {
++      for (const c of commits) {
++        map.set(c.sha, c.message.split("\n")[0]);
++      }
++    }
++    return map;
++  }, [commits]);
++
++  function findCommitMessage(commitHash: string): string | undefined {
++    // Try exact match first, then prefix match
++    const exact = commitMessages.get(commitHash);
++    if (exact) return exact;
++    for (const [sha, msg] of commitMessages) {
++      if (sha.startsWith(commitHash) || commitHash.startsWith(sha)) {
++        return msg;
++      }
++    }
++    return undefined;
++  }
++
++  if (isLoading) {
++    return (
++      <div className="space-y-2">
++        <Skeleton className="h-16" />
++        <Skeleton className="h-16" />
++        <Skeleton className="h-16" />
++      </div>
++    );
++  }
++
++  if (!checkpoints || checkpoints.length === 0) {
++    return (
++      <EmptyState
++        title="No checkpoints found"
++        description="This repository doesn't have any checkpoints on the partio/checkpoints/v1 branch yet."
++      />
++    );
++  }
++
++  return (
++    <div className="space-y-2">
++      {checkpoints.map((cp) => {
++        const message = findCommitMessage(cp.commit_hash);
++        return (
++          <Link
++            key={cp.id}
++            href={`/${owner}/${repo}/checkpoints/${cp.id}`}
++            className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface-light"
++          >
++            <div className="flex items-center gap-3">
++              <span className="font-mono text-sm text-foreground">
++                {cp.id}
++              </span>
++              <Badge>{cp.branch}</Badge>
++              <span className="flex-1" />
++              <span className="whitespace-nowrap text-xs text-muted">
++                {formatDistanceToNow(new Date(cp.created_at), {
++                  addSuffix: true,
++                })}
++              </span>
++            </div>
++            <div className="mt-1.5 flex items-center gap-2 text-xs text-muted">
++              <span className="font-mono">
++                {cp.commit_hash.slice(0, 8)}
++              </span>
++              <span>&middot;</span>
++              {message ? (
++                <span className="truncate">{message}</span>
++              ) : commits ? (
++                <>
++                  {cp.plan_slug && (
++                    <PlanTitle owner={owner} repo={repo} checkpointId={cp.id} />
++                  )}
++                  <span className="truncate opacity-40">
++                    Commit no longer exists &mdash; likely rebased, squashed, or force-pushed
++                  </span>
++                </>
++              ) : null}
++            </div>
++          </Link>
++        );
++      })}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/code/[[...path]]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/code/[[...path]]/page.tsx
+new file mode 100644
+index 0000000..189990c
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/code/[[...path]]/page.tsx
+@@ -0,0 +1,62 @@
++"use client";
++
++import { use } from "react";
++import { useContents } from "@/hooks/use-contents";
++import { FileTree } from "@/components/repo/file-tree";
++import { FileViewer } from "@/components/repo/file-viewer";
++import { Breadcrumb } from "@/components/ui/breadcrumb";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++
++export default function CodePathPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string; path?: string[] }>;
++}) {
++  const { owner, repo, path } = use(params);
++  const filePath = path?.join("/") ?? "";
++  const { contents, isLoading, isError } = useContents(owner, repo, filePath);
++
++  // Build breadcrumb items
++  const pathParts = filePath.split("/").filter(Boolean);
++  const breadcrumbItems = [
++    { label: repo, href: `/${owner}/${repo}/code` },
++    ...pathParts.map((part, i) => ({
++      label: part,
++      href:
++        i < pathParts.length - 1
++          ? `/${owner}/${repo}/code/${pathParts.slice(0, i + 1).join("/")}`
++          : undefined,
++    })),
++  ];
++
++  if (isLoading) {
++    return (
++      <div className="space-y-4">
++        <Skeleton className="h-5 w-64" />
++        <Skeleton className="h-64" />
++      </div>
++    );
++  }
++
++  if (isError || !contents) {
++    return <EmptyState title="Not found" description="The requested path could not be found." />;
++  }
++
++  return (
++    <div className="space-y-4">
++      {pathParts.length > 0 && <Breadcrumb items={breadcrumbItems} />}
++
++      {contents.type === "dir" ? (
++        <FileTree
++          entries={contents.entries}
++          owner={owner}
++          repo={repo}
++          currentPath={filePath}
++        />
++      ) : (
++        <FileViewer file={contents.file} owner={owner} repo={repo} />
++      )}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/commits/[sha]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/commits/[sha]/page.tsx
+new file mode 100644
+index 0000000..0555ee0
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/commits/[sha]/page.tsx
+@@ -0,0 +1,50 @@
++"use client";
++
++import { use } from "react";
++import Link from "next/link";
++import { useCommit } from "@/hooks/use-commits";
++import { useCheckpoints } from "@/hooks/use-checkpoints";
++import { CommitDetail } from "@/components/repo/commit-detail";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++
++export default function CommitDetailPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string; sha: string }>;
++}) {
++  const { owner, repo, sha } = use(params);
++  const { commit, isLoading } = useCommit(owner, repo, sha);
++  const { checkpoints } = useCheckpoints(owner, repo);
++  const checkpointId = checkpoints?.find(
++    (cp) => sha.startsWith(cp.commit_hash) || cp.commit_hash.startsWith(sha)
++  )?.id;
++
++  if (isLoading) {
++    return (
++      <div className="space-y-4">
++        <Skeleton className="h-32" />
++        <Skeleton className="h-64" />
++      </div>
++    );
++  }
++
++  if (!commit) {
++    return <EmptyState title="Commit not found" description={`Could not find commit ${sha.slice(0, 7)}.`} />;
++  }
++
++  return (
++    <div className="space-y-4">
++      <Link
++        href={`/${owner}/${repo}/commits`}
++        className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
++      >
++        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++          <polyline points="15 18 9 12 15 6" />
++        </svg>
++        All commits
++      </Link>
++      <CommitDetail commit={commit} owner={owner} repo={repo} checkpointId={checkpointId} />
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx
+new file mode 100644
+index 0000000..62a54e1
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx
+@@ -0,0 +1,11 @@
++import { Skeleton } from "@/components/ui/skeleton";
++
++export default function CommitsLoading() {
++  return (
++    <div className="space-y-2">
++      {Array.from({ length: 6 }).map((_, i) => (
++        <Skeleton key={i} className="h-16" />
++      ))}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/commits/page.tsx b/src/app/(dashboard)/[owner]/[repo]/commits/page.tsx
+new file mode 100644
+index 0000000..6bbf6e6
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/commits/page.tsx
+@@ -0,0 +1,73 @@
++"use client";
++
++import { use, useCallback, useState } from "react";
++import { useCommits } from "@/hooks/use-commits";
++import { useBranches } from "@/hooks/use-branches";
++import { useCheckpoints } from "@/hooks/use-checkpoints";
++import { CommitList } from "@/components/repo/commit-list";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++
++export default function CommitsPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string }>;
++}) {
++  const { owner, repo } = use(params);
++  const { branches } = useBranches(owner, repo);
++  const [branch, setBranch] = useState<string | undefined>(undefined);
++
++  const defaultBranch = branches?.find((b) => b.isDefault)?.name;
++  const selectedBranch = branch ?? defaultBranch;
++
++  const { commits, isLoading } = useCommits(owner, repo, selectedBranch);
++  const { checkpoints } = useCheckpoints(owner, repo);
++
++  // Build a lookup: given a full commit SHA, find a matching checkpoint ID
++  const findCheckpoint = useCallback(
++    (commitSha: string) =>
++      checkpoints?.find(
++        (cp) =>
++          commitSha.startsWith(cp.commit_hash) ||
++          cp.commit_hash.startsWith(commitSha)
++      )?.id,
++    [checkpoints]
++  );
++
++  return (
++    <div className="space-y-4">
++      {/* Branch selector */}
++      {branches && branches.length > 0 && (
++        <div className="flex items-center gap-2">
++          <select
++            value={selectedBranch ?? ""}
++            onChange={(e) => setBranch(e.target.value)}
++            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-surface-light focus:border-accent focus:outline-none"
++          >
++            {branches.map((b) => (
++              <option key={b.name} value={b.name}>
++                {b.name}
++                {b.isDefault ? " (default)" : ""}
++              </option>
++            ))}
++          </select>
++        </div>
++      )}
++
++      {isLoading ? (
++        <div className="space-y-2">
++          {Array.from({ length: 6 }).map((_, i) => (
++            <Skeleton key={i} className="h-16" />
++          ))}
++        </div>
++      ) : !commits || commits.length === 0 ? (
++        <EmptyState
++          title="No commits"
++          description="No commits found on this branch."
++        />
++      ) : (
++        <CommitList commits={commits} owner={owner} repo={repo} findCheckpoint={findCheckpoint} />
++      )}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/error.tsx b/src/app/(dashboard)/[owner]/[repo]/error.tsx
+new file mode 100644
+index 0000000..17281df
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/error.tsx
+@@ -0,0 +1,28 @@
++"use client";
++
++export default function RepoError({
++  error,
++  reset,
++}: {
++  error: Error & { digest?: string };
++  reset: () => void;
++}) {
++  return (
++    <div className="flex flex-col items-center justify-center py-16">
++      <div className="rounded-xl border border-border bg-surface p-8 text-center max-w-md">
++        <h2 className="text-lg font-semibold text-foreground mb-2">
++          Something went wrong
++        </h2>
++        <p className="text-sm text-muted mb-4">
++          {error.message || "An unexpected error occurred while loading this repository."}
++        </p>
++        <button
++          onClick={reset}
++          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-dark cursor-pointer"
++        >
++          Try again
++        </button>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/issues/[number]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/issues/[number]/page.tsx
+new file mode 100644
+index 0000000..c87250c
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/issues/[number]/page.tsx
+@@ -0,0 +1,31 @@
++"use client";
++
++import { use } from "react";
++import { useIssue } from "@/hooks/use-issues";
++import { IssueDetail } from "@/components/repo/issue-detail";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++
++export default function IssuePage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string; number: string }>;
++}) {
++  const { owner, repo, number } = use(params);
++  const { issue, isLoading } = useIssue(owner, repo, parseInt(number, 10));
++
++  if (isLoading) {
++    return (
++      <div className="space-y-4">
++        <Skeleton className="h-10 w-96" />
++        <Skeleton className="h-64" />
++      </div>
++    );
++  }
++
++  if (!issue) {
++    return <EmptyState title="Issue not found" description={`Issue #${number} could not be found.`} />;
++  }
++
++  return <IssueDetail issue={issue} />;
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx
+new file mode 100644
+index 0000000..fdffa31
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx
+@@ -0,0 +1,11 @@
++import { Skeleton } from "@/components/ui/skeleton";
++
++export default function IssuesLoading() {
++  return (
++    <div className="space-y-2">
++      {Array.from({ length: 5 }).map((_, i) => (
++        <Skeleton key={i} className="h-16" />
++      ))}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/issues/page.tsx b/src/app/(dashboard)/[owner]/[repo]/issues/page.tsx
+new file mode 100644
+index 0000000..6dc1aad
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/issues/page.tsx
+@@ -0,0 +1,14 @@
++"use client";
++
++import { use } from "react";
++import { IssueList } from "@/components/repo/issue-list";
++
++export default function IssuesPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string }>;
++}) {
++  const { owner, repo } = use(params);
++
++  return <IssueList owner={owner} repo={repo} />;
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/layout.tsx b/src/app/(dashboard)/[owner]/[repo]/layout.tsx
+new file mode 100644
+index 0000000..ca5e27c
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/layout.tsx
+@@ -0,0 +1,140 @@
++"use client";
++
++import { use } from "react";
++import Link from "next/link";
++import { usePathname } from "next/navigation";
++import { useRepoDetail } from "@/hooks/use-repo-detail";
++import { useCheckpoints } from "@/hooks/use-checkpoints";
++import { Avatar } from "@/components/ui/avatar";
++import { Badge } from "@/components/ui/badge";
++import { Skeleton } from "@/components/ui/skeleton";
++import { cn } from "@/lib/utils";
++
++interface Tab {
++  label: string;
++  href: string;
++  count?: number;
++  match: (pathname: string) => boolean;
++}
++
++export default function RepoLayout({
++  children,
++  params,
++}: {
++  children: React.ReactNode;
++  params: Promise<{ owner: string; repo: string }>;
++}) {
++  const { owner, repo } = use(params);
++  const { repo: repoDetail, isLoading } = useRepoDetail(owner, repo);
++  const { checkpoints } = useCheckpoints(owner, repo);
++
++  const basePath = `/${owner}/${repo}`;
++
++  const tabs: Tab[] = [
++    {
++      label: "Overview",
++      href: basePath,
++      match: (p) => p === basePath,
++    },
++    {
++      label: "Checkpoints",
++      href: `${basePath}/checkpoints`,
++      count: checkpoints?.length,
++      match: (p) => p.startsWith(`${basePath}/checkpoints`),
++    },
++    {
++      label: "Commits",
++      href: `${basePath}/commits`,
++      match: (p) => p.startsWith(`${basePath}/commits`),
++    },
++    {
++      label: "PRs",
++      href: `${basePath}/pulls`,
++      match: (p) => p.startsWith(`${basePath}/pulls`),
++    },
++    {
++      label: "Code",
++      href: `${basePath}/code`,
++      match: (p) => p.startsWith(`${basePath}/code`),
++    },
++  ];
++
++  const pathname = usePathname();
++
++  return (
++    <div className="space-y-4">
++      {/* Repo header */}
++      <div className="flex items-center gap-3">
++        {isLoading ? (
++          <Skeleton className="h-8 w-8 rounded-full" />
++        ) : (
++          <Avatar
++            src={repoDetail?.avatar_url}
++            alt={owner}
++            size={32}
++          />
++        )}
++        <div className="flex items-center gap-2">
++          {isLoading ? (
++            <Skeleton className="h-6 w-48" />
++          ) : (
++            <>
++              <Link
++                href="/repositories"
++                className="text-lg text-info hover:underline"
++              >
++                {owner}
++              </Link>
++              <span className="text-lg text-muted">/</span>
++              <Link
++                href={basePath}
++                className="text-lg font-semibold text-info hover:underline"
++              >
++                {repo}
++              </Link>
++              <Badge variant="muted">
++                {repoDetail?.private ? "Private" : "Public"}
++              </Badge>
++            </>
++          )}
++        </div>
++      </div>
++
++      {/* Tab navigation */}
++      <div className="flex gap-1 border-b border-border">
++        {tabs.map((tab) => {
++          const active = tab.match(pathname);
++          return (
++            <Link
++              key={tab.href}
++              href={tab.href}
++              className={cn(
++                "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors",
++                active
++                  ? "border-b-2 border-accent text-foreground"
++                  : "text-muted hover:text-foreground"
++              )}
++            >
++              {tab.label}
++              {tab.count !== undefined && (
++                <span
++                  className={cn(
++                    "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs",
++                    active
++                      ? "bg-accent/20 text-accent-light"
++                      : "bg-surface-light text-muted"
++                  )}
++                >
++                  {tab.count}
++                </span>
++              )}
++            </Link>
++          );
++        })}
++      </div>
++
++      {/* Tab content */}
++      {children}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/loading.tsx
+index f7c974e..0b97788 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/loading.tsx
+@@ -1,15 +1,19 @@
+ import { Skeleton } from "@/components/ui/skeleton";
+ 
+-export default function RepoDetailLoading() {
++export default function RepoLoading() {
+   return (
+     <div className="space-y-4">
+-      <Skeleton className="h-5 w-48" />
+-      <Skeleton className="h-8 w-64" />
+-      <div className="space-y-2">
+-        <Skeleton className="h-16" />
+-        <Skeleton className="h-16" />
+-        <Skeleton className="h-16" />
++      <div className="flex items-center gap-3">
++        <Skeleton className="h-8 w-8 rounded-full" />
++        <Skeleton className="h-6 w-48" />
+       </div>
++      <Skeleton className="h-10 w-full" />
++      <div className="grid grid-cols-5 gap-3">
++        {Array.from({ length: 5 }).map((_, i) => (
++          <Skeleton key={i} className="h-20" />
++        ))}
++      </div>
++      <Skeleton className="h-48" />
+     </div>
+   );
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+index f4d409d..a9de531 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+@@ -1,100 +1,160 @@
+ "use client";
+ 
+-import { use } from "react";
+-import Link from "next/link";
++import { use, useMemo } from "react";
++import { useRepoDetail } from "@/hooks/use-repo-detail";
++import { useContributors } from "@/hooks/use-contributors";
+ import { useCheckpoints } from "@/hooks/use-checkpoints";
+-import { Breadcrumb } from "@/components/ui/breadcrumb";
++import { usePulls } from "@/hooks/use-pulls";
+ import { Skeleton } from "@/components/ui/skeleton";
+-import { EmptyState } from "@/components/ui/empty-state";
+-import { Badge } from "@/components/ui/badge";
++import { DataTable } from "@/components/ui/data-table";
++import { RepoSidebarInfo } from "@/components/repo/repo-sidebar-info";
++import { ActivityChart } from "@/components/repo/activity-chart";
++import { OpenPRsList } from "@/components/repo/open-prs-list";
+ import { formatDistanceToNow } from "date-fns";
++import type { CheckpointMetadata } from "@/types/checkpoint";
++import type { WeeklyActivity } from "@/types/repository";
+ 
+-export default function RepoDetailPage({
++export default function OverviewPage({
+   params,
+ }: {
+   params: Promise<{ owner: string; repo: string }>;
+ }) {
+   const { owner, repo } = use(params);
+-  const { checkpoints, isLoading } = useCheckpoints(owner, repo);
++  const { repo: repoDetail, isLoading: repoLoading } = useRepoDetail(
++    owner,
++    repo
++  );
++  const { contributors } = useContributors(owner, repo);
++  const { checkpoints, isLoading: checkpointsLoading } = useCheckpoints(
++    owner,
++    repo
++  );
++  const { pulls } = usePulls(owner, repo, "open");
++
++  // Build weekly checkpoint activity from checkpoint dates
++  const checkpointActivity: WeeklyActivity[] = useMemo(() => {
++    if (!checkpoints || checkpoints.length === 0) return [];
++    const weeks: Record<number, number> = {};
++    for (const cp of checkpoints) {
++      const date = new Date(cp.created_at);
++      const day = date.getDay();
++      const weekStart = new Date(date);
++      weekStart.setDate(weekStart.getDate() - day);
++      weekStart.setHours(0, 0, 0, 0);
++      const weekKey = Math.floor(weekStart.getTime() / 1000);
++      weeks[weekKey] = (weeks[weekKey] || 0) + 1;
++    }
++    return Object.entries(weeks)
++      .map(([week, total]) => ({ week: Number(week), total, days: [] }))
++      .sort((a, b) => a.week - b.week);
++  }, [checkpoints]);
++
++  const recentCheckpoints = checkpoints?.slice(0, 10) ?? [];
+ 
+-  if (isLoading) {
++  if (repoLoading) {
+     return (
+       <div className="space-y-4">
+-        <Skeleton className="h-5 w-48" />
+-        <Skeleton className="h-8 w-64" />
+-        <div className="space-y-2">
+-          <Skeleton className="h-16" />
+-          <Skeleton className="h-16" />
+-          <Skeleton className="h-16" />
+-        </div>
++        <Skeleton className="h-20" />
++        <Skeleton className="h-48" />
++      </div>
++    );
++  }
++
++  if (!repoDetail) {
++    return (
++      <div className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">
++        Failed to load repository details
+       </div>
+     );
+   }
+ 
+   return (
+-    <div className="space-y-4">
+-      <Breadcrumb
+-        items={[
+-          { label: "Repositories", href: "/repositories" },
+-          { label: owner, href: `/repositories` },
+-          { label: repo },
+-        ]}
+-      />
++    <div className="flex gap-6">
++      {/* Left sidebar */}
++      <aside className="hidden w-72 shrink-0 lg:block">
++        <RepoSidebarInfo
++          repo={repoDetail}
++          contributors={contributors}
++          activityChart={
++            checkpointsLoading ? (
++              <Skeleton className="h-20" />
++            ) : (
++              <ActivityChart activity={checkpointActivity} />
++            )
++          }
++        />
++      </aside>
+ 
+-      <h2 className="text-lg font-semibold text-foreground">
+-        {owner}/{repo}
+-      </h2>
++      {/* Main content */}
++      <div className="min-w-0 flex-1 space-y-6">
++        {/* Recent checkpoints */}
++        {recentCheckpoints.length > 0 && (
++          <div className="space-y-3">
++            <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
++              Recent Checkpoints
++            </h3>
++            <DataTable<CheckpointMetadata>
++              data={recentCheckpoints}
++              onRowClick={(cp) =>
++                (window.location.href = `/${owner}/${repo}/checkpoints/${cp.id}`)
++              }
++              columns={[
++                {
++                  key: "agent",
++                  header: "Agent",
++                  render: (cp) => (
++                    <div className="flex items-center gap-2">
++                      <span className="text-sm text-foreground">
++                        {cp.agent}
++                      </span>
++                      <span className="font-mono text-xs text-accent-light">
++                        {cp.agent_percent}%
++                      </span>
++                    </div>
++                  ),
++                  className: "w-40",
++                },
++                {
++                  key: "commit",
++                  header: "Commit",
++                  render: (cp) => (
++                    <div className="flex items-center gap-2">
++                      <span className="font-mono text-xs text-muted">
++                        {cp.commit_hash.slice(0, 7)}
++                      </span>
++                      <span className="text-sm text-muted">{cp.branch}</span>
++                    </div>
++                  ),
++                },
++                {
++                  key: "when",
++                  header: "When",
++                  render: (cp) => (
++                    <span className="whitespace-nowrap text-sm text-muted">
++                      {formatDistanceToNow(new Date(cp.created_at), {
++                        addSuffix: true,
++                      })}
++                    </span>
++                  ),
++                  className: "w-44",
++                },
++              ]}
++            />
++          </div>
++        )}
+ 
+-      {!checkpoints || checkpoints.length === 0 ? (
+-        <EmptyState
+-          title="No checkpoints found"
+-          description="This repository doesn't have any checkpoints on the partio/checkpoints/v1 branch yet."
+-        />
+-      ) : (
+-        <div className="space-y-2">
+-          {checkpoints.map((cp) => (
+-            <Link
+-              key={cp.id}
+-              href={`/${owner}/${repo}/${cp.id}`}
+-              className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface-light"
+-            >
+-              <div className="flex items-center justify-between">
+-                <div className="flex items-center gap-3">
+-                  <span className="font-mono text-sm text-foreground">
+-                    {cp.id}
+-                  </span>
+-                  <Badge>{cp.branch}</Badge>
+-                  {cp.agent && (
+-                    <span className="text-xs text-muted">{cp.agent}</span>
+-                  )}
+-                  {cp.plan_slug && (
+-                    <Link
+-                      href={`/${owner}/${repo}/${cp.id}?tab=plan`}
+-                      onClick={(e) => e.stopPropagation()}
+-                      className="inline-flex items-center rounded-md bg-accent/10 border border-accent/20 px-1.5 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
+-                    >
+-                      Plan
+-                    </Link>
+-                  )}
+-                </div>
+-                <div className="flex items-center gap-4">
+-                  <span className="font-mono text-sm text-accent-light">
+-                    {cp.agent_percent}%
+-                  </span>
+-                  <span className="text-xs text-muted">
+-                    {formatDistanceToNow(new Date(cp.created_at), {
+-                      addSuffix: true,
+-                    })}
+-                  </span>
+-                </div>
+-              </div>
+-              <div className="mt-1.5 text-xs text-muted">
+-                commit {cp.commit_hash.slice(0, 8)}
+-              </div>
+-            </Link>
+-          ))}
++        {/* Open PRs */}
++        <div className="rounded-xl border border-border bg-surface p-4">
++          <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted">
++            Open Pull Requests
++          </h3>
++          {pulls ? (
++            <OpenPRsList pulls={pulls} owner={owner} repo={repo} />
++          ) : (
++            <Skeleton className="h-32" />
++          )}
+         </div>
+-      )}
++      </div>
+     </div>
+   );
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/pulls/[number]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/pulls/[number]/page.tsx
+new file mode 100644
+index 0000000..4374328
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/pulls/[number]/page.tsx
+@@ -0,0 +1,50 @@
++"use client";
++
++import { use } from "react";
++import Link from "next/link";
++import { usePullRequest } from "@/hooks/use-pulls";
++import { useCheckpoints } from "@/hooks/use-checkpoints";
++import { PRDetail } from "@/components/repo/pr-detail";
++import { Skeleton } from "@/components/ui/skeleton";
++import { EmptyState } from "@/components/ui/empty-state";
++
++export default function PullRequestPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string; number: string }>;
++}) {
++  const { owner, repo, number } = use(params);
++  const { pr, isLoading } = usePullRequest(owner, repo, parseInt(number, 10));
++  const { checkpoints } = useCheckpoints(owner, repo);
++  const checkpointId = pr
++    ? checkpoints?.find((cp) => cp.branch === pr.head.ref)?.id
++    : undefined;
++
++  if (isLoading) {
++    return (
++      <div className="space-y-4">
++        <Skeleton className="h-10 w-96" />
++        <Skeleton className="h-64" />
++      </div>
++    );
++  }
++
++  if (!pr) {
++    return <EmptyState title="PR not found" description={`Pull request #${number} could not be found.`} />;
++  }
++
++  return (
++    <div className="space-y-4">
++      <Link
++        href={`/${owner}/${repo}/pulls`}
++        className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
++      >
++        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++          <polyline points="15 18 9 12 15 6" />
++        </svg>
++        All pull requests
++      </Link>
++      <PRDetail pr={pr} owner={owner} repo={repo} checkpointId={checkpointId} />
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx
+new file mode 100644
+index 0000000..1a7b7a9
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx
+@@ -0,0 +1,11 @@
++import { Skeleton } from "@/components/ui/skeleton";
++
++export default function PullsLoading() {
++  return (
++    <div className="space-y-2">
++      {Array.from({ length: 5 }).map((_, i) => (
++        <Skeleton key={i} className="h-16" />
++      ))}
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/[owner]/[repo]/pulls/page.tsx b/src/app/(dashboard)/[owner]/[repo]/pulls/page.tsx
+new file mode 100644
+index 0000000..02f12d5
+--- /dev/null
++++ b/src/app/(dashboard)/[owner]/[repo]/pulls/page.tsx
+@@ -0,0 +1,22 @@
++"use client";
++
++import { use, useCallback } from "react";
++import { useCheckpoints } from "@/hooks/use-checkpoints";
++import { PRList } from "@/components/repo/pr-list";
++
++export default function PullsPage({
++  params,
++}: {
++  params: Promise<{ owner: string; repo: string }>;
++}) {
++  const { owner, repo } = use(params);
++  const { checkpoints } = useCheckpoints(owner, repo);
++
++  const findCheckpoint = useCallback(
++    (branch: string) =>
++      checkpoints?.find((cp) => cp.branch === branch)?.id,
++    [checkpoints]
++  );
++
++  return <PRList owner={owner} repo={repo} findCheckpoint={findCheckpoint} />;
++}
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index 95cb935..7590d01 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -1,11 +1,12 @@
+ "use client";
+ 
+ import { useSession } from "next-auth/react";
+-import { useRepos } from "@/hooks/use-repos";
+-import { StatCard } from "@/components/ui/stat-card";
++import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
++import { OverviewStatsRow } from "@/components/ui/overview-stats";
+ import { Heatmap } from "@/components/ui/heatmap";
+ import { EmptyState } from "@/components/ui/empty-state";
+ import { Skeleton } from "@/components/ui/skeleton";
++import { RecentCommitsTable } from "@/components/repo/recent-commits-table";
+ 
+ function getGreeting(): string {
+   const hour = new Date().getHours();
+@@ -16,34 +17,25 @@ function getGreeting(): string {
+ 
+ export default function OverviewPage() {
+   const { data: session } = useSession();
+-  const { repos, isLoading } = useRepos();
++  const { items, heatmap, stats, isLoading } = useRecentCheckpoints();
+ 
+   const firstName = session?.user?.name?.split(" ")[0] || "there";
+-  const totalCheckpoints = repos?.reduce((sum, r) => sum + r.checkpoint_count, 0) ?? 0;
+-  const reposWithCheckpoints = repos?.filter((r) => r.checkpoint_count > 0).length ?? 0;
+ 
+-  // Build heatmap data from repo updated_at as a proxy (real data would come from checkpoints)
+-  const heatmapData: Record<string, number> = {};
+-  if (repos) {
+-    for (const repo of repos) {
+-      if (repo.checkpoint_count > 0) {
+-        const date = repo.updated_at.split("T")[0];
+-        heatmapData[date] = (heatmapData[date] || 0) + repo.checkpoint_count;
+-      }
+-    }
+-  }
++  const heatmapData = heatmap ?? {};
++  const hasCheckpoints = (items?.length ?? 0) > 0;
+ 
+   if (isLoading) {
+     return (
+       <div className="space-y-6">
+         <Skeleton className="h-8 w-64" />
+-        <div className="grid grid-cols-4 gap-4">
++        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+           <Skeleton className="h-24" />
+           <Skeleton className="h-24" />
+           <Skeleton className="h-24" />
+           <Skeleton className="h-24" />
+         </div>
+-        <Skeleton className="h-40" />
++        <Skeleton className="h-32" />
++        <Skeleton className="h-48" />
+       </div>
+     );
+   }
+@@ -54,23 +46,18 @@ export default function OverviewPage() {
+         {getGreeting()}, {firstName}
+       </h2>
+ 
+-      <div className="grid grid-cols-4 gap-4">
+-        <StatCard label="Checkpoints" value={totalCheckpoints} />
+-        <StatCard label="Repositories" value={reposWithCheckpoints} />
+-        <StatCard
+-          label="Total Repos"
+-          value={repos?.length ?? 0}
+-        />
+-        <StatCard
+-          label="Streak"
+-          value={Object.keys(heatmapData).length}
+-          unit="days"
+-        />
+-      </div>
++      {stats && <OverviewStatsRow stats={stats} />}
+ 
+       <Heatmap data={heatmapData} />
+ 
+-      {totalCheckpoints === 0 && (
++      {hasCheckpoints && (
++        <div className="space-y-3">
++          <h3 className="text-sm font-medium text-muted">Recent Activity</h3>
++          <RecentCommitsTable />
++        </div>
++      )}
++
++      {!hasCheckpoints && (
+         <EmptyState
+           title="No checkpoints yet"
+           description="Run partio commit in a repo to capture your first checkpoint."
+diff --git a/src/app/(dashboard)/repositories/page.tsx b/src/app/(dashboard)/repositories/page.tsx
+index 3af7b9e..71da370 100644
+--- a/src/app/(dashboard)/repositories/page.tsx
++++ b/src/app/(dashboard)/repositories/page.tsx
+@@ -86,6 +86,7 @@ export default function RepositoriesPage() {
+         <DataTable<RepoWithCheckpoints>
+           data={filtered}
+           onRowClick={(r) => router.push(`/${r.owner}/${r.name}`)}
++          rowClassName={(r) => r.checkpoint_count === 0 ? "opacity-40" : ""}
+           columns={[
+             {
+               key: "name",
+diff --git a/src/app/api/github/repos/[owner]/[repo]/activity/route.ts b/src/app/api/github/repos/[owner]/[repo]/activity/route.ts
+new file mode 100644
+index 0000000..05636a7
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/activity/route.ts
+@@ -0,0 +1,19 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getCommitActivity } from "@/lib/github/activity";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const octokit = createOctokit(session.accessToken);
++  const activity = await getCommitActivity(octokit, owner, repo);
++  return NextResponse.json(activity);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/branches/route.ts b/src/app/api/github/repos/[owner]/[repo]/branches/route.ts
+new file mode 100644
+index 0000000..255e444
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/branches/route.ts
+@@ -0,0 +1,26 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getRepoDetail } from "@/lib/github/repo-detail";
++import { listBranches } from "@/lib/github/branches";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const octokit = createOctokit(session.accessToken);
++  const detail = await getRepoDetail(octokit, owner, repo);
++  const branches = await listBranches(
++    octokit,
++    owner,
++    repo,
++    detail.default_branch
++  );
++  return NextResponse.json(branches);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/commits/[sha]/route.ts b/src/app/api/github/repos/[owner]/[repo]/commits/[sha]/route.ts
+new file mode 100644
+index 0000000..528308b
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/commits/[sha]/route.ts
+@@ -0,0 +1,25 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getCommit } from "@/lib/github/commits";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string; sha: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo, sha } = await params;
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const commit = await getCommit(octokit, owner, repo, sha);
++    return NextResponse.json(commit);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "Commit not found" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/commits/route.ts b/src/app/api/github/repos/[owner]/[repo]/commits/route.ts
+new file mode 100644
+index 0000000..9fc82f6
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/commits/route.ts
+@@ -0,0 +1,22 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listCommits } from "@/lib/github/commits";
++
++export async function GET(
++  request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const { searchParams } = new URL(request.url);
++  const sha = searchParams.get("sha") ?? undefined;
++
++  const octokit = createOctokit(session.accessToken);
++  const commits = await listCommits(octokit, owner, repo, { sha });
++  return NextResponse.json(commits);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/contents/[...path]/route.ts b/src/app/api/github/repos/[owner]/[repo]/contents/[...path]/route.ts
+new file mode 100644
+index 0000000..993ebef
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/contents/[...path]/route.ts
+@@ -0,0 +1,29 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getContents } from "@/lib/github/contents";
++
++export async function GET(
++  request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string; path: string[] }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo, path } = await params;
++  const filePath = path.join("/");
++  const { searchParams } = new URL(request.url);
++  const ref = searchParams.get("ref") ?? undefined;
++
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const result = await getContents(octokit, owner, repo, filePath, ref);
++    return NextResponse.json(result);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "Failed to fetch contents" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/contents/route.ts b/src/app/api/github/repos/[owner]/[repo]/contents/route.ts
+new file mode 100644
+index 0000000..73ce8bf
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/contents/route.ts
+@@ -0,0 +1,28 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getContents } from "@/lib/github/contents";
++
++export async function GET(
++  request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const { searchParams } = new URL(request.url);
++  const ref = searchParams.get("ref") ?? undefined;
++
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const result = await getContents(octokit, owner, repo, "", ref);
++    return NextResponse.json(result);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "Failed to fetch contents" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/contributors/route.ts b/src/app/api/github/repos/[owner]/[repo]/contributors/route.ts
+new file mode 100644
+index 0000000..1fecac0
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/contributors/route.ts
+@@ -0,0 +1,19 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listContributors } from "@/lib/github/contributors";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const octokit = createOctokit(session.accessToken);
++  const contributors = await listContributors(octokit, owner, repo);
++  return NextResponse.json(contributors);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/issues/[number]/route.ts b/src/app/api/github/repos/[owner]/[repo]/issues/[number]/route.ts
+new file mode 100644
+index 0000000..9432d5c
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/issues/[number]/route.ts
+@@ -0,0 +1,25 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getIssue } from "@/lib/github/issues";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string; number: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo, number } = await params;
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const issue = await getIssue(octokit, owner, repo, parseInt(number, 10));
++    return NextResponse.json(issue);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "Issue not found" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/issues/route.ts b/src/app/api/github/repos/[owner]/[repo]/issues/route.ts
+new file mode 100644
+index 0000000..6d89c2e
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/issues/route.ts
+@@ -0,0 +1,22 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listIssues } from "@/lib/github/issues";
++
++export async function GET(
++  request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const { searchParams } = new URL(request.url);
++  const state = (searchParams.get("state") as "open" | "closed" | "all") ?? "open";
++
++  const octokit = createOctokit(session.accessToken);
++  const issues = await listIssues(octokit, owner, repo, { state });
++  return NextResponse.json(issues);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/pulls/[number]/route.ts b/src/app/api/github/repos/[owner]/[repo]/pulls/[number]/route.ts
+new file mode 100644
+index 0000000..62cfad0
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/pulls/[number]/route.ts
+@@ -0,0 +1,25 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getPullRequest } from "@/lib/github/pulls";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string; number: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo, number } = await params;
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const pr = await getPullRequest(octokit, owner, repo, parseInt(number, 10));
++    return NextResponse.json(pr);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "PR not found" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/pulls/route.ts b/src/app/api/github/repos/[owner]/[repo]/pulls/route.ts
+new file mode 100644
+index 0000000..1e3253f
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/pulls/route.ts
+@@ -0,0 +1,22 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listPullRequests } from "@/lib/github/pulls";
++
++export async function GET(
++  request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const { searchParams } = new URL(request.url);
++  const state = (searchParams.get("state") as "open" | "closed" | "all") ?? "open";
++
++  const octokit = createOctokit(session.accessToken);
++  const pulls = await listPullRequests(octokit, owner, repo, { state });
++  return NextResponse.json(pulls);
++}
+diff --git a/src/app/api/github/repos/[owner]/[repo]/route.ts b/src/app/api/github/repos/[owner]/[repo]/route.ts
+new file mode 100644
+index 0000000..47dd6ec
+--- /dev/null
++++ b/src/app/api/github/repos/[owner]/[repo]/route.ts
+@@ -0,0 +1,25 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { getRepoDetail } from "@/lib/github/repo-detail";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ owner: string; repo: string }> }
++) {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { owner, repo } = await params;
++  const octokit = createOctokit(session.accessToken);
++
++  try {
++    const detail = await getRepoDetail(octokit, owner, repo);
++    return NextResponse.json(detail);
++  } catch (error: unknown) {
++    const status = (error as { status?: number }).status ?? 500;
++    return NextResponse.json({ error: "Failed to fetch repo" }, { status });
++  }
++}
+diff --git a/src/app/api/github/repos/recent-commits/route.ts b/src/app/api/github/repos/recent-commits/route.ts
+new file mode 100644
+index 0000000..b430573
+--- /dev/null
++++ b/src/app/api/github/repos/recent-commits/route.ts
+@@ -0,0 +1,19 @@
++import { NextResponse } from "next/server";
++import { auth } from "@/lib/auth";
++import { createOctokit } from "@/lib/github";
++import { listReposWithCheckpoints } from "@/lib/github/repos";
++import { getRecentCheckpointsForRepos } from "@/lib/github/recent-commits";
++
++export async function GET() {
++  const session = await auth();
++  if (!session?.accessToken) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const octokit = createOctokit(session.accessToken);
++  const repos = await listReposWithCheckpoints(octokit);
++  const checkpointRepos = repos.filter((r) => r.checkpoint_count > 0);
++
++  const result = await getRecentCheckpointsForRepos(octokit, checkpointRepos);
++  return NextResponse.json(result);
++}
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 57679c3..f7992c8 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -13,6 +13,9 @@
+   --success: #22c55e;
+   --warning: #eab308;
+   --accent-orange: #d97706;
++  --info: #3b82f6;
++  --purple-pr: #8b5cf6;
++  --danger: #ef4444;
+ }
+ 
+ @theme inline {
+@@ -28,6 +31,9 @@
+   --color-success: var(--success);
+   --color-warning: var(--warning);
+   --color-accent-orange: var(--accent-orange);
++  --color-info: var(--info);
++  --color-purple-pr: var(--purple-pr);
++  --color-danger: var(--danger);
+   --font-sans: var(--font-inter);
+   --font-mono: var(--font-jetbrains-mono);
+ }
+diff --git a/src/components/layout/nav-item.tsx b/src/components/layout/nav-item.tsx
+index c1196a5..006d7c3 100644
+--- a/src/components/layout/nav-item.tsx
++++ b/src/components/layout/nav-item.tsx
+@@ -8,11 +8,16 @@ interface NavItemProps {
+   href: string;
+   icon: React.ReactNode;
+   label: string;
++  match?: (pathname: string) => boolean;
+ }
+ 
+-export function NavItem({ href, icon, label }: NavItemProps) {
++export function NavItem({ href, icon, label, match }: NavItemProps) {
+   const pathname = usePathname();
+-  const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
++  const isActive = match
++    ? match(pathname)
++    : href === "/"
++      ? pathname === "/"
++      : pathname.startsWith(href);
+ 
+   return (
+     <Link
+diff --git a/src/components/layout/sidebar.tsx b/src/components/layout/sidebar.tsx
+index 204b053..62ee6c0 100644
+--- a/src/components/layout/sidebar.tsx
++++ b/src/components/layout/sidebar.tsx
+@@ -37,7 +37,12 @@ export function Sidebar() {
+ 
+       <nav className="flex-1 space-y-1 px-3 py-2">
+         <NavItem href="/" icon={<OverviewIcon />} label="Overview" />
+-        <NavItem href="/repositories" icon={<ReposIcon />} label="Repositories" />
++        <NavItem
++          href="/repositories"
++          icon={<ReposIcon />}
++          label="Repositories"
++          match={(p) => p.startsWith("/repositories") || /^\/[^/]+\/[^/]+/.test(p)}
++        />
+       </nav>
+ 
+       {session?.user && (
+diff --git a/src/components/repo/activity-chart.tsx b/src/components/repo/activity-chart.tsx
+new file mode 100644
+index 0000000..3467fb2
+--- /dev/null
++++ b/src/components/repo/activity-chart.tsx
+@@ -0,0 +1,74 @@
++import type { WeeklyActivity } from "@/types/repository";
++
++interface ActivityChartProps {
++  activity: WeeklyActivity[];
++  title?: string;
++  weeks?: number;
++}
++
++export function ActivityChart({
++  activity,
++  title = "Checkpoint Activity",
++  weeks = 16,
++}: ActivityChartProps) {
++  const recent = activity.slice(-weeks);
++  if (recent.length === 0) {
++    return (
++      <div className="rounded-xl border border-border bg-surface p-6 text-center text-sm text-muted">
++        No checkpoint activity data available
++      </div>
++    );
++  }
++
++  const maxTotal = Math.max(...recent.map((w) => w.total), 1);
++  const chartHeight = 40;
++
++  return (
++    <div>
++      <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted">
++        {title}
++      </h3>
++      <svg
++        viewBox={`0 0 ${recent.length * 20} ${chartHeight}`}
++        className="h-10 w-full"
++        preserveAspectRatio="xMinYMax meet"
++      >
++        {recent.map((week, i) => {
++          const height = Math.max(
++            (week.total / maxTotal) * (chartHeight - 12),
++            week.total > 0 ? 4 : 0
++          );
++          const x = i * 20 + 2;
++          const y = chartHeight - height;
++          return (
++            <g key={week.week}>
++              <rect
++                x={x}
++                y={y}
++                width={16}
++                height={height}
++                rx={2}
++                className="fill-accent/60 transition-colors hover:fill-accent"
++              />
++              {week.total > 0 && (
++                <text
++                  x={x + 8}
++                  y={y - 2}
++                  textAnchor="middle"
++                  className="fill-muted"
++                  style={{ fontSize: 7 }}
++                >
++                  {week.total}
++                </text>
++              )}
++              <title>
++                {new Date(week.week * 1000).toLocaleDateString()}:{" "}
++                {week.total} checkpoint{week.total !== 1 ? "s" : ""}
++              </title>
++            </g>
++          );
++        })}
++      </svg>
++    </div>
++  );
++}
+diff --git a/src/components/repo/commit-detail.tsx b/src/components/repo/commit-detail.tsx
+new file mode 100644
+index 0000000..2555e7f
+--- /dev/null
++++ b/src/components/repo/commit-detail.tsx
+@@ -0,0 +1,96 @@
++import Link from "next/link";
++import { Avatar } from "@/components/ui/avatar";
++import { DiffViewer } from "@/components/ui/diff-viewer";
++import { formatDistanceToNow } from "date-fns";
++import type { CommitDetail as CommitDetailType } from "@/types/repository";
++
++interface CommitDetailProps {
++  commit: CommitDetailType;
++  owner: string;
++  repo: string;
++  checkpointId?: string;
++}
++
++export function CommitDetail({ commit, owner, repo, checkpointId }: CommitDetailProps) {
++  // Reconstruct a unified diff from the file patches
++  const unifiedDiff = commit.files
++    .filter((f) => f.patch)
++    .map(
++      (f) =>
++        `diff --git a/${f.filename} b/${f.filename}\n--- a/${f.filename}\n+++ b/${f.filename}\n${f.patch}`
++    )
++    .join("\n");
++
++  return (
++    <div className="space-y-6">
++      {/* Commit info */}
++      <div className="rounded-xl border border-border bg-surface p-5">
++        <h2 className="text-base font-semibold text-foreground leading-snug">
++          {commit.message.split("\n")[0]}
++        </h2>
++
++        {commit.message.includes("\n") && (
++          <pre className="mt-3 whitespace-pre-wrap text-sm text-muted font-mono">
++            {commit.message.split("\n").slice(1).join("\n").trim()}
++          </pre>
++        )}
++
++        <div className="mt-4 flex items-center gap-3">
++          <Avatar
++            src={commit.author?.avatar_url}
++            alt={commit.author?.login ?? "Unknown"}
++            size={24}
++          />
++          <span className="text-sm text-foreground">
++            {commit.author?.login ?? "Unknown"}
++          </span>
++          <span className="text-sm text-muted">
++            committed {formatDistanceToNow(new Date(commit.date), { addSuffix: true })}
++          </span>
++        </div>
++
++        <div className="mt-3 flex items-center gap-4 text-xs text-muted">
++          <span className="font-mono">{commit.sha.slice(0, 7)}</span>
++          {commit.parents.length > 0 && (
++            <>
++              <span>&middot;</span>
++              <span>
++                {commit.parents.length} parent{commit.parents.length > 1 ? "s" : ""}
++              </span>
++            </>
++          )}
++          <span>&middot;</span>
++          <span className="text-success">+{commit.stats.additions}</span>
++          <span className="text-red-400">-{commit.stats.deletions}</span>
++          <span>&middot;</span>
++          <span>{commit.files.length} files changed</span>
++          <span className="flex-1" />
++          {checkpointId && (
++            <Link
++              href={`/${owner}/${repo}/checkpoints/${checkpointId}`}
++              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-light transition-colors hover:bg-accent/20"
++            >
++              See Checkpoint
++            </Link>
++          )}
++          <a
++            href={`https://github.com/${owner}/${repo}/commit/${commit.sha}`}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-surface-light"
++          >
++            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++              <polyline points="15 3 21 3 21 9" />
++              <line x1="10" y1="14" x2="21" y2="3" />
++            </svg>
++            See on GitHub
++          </a>
++        </div>
++      </div>
++
++      {/* Diff */}
++      {unifiedDiff && <DiffViewer diff={unifiedDiff} />}
++    </div>
++  );
++}
+diff --git a/src/components/repo/commit-list.tsx b/src/components/repo/commit-list.tsx
+new file mode 100644
+index 0000000..7d941dd
+--- /dev/null
++++ b/src/components/repo/commit-list.tsx
+@@ -0,0 +1,94 @@
++"use client";
++
++import Link from "next/link";
++import { useRouter } from "next/navigation";
++import { Avatar } from "@/components/ui/avatar";
++import { formatDistanceToNow, format, isSameDay } from "date-fns";
++import type { CommitSummary } from "@/types/repository";
++
++interface CommitListProps {
++  commits: CommitSummary[];
++  owner: string;
++  repo: string;
++  findCheckpoint?: (sha: string) => string | undefined;
++}
++
++export function CommitList({ commits, owner, repo, findCheckpoint }: CommitListProps) {
++  const router = useRouter();
++  // Group commits by date
++  const groups: { date: Date; commits: CommitSummary[] }[] = [];
++  for (const commit of commits) {
++    const date = new Date(commit.date);
++    const existing = groups.find((g) => isSameDay(g.date, date));
++    if (existing) {
++      existing.commits.push(commit);
++    } else {
++      groups.push({ date, commits: [commit] });
++    }
++  }
++
++  return (
++    <div className="space-y-6">
++      {groups.map((group) => (
++        <div key={group.date.toISOString()}>
++          <h3 className="mb-2 text-xs font-medium text-muted">
++            {format(group.date, "MMMM d, yyyy")}
++          </h3>
++          <div className="space-y-1">
++            {group.commits.map((commit) => (
++              <div
++                key={commit.sha}
++                role="link"
++                tabIndex={0}
++                onClick={() => router.push(`/${owner}/${repo}/commits/${commit.sha}`)}
++                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/${owner}/${repo}/commits/${commit.sha}`); }}
++                className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-accent/30 hover:bg-surface-light"
++              >
++                <Avatar
++                  src={commit.author?.avatar_url}
++                  alt={commit.author?.login ?? "Unknown"}
++                  size={28}
++                />
++                <div className="min-w-0 flex-1">
++                  <p className="truncate text-sm text-foreground">
++                    {commit.message.split("\n")[0]}
++                  </p>
++                  <p className="text-xs text-muted">
++                    {commit.author?.login ?? "Unknown"} committed{" "}
++                    {formatDistanceToNow(new Date(commit.date), { addSuffix: true })}
++                  </p>
++                </div>
++                <span className="shrink-0 font-mono text-xs text-muted">
++                  {commit.sha.slice(0, 7)}
++                </span>
++                {findCheckpoint?.(commit.sha) && (
++                  <Link
++                    href={`/${owner}/${repo}/checkpoints/${findCheckpoint(commit.sha)}`}
++                    onClick={(e) => e.stopPropagation()}
++                    className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-accent/30 bg-accent/10 px-2 py-1 text-xs text-accent-light transition-colors hover:bg-accent/20"
++                  >
++                    See Checkpoint
++                  </Link>
++                )}
++                <a
++                  href={`https://github.com/${owner}/${repo}/commit/${commit.sha}`}
++                  target="_blank"
++                  rel="noopener noreferrer"
++                  onClick={(e) => e.stopPropagation()}
++                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-muted transition-colors hover:bg-surface-light hover:text-foreground"
++                >
++                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++                    <polyline points="15 3 21 3 21 9" />
++                    <line x1="10" y1="14" x2="21" y2="3" />
++                  </svg>
++                  See on GitHub
++                </a>
++              </div>
++            ))}
++          </div>
++        </div>
++      ))}
++    </div>
++  );
++}
+diff --git a/src/components/repo/contributor-avatars.tsx b/src/components/repo/contributor-avatars.tsx
+new file mode 100644
+index 0000000..976b563
+--- /dev/null
++++ b/src/components/repo/contributor-avatars.tsx
+@@ -0,0 +1,35 @@
++import { Avatar } from "@/components/ui/avatar";
++import type { Contributor } from "@/types/repository";
++
++interface ContributorAvatarsProps {
++  contributors: Contributor[];
++  max?: number;
++}
++
++export function ContributorAvatars({
++  contributors,
++  max = 8,
++}: ContributorAvatarsProps) {
++  const visible = contributors.slice(0, max);
++  const overflow = contributors.length - max;
++
++  return (
++    <div className="flex items-center">
++      {visible.map((c) => (
++        <a
++          key={c.login}
++          href={c.html_url}
++          target="_blank"
++          rel="noopener noreferrer"
++          className="-ml-1.5 first:ml-0 transition-transform hover:z-10 hover:scale-110"
++          title={`${c.login} (${c.contributions} contributions)`}
++        >
++          <Avatar src={c.avatar_url} alt={c.login} size={28} className="ring-2 ring-surface" />
++        </a>
++      ))}
++      {overflow > 0 && (
++        <span className="ml-2 text-xs text-muted">+{overflow}</span>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/repo/file-tree.tsx b/src/components/repo/file-tree.tsx
+new file mode 100644
+index 0000000..7e9e94a
+--- /dev/null
++++ b/src/components/repo/file-tree.tsx
+@@ -0,0 +1,92 @@
++import Link from "next/link";
++import type { TreeEntry } from "@/types/repository";
++
++interface FileTreeProps {
++  entries: TreeEntry[];
++  owner: string;
++  repo: string;
++  currentPath?: string;
++}
++
++function FileIcon() {
++  return (
++    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted">
++      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
++      <polyline points="14 2 14 8 20 8" />
++    </svg>
++  );
++}
++
++function FolderIcon() {
++  return (
++    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-info">
++      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
++    </svg>
++  );
++}
++
++function formatFileSize(bytes?: number): string {
++  if (bytes === undefined) return "";
++  if (bytes < 1024) return `${bytes} B`;
++  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
++  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
++}
++
++export function FileTree({ entries, owner, repo, currentPath }: FileTreeProps) {
++  return (
++    <div className="rounded-xl border border-border bg-surface overflow-hidden">
++      <table className="w-full text-sm">
++        <thead>
++          <tr className="border-b border-border bg-surface-light">
++            <th className="px-4 py-2 text-left text-xs font-medium text-muted">Name</th>
++            <th className="px-4 py-2 text-right text-xs font-medium text-muted">
++              <a
++                href={`https://github.com/${owner}/${repo}${currentPath ? `/tree/HEAD/${currentPath}` : ""}`}
++                target="_blank"
++                rel="noopener noreferrer"
++                className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs font-medium text-muted transition-colors hover:bg-surface hover:text-foreground"
++              >
++                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++                  <polyline points="15 3 21 3 21 9" />
++                  <line x1="10" y1="14" x2="21" y2="3" />
++                </svg>
++                See on GitHub
++              </a>
++            </th>
++          </tr>
++        </thead>
++        <tbody>
++          {currentPath && (
++            <tr className="border-b border-border hover:bg-surface-light transition-colors">
++              <td className="px-4 py-2" colSpan={2}>
++                <Link
++                  href={`/${owner}/${repo}/code/${currentPath.split("/").slice(0, -1).join("/")}`}
++                  className="inline-flex items-center gap-2 text-foreground hover:text-info"
++                >
++                  <span className="text-muted">..</span>
++                </Link>
++              </td>
++            </tr>
++          )}
++          {entries.map((entry) => (
++            <tr key={entry.path} className="border-b border-border last:border-0 hover:bg-surface-light transition-colors">
++              <td className="px-4 py-2">
++                <Link
++                  href={`/${owner}/${repo}/code/${entry.path}`}
++                  className="inline-flex items-center gap-2 text-foreground hover:text-info"
++                >
++                  {entry.type === "dir" ? <FolderIcon /> : <FileIcon />}
++                  {entry.name}
++                </Link>
++              </td>
++              <td className="px-4 py-2 text-right text-xs text-muted">
++                {entry.type === "file" ? formatFileSize(entry.size) : ""}
++              </td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </div>
++  );
++}
+diff --git a/src/components/repo/file-viewer.tsx b/src/components/repo/file-viewer.tsx
+new file mode 100644
+index 0000000..bf329fa
+--- /dev/null
++++ b/src/components/repo/file-viewer.tsx
+@@ -0,0 +1,139 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import type { FileContent } from "@/types/repository";
++
++interface FileViewerProps {
++  file: FileContent;
++  owner: string;
++  repo: string;
++}
++
++function getLanguageFromFilename(filename: string): string {
++  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
++  const map: Record<string, string> = {
++    ts: "typescript",
++    tsx: "tsx",
++    js: "javascript",
++    jsx: "jsx",
++    py: "python",
++    rb: "ruby",
++    rs: "rust",
++    go: "go",
++    java: "java",
++    kt: "kotlin",
++    swift: "swift",
++    c: "c",
++    cpp: "cpp",
++    h: "c",
++    hpp: "cpp",
++    cs: "csharp",
++    php: "php",
++    html: "html",
++    css: "css",
++    scss: "scss",
++    less: "less",
++    json: "json",
++    yaml: "yaml",
++    yml: "yaml",
++    toml: "toml",
++    xml: "xml",
++    md: "markdown",
++    mdx: "mdx",
++    sql: "sql",
++    sh: "bash",
++    bash: "bash",
++    zsh: "bash",
++    dockerfile: "dockerfile",
++    makefile: "makefile",
++    vue: "vue",
++    svelte: "svelte",
++    graphql: "graphql",
++    gql: "graphql",
++  };
++  return map[ext] || "text";
++}
++
++export function FileViewer({ file, owner, repo }: FileViewerProps) {
++  const [html, setHtml] = useState<string>("");
++  const [loading, setLoading] = useState(true);
++
++  useEffect(() => {
++    let cancelled = false;
++
++    async function highlight() {
++      try {
++        const { codeToHtml } = await import("shiki");
++        const lang = getLanguageFromFilename(file.name);
++        const result = await codeToHtml(file.content, {
++          lang,
++          theme: "github-dark-default",
++        });
++        if (!cancelled) setHtml(result);
++      } catch {
++        // Fallback: render as plain text
++        if (!cancelled) {
++          setHtml("");
++        }
++      } finally {
++        if (!cancelled) setLoading(false);
++      }
++    }
++
++    highlight();
++    return () => { cancelled = true; };
++  }, [file.content, file.name]);
++
++  const lines = file.content.split("\n");
++
++  return (
++    <div className="rounded-xl border border-border bg-surface overflow-hidden">
++      {/* File header */}
++      <div className="flex items-center justify-between border-b border-border bg-surface-light px-4 py-2">
++        <span className="text-sm text-foreground font-mono">{file.name}</span>
++        <div className="flex items-center gap-3">
++          <span className="text-xs text-muted">
++            {lines.length} lines &middot; {formatSize(file.size)}
++          </span>
++          <a
++            href={`https://github.com/${owner}/${repo}/blob/HEAD/${file.path}`}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs font-medium text-muted transition-colors hover:bg-surface hover:text-foreground"
++          >
++            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++              <polyline points="15 3 21 3 21 9" />
++              <line x1="10" y1="14" x2="21" y2="3" />
++            </svg>
++            See on GitHub
++          </a>
++        </div>
++      </div>
++
++      {/* Code content */}
++      <div className="overflow-x-auto">
++        {loading ? (
++          <pre className="p-4 text-sm font-mono text-foreground">
++            <code>{file.content}</code>
++          </pre>
++        ) : html ? (
++          <div
++            className="shiki-container text-sm [&_pre]:!bg-transparent [&_pre]:p-4 [&_code]:!text-sm"
++            dangerouslySetInnerHTML={{ __html: html }}
++          />
++        ) : (
++          <pre className="p-4 text-sm font-mono text-foreground">
++            <code>{file.content}</code>
++          </pre>
++        )}
++      </div>
++    </div>
++  );
++}
++
++function formatSize(bytes: number): string {
++  if (bytes < 1024) return `${bytes} B`;
++  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
++  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
++}
+diff --git a/src/components/repo/issue-detail.tsx b/src/components/repo/issue-detail.tsx
+new file mode 100644
+index 0000000..9dd3692
+--- /dev/null
++++ b/src/components/repo/issue-detail.tsx
+@@ -0,0 +1,97 @@
++import { Avatar } from "@/components/ui/avatar";
++import { Badge } from "@/components/ui/badge";
++import { LabelBadge } from "./label-badge";
++import { MarkdownBody } from "./markdown-body";
++import { formatDistanceToNow } from "date-fns";
++import type { IssueDetail as IssueDetailType } from "@/types/repository";
++
++interface IssueDetailProps {
++  issue: IssueDetailType;
++}
++
++export function IssueDetail({ issue }: IssueDetailProps) {
++  return (
++    <div className="space-y-6">
++      {/* Header */}
++      <div>
++        <div className="flex items-start gap-3">
++          <h2 className="text-lg font-semibold text-foreground">
++            {issue.title}
++            <span className="ml-2 text-muted font-normal">#{issue.number}</span>
++          </h2>
++        </div>
++
++        <div className="mt-3 flex items-center gap-2">
++          <Badge variant={issue.state === "open" ? "success" : "purple"}>
++            {issue.state === "open" ? "Open" : "Closed"}
++          </Badge>
++          <span className="text-sm text-muted">
++            <span className="text-foreground">{issue.user.login}</span> opened this issue{" "}
++            {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
++            {" "}&middot; {issue.comments} comment{issue.comments !== 1 ? "s" : ""}
++          </span>
++        </div>
++      </div>
++
++      <div className="flex gap-6">
++        {/* Main content */}
++        <div className="min-w-0 flex-1">
++          <div className="rounded-xl border border-border bg-surface p-5">
++            <div className="mb-4 flex items-center gap-3">
++              <Avatar src={issue.user.avatar_url} alt={issue.user.login} size={28} />
++              <div>
++                <span className="text-sm font-medium text-foreground">{issue.user.login}</span>
++                <span className="ml-2 text-xs text-muted">
++                  commented {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
++                </span>
++              </div>
++            </div>
++            {issue.body ? (
++              <MarkdownBody content={issue.body} />
++            ) : (
++              <p className="text-sm text-muted italic">No description provided.</p>
++            )}
++          </div>
++        </div>
++
++        {/* Sidebar */}
++        <aside className="hidden w-56 shrink-0 space-y-4 lg:block">
++          {/* Labels */}
++          {issue.labels.length > 0 && (
++            <div>
++              <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Labels</h4>
++              <div className="flex flex-wrap gap-1">
++                {issue.labels.map((label) => (
++                  <LabelBadge key={label.id} label={label} />
++                ))}
++              </div>
++            </div>
++          )}
++
++          {/* Assignees */}
++          {issue.assignees.length > 0 && (
++            <div className="border-t border-border pt-4">
++              <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Assignees</h4>
++              <div className="space-y-2">
++                {issue.assignees.map((a) => (
++                  <div key={a.login} className="flex items-center gap-2">
++                    <Avatar src={a.avatar_url} alt={a.login} size={20} />
++                    <span className="text-sm text-foreground">{a.login}</span>
++                  </div>
++                ))}
++              </div>
++            </div>
++          )}
++
++          {/* Milestone */}
++          {issue.milestone && (
++            <div className="border-t border-border pt-4">
++              <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Milestone</h4>
++              <span className="text-sm text-foreground">{issue.milestone.title}</span>
++            </div>
++          )}
++        </aside>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/repo/issue-list.tsx b/src/components/repo/issue-list.tsx
+new file mode 100644
+index 0000000..4eecb17
+--- /dev/null
++++ b/src/components/repo/issue-list.tsx
+@@ -0,0 +1,88 @@
++"use client";
++
++import { useState } from "react";
++import Link from "next/link";
++import { Avatar } from "@/components/ui/avatar";
++import { LabelBadge } from "./label-badge";
++import { StateFilter } from "./state-filter";
++import { formatDistanceToNow } from "date-fns";
++import { EmptyState } from "@/components/ui/empty-state";
++import { Skeleton } from "@/components/ui/skeleton";
++import { useIssues } from "@/hooks/use-issues";
++
++interface IssueListProps {
++  owner: string;
++  repo: string;
++}
++
++function IssueIcon({ state }: { state: string }) {
++  if (state === "closed") {
++    return (
++      <svg width="16" height="16" viewBox="0 0 16 16" className="text-purple-pr shrink-0">
++        <path fill="currentColor" d="M11.28 6.78a.75.75 0 0 0-1.06-1.06L7.25 8.69 5.78 7.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l3.5-3.5ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1.5 0a6.5 6.5 0 1 0-13 0 6.5 6.5 0 0 0 13 0Z" />
++      </svg>
++    );
++  }
++
++  return (
++    <svg width="16" height="16" viewBox="0 0 16 16" className="text-success shrink-0">
++      <path fill="currentColor" d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
++      <path fill="currentColor" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
++    </svg>
++  );
++}
++
++export function IssueList({ owner, repo }: IssueListProps) {
++  const [state, setState] = useState<"open" | "closed">("open");
++  const { issues, isLoading } = useIssues(owner, repo, state);
++
++  return (
++    <div className="space-y-4">
++      <StateFilter state={state} onChange={setState} />
++
++      {isLoading ? (
++        <div className="space-y-2">
++          {Array.from({ length: 5 }).map((_, i) => (
++            <Skeleton key={i} className="h-16" />
++          ))}
++        </div>
++      ) : !issues || issues.length === 0 ? (
++        <EmptyState
++          title={`No ${state} issues`}
++          description={`There are no ${state} issues in this repository.`}
++        />
++      ) : (
++        <div className="space-y-1">
++          {issues.map((issue) => (
++            <Link
++              key={issue.number}
++              href={`/${owner}/${repo}/issues/${issue.number}`}
++              className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-accent/30 hover:bg-surface-light"
++            >
++              <IssueIcon state={issue.state} />
++              <div className="min-w-0 flex-1">
++                <div className="flex items-start gap-2">
++                  <span className="text-sm font-medium text-foreground">
++                    {issue.title}
++                  </span>
++                  {issue.labels.map((label) => (
++                    <LabelBadge key={label.id} label={label} />
++                  ))}
++                </div>
++                <p className="mt-1 text-xs text-muted">
++                  #{issue.number} opened {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })} by {issue.user.login}
++                </p>
++              </div>
++              <div className="flex items-center gap-2 shrink-0">
++                <Avatar src={issue.user.avatar_url} alt={issue.user.login} size={20} />
++                {issue.comments > 0 && (
++                  <span className="text-xs text-muted">{issue.comments}</span>
++                )}
++              </div>
++            </Link>
++          ))}
++        </div>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/repo/label-badge.tsx b/src/components/repo/label-badge.tsx
+new file mode 100644
+index 0000000..66d7485
+--- /dev/null
++++ b/src/components/repo/label-badge.tsx
+@@ -0,0 +1,27 @@
++import type { Label } from "@/types/repository";
++
++interface LabelBadgeProps {
++  label: Label;
++}
++
++function getContrastColor(hexColor: string): string {
++  const r = parseInt(hexColor.slice(0, 2), 16);
++  const g = parseInt(hexColor.slice(2, 4), 16);
++  const b = parseInt(hexColor.slice(4, 6), 16);
++  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
++  return luminance > 0.5 ? "#000000" : "#ffffff";
++}
++
++export function LabelBadge({ label }: LabelBadgeProps) {
++  const bgColor = `#${label.color}`;
++  const textColor = getContrastColor(label.color);
++
++  return (
++    <span
++      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
++      style={{ backgroundColor: bgColor, color: textColor }}
++    >
++      {label.name}
++    </span>
++  );
++}
+diff --git a/src/components/repo/markdown-body.tsx b/src/components/repo/markdown-body.tsx
+new file mode 100644
+index 0000000..b8aca70
+--- /dev/null
++++ b/src/components/repo/markdown-body.tsx
+@@ -0,0 +1,19 @@
++"use client";
++
++import ReactMarkdown from "react-markdown";
++import remarkGfm from "remark-gfm";
++import rehypeRaw from "rehype-raw";
++
++interface MarkdownBodyProps {
++  content: string;
++}
++
++export function MarkdownBody({ content }: MarkdownBodyProps) {
++  return (
++    <div className="prose prose-invert prose-sm max-w-none text-foreground [&_a]:text-info [&_a]:no-underline hover:[&_a]:underline [&_code]:rounded [&_code]:bg-surface-light [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-xs [&_code]:font-mono [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-border [&_pre]:bg-surface [&_pre]:p-4 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_img]:rounded-lg [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_th]:bg-surface-light [&_th]:px-3 [&_th]:py-1.5 [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-1.5 [&_hr]:border-border [&_blockquote]:border-l-accent [&_blockquote]:text-muted [&_input[type='checkbox']]:mr-2">
++      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
++        {content}
++      </ReactMarkdown>
++    </div>
++  );
++}
+diff --git a/src/components/repo/open-issues-list.tsx b/src/components/repo/open-issues-list.tsx
+new file mode 100644
+index 0000000..e0d2893
+--- /dev/null
++++ b/src/components/repo/open-issues-list.tsx
+@@ -0,0 +1,43 @@
++import Link from "next/link";
++import { Avatar } from "@/components/ui/avatar";
++import { formatDistanceToNow } from "date-fns";
++import type { IssueSummary } from "@/types/repository";
++
++interface OpenIssuesListProps {
++  issues: IssueSummary[];
++  owner: string;
++  repo: string;
++  max?: number;
++}
++
++export function OpenIssuesList({ issues, owner, repo, max = 5 }: OpenIssuesListProps) {
++  const visible = issues.slice(0, max);
++
++  if (visible.length === 0) {
++    return (
++      <p className="text-sm text-muted">No open issues</p>
++    );
++  }
++
++  return (
++    <div className="space-y-1">
++      {visible.map((issue) => (
++        <Link
++          key={issue.number}
++          href={`/${owner}/${repo}/issues/${issue.number}`}
++          className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-surface-light"
++        >
++          <Avatar src={issue.user.avatar_url} alt={issue.user.login} size={24} />
++          <div className="min-w-0 flex-1">
++            <p className="truncate text-sm text-foreground">
++              {issue.title}
++            </p>
++            <p className="text-xs text-muted">
++              #{issue.number} &middot; {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true })}
++            </p>
++          </div>
++        </Link>
++      ))}
++    </div>
++  );
++}
+diff --git a/src/components/repo/open-prs-list.tsx b/src/components/repo/open-prs-list.tsx
+new file mode 100644
+index 0000000..cc386a5
+--- /dev/null
++++ b/src/components/repo/open-prs-list.tsx
+@@ -0,0 +1,43 @@
++import Link from "next/link";
++import { Avatar } from "@/components/ui/avatar";
++import { formatDistanceToNow } from "date-fns";
++import type { PullRequestSummary } from "@/types/repository";
++
++interface OpenPRsListProps {
++  pulls: PullRequestSummary[];
++  owner: string;
++  repo: string;
++  max?: number;
++}
++
++export function OpenPRsList({ pulls, owner, repo, max = 5 }: OpenPRsListProps) {
++  const visible = pulls.slice(0, max);
++
++  if (visible.length === 0) {
++    return (
++      <p className="text-sm text-muted">No open pull requests</p>
++    );
++  }
++
++  return (
++    <div className="space-y-1">
++      {visible.map((pr) => (
++        <Link
++          key={pr.number}
++          href={`/${owner}/${repo}/pulls/${pr.number}`}
++          className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-surface-light"
++        >
++          <Avatar src={pr.user.avatar_url} alt={pr.user.login} size={24} />
++          <div className="min-w-0 flex-1">
++            <p className="truncate text-sm text-foreground">
++              {pr.title}
++            </p>
++            <p className="text-xs text-muted">
++              #{pr.number} &middot; {formatDistanceToNow(new Date(pr.created_at), { addSuffix: true })}
++            </p>
++          </div>
++        </Link>
++      ))}
++    </div>
++  );
++}
+diff --git a/src/components/repo/pr-detail.tsx b/src/components/repo/pr-detail.tsx
+new file mode 100644
+index 0000000..99757bc
+--- /dev/null
++++ b/src/components/repo/pr-detail.tsx
+@@ -0,0 +1,146 @@
++import Link from "next/link";
++import { Avatar } from "@/components/ui/avatar";
++import { Badge } from "@/components/ui/badge";
++import { LabelBadge } from "./label-badge";
++import { MarkdownBody } from "./markdown-body";
++import { formatDistanceToNow } from "date-fns";
++import type { PullRequestDetail as PRDetailType } from "@/types/repository";
++
++interface PRDetailProps {
++  pr: PRDetailType;
++  owner: string;
++  repo: string;
++  checkpointId?: string;
++}
++
++function prStatusVariant(pr: PRDetailType): "success" | "danger" | "purple" | "muted" {
++  if (pr.merged) return "purple";
++  if (pr.draft) return "muted";
++  if (pr.state === "closed") return "danger";
++  return "success";
++}
++
++function prStatusLabel(pr: PRDetailType): string {
++  if (pr.merged) return "Merged";
++  if (pr.draft) return "Draft";
++  if (pr.state === "closed") return "Closed";
++  return "Open";
++}
++
++export function PRDetail({ pr, owner, repo, checkpointId }: PRDetailProps) {
++  return (
++    <div className="space-y-6">
++      {/* Header */}
++      <div>
++        <div className="flex items-start gap-3">
++          <h2 className="text-lg font-semibold text-foreground">
++            {pr.title}
++            <span className="ml-2 text-muted font-normal">#{pr.number}</span>
++          </h2>
++        </div>
++
++        <div className="mt-3 flex flex-wrap items-center gap-2">
++          <Badge variant={prStatusVariant(pr)}>
++            {prStatusLabel(pr)}
++          </Badge>
++
++          <span className="text-sm text-muted">
++            <span className="text-foreground">{pr.user.login}</span> wants to merge{" "}
++            {pr.commits} commit{pr.commits !== 1 ? "s" : ""} into{" "}
++            <span className="rounded-md bg-surface-light border border-border px-1.5 py-0.5 font-mono text-xs text-info">
++              {pr.base.ref}
++            </span>{" "}
++            from{" "}
++            <span className="rounded-md bg-surface-light border border-border px-1.5 py-0.5 font-mono text-xs text-info">
++              {pr.head.ref}
++            </span>
++          </span>
++          <span className="flex-1" />
++          {checkpointId && (
++            <Link
++              href={`/${owner}/${repo}/checkpoints/${checkpointId}`}
++              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-light transition-colors hover:bg-accent/20"
++            >
++              See Checkpoint
++            </Link>
++          )}
++          <a
++            href={`https://github.com/${owner}/${repo}/pull/${pr.number}`}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-surface-light"
++          >
++            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++              <polyline points="15 3 21 3 21 9" />
++              <line x1="10" y1="14" x2="21" y2="3" />
++            </svg>
++            See on GitHub
++          </a>
++        </div>
++      </div>
++
++      <div className="flex gap-6">
++        {/* Main content */}
++        <div className="min-w-0 flex-1 space-y-4">
++          {/* PR body */}
++          <div className="rounded-xl border border-border bg-surface p-5">
++            <div className="mb-4 flex items-center gap-3">
++              <Avatar src={pr.user.avatar_url} alt={pr.user.login} size={28} />
++              <div>
++                <span className="text-sm font-medium text-foreground">{pr.user.login}</span>
++                <span className="ml-2 text-xs text-muted">
++                  commented {formatDistanceToNow(new Date(pr.created_at), { addSuffix: true })}
++                </span>
++              </div>
++            </div>
++            {pr.body ? (
++              <MarkdownBody content={pr.body} />
++            ) : (
++              <p className="text-sm text-muted italic">No description provided.</p>
++            )}
++          </div>
++        </div>
++
++        {/* Sidebar */}
++        <aside className="hidden w-56 shrink-0 space-y-4 lg:block">
++          {/* Labels */}
++          {pr.labels.length > 0 && (
++            <div>
++              <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Labels</h4>
++              <div className="flex flex-wrap gap-1">
++                {pr.labels.map((label) => (
++                  <LabelBadge key={label.id} label={label} />
++                ))}
++              </div>
++            </div>
++          )}
++
++          {/* Stats */}
++          <div className="space-y-2 border-t border-border pt-4">
++            <div className="flex justify-between text-sm">
++              <span className="text-muted">Commits</span>
++              <span className="text-foreground">{pr.commits}</span>
++            </div>
++            <div className="flex justify-between text-sm">
++              <span className="text-muted">Changed files</span>
++              <span className="text-foreground">{pr.changed_files}</span>
++            </div>
++            <div className="flex justify-between text-sm">
++              <span className="text-muted">Additions</span>
++              <span className="text-success">+{pr.additions}</span>
++            </div>
++            <div className="flex justify-between text-sm">
++              <span className="text-muted">Deletions</span>
++              <span className="text-red-400">-{pr.deletions}</span>
++            </div>
++            <div className="flex justify-between text-sm">
++              <span className="text-muted">Comments</span>
++              <span className="text-foreground">{pr.comments + pr.review_comments}</span>
++            </div>
++          </div>
++        </aside>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/repo/pr-list.tsx b/src/components/repo/pr-list.tsx
+new file mode 100644
+index 0000000..2826dfb
+--- /dev/null
++++ b/src/components/repo/pr-list.tsx
+@@ -0,0 +1,126 @@
++"use client";
++
++import { useState } from "react";
++import Link from "next/link";
++import { useRouter } from "next/navigation";
++import { Avatar } from "@/components/ui/avatar";
++import { Badge } from "@/components/ui/badge";
++import { LabelBadge } from "./label-badge";
++import { StateFilter } from "./state-filter";
++import { formatDistanceToNow } from "date-fns";
++import { EmptyState } from "@/components/ui/empty-state";
++import { Skeleton } from "@/components/ui/skeleton";
++import { usePulls } from "@/hooks/use-pulls";
++
++interface PRListProps {
++  owner: string;
++  repo: string;
++  findCheckpoint?: (branch: string) => string | undefined;
++}
++
++function PRStatusIcon({ merged, draft, state }: { merged: boolean; draft: boolean; state: string }) {
++  if (merged) {
++    return (
++      <svg width="16" height="16" viewBox="0 0 16 16" className="text-purple-pr shrink-0">
++        <path fill="currentColor" d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h1.378a2.251 2.251 0 1 1 0 1.5H9.25A5.734 5.734 0 0 1 5 5.846V9.5a2.25 2.25 0 1 1-1.5 0V5.154a2.25 2.25 0 1 1 1.95 0Z" />
++      </svg>
++    );
++  }
++
++  if (state === "closed") {
++    return (
++      <svg width="16" height="16" viewBox="0 0 16 16" className="text-danger shrink-0">
++        <path fill="currentColor" d="M3.25 1A2.25 2.25 0 0 1 4 5.372v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 3.25 1Zm9.5 5.5a.75.75 0 0 1 .75.75v3.378a2.251 2.251 0 1 1-1.5 0V7.25a.75.75 0 0 1 .75-.75Z" />
++      </svg>
++    );
++  }
++
++  return (
++    <svg width="16" height="16" viewBox="0 0 16 16" className={`${draft ? "text-muted" : "text-success"} shrink-0`}>
++      <path fill="currentColor" d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm9.5 1.064v5.256a2.25 2.25 0 1 1-1.5 0V4.314A3.21 3.21 0 0 1 8 2.25a.75.75 0 0 1 1.5 0 1.71 1.71 0 0 0 .833 1.456A2.25 2.25 0 0 1 14 3.25a.75.75 0 0 1-1.5 0 .75.75 0 0 0-1.5 0v1.064Z" />
++    </svg>
++  );
++}
++
++export function PRList({ owner, repo, findCheckpoint }: PRListProps) {
++  const router = useRouter();
++  const [state, setState] = useState<"open" | "closed">("open");
++  const { pulls, isLoading } = usePulls(owner, repo, state);
++
++  return (
++    <div className="space-y-4">
++      <StateFilter state={state} onChange={setState} />
++
++      {isLoading ? (
++        <div className="space-y-2">
++          {Array.from({ length: 5 }).map((_, i) => (
++            <Skeleton key={i} className="h-16" />
++          ))}
++        </div>
++      ) : !pulls || pulls.length === 0 ? (
++        <EmptyState
++          title={`No ${state} pull requests`}
++          description={`There are no ${state} pull requests in this repository.`}
++        />
++      ) : (
++        <div className="space-y-1">
++          {pulls.map((pr) => (
++            <div
++              key={pr.number}
++              role="link"
++              tabIndex={0}
++              onClick={() => router.push(`/${owner}/${repo}/pulls/${pr.number}`)}
++              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/${owner}/${repo}/pulls/${pr.number}`); }}
++              className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-accent/30 hover:bg-surface-light"
++            >
++              <PRStatusIcon merged={pr.merged} draft={pr.draft} state={pr.state} />
++              <div className="min-w-0 flex-1">
++                <div className="flex items-start gap-2">
++                  <span className="text-sm font-medium text-foreground">
++                    {pr.title}
++                  </span>
++                  {pr.labels.map((label) => (
++                    <LabelBadge key={label.id} label={label} />
++                  ))}
++                  {pr.draft && <Badge variant="muted">Draft</Badge>}
++                </div>
++                <p className="mt-1 text-xs text-muted">
++                  #{pr.number} opened {formatDistanceToNow(new Date(pr.created_at), { addSuffix: true })} by {pr.user.login}
++                </p>
++              </div>
++              <div className="flex items-center gap-2 shrink-0">
++                <Avatar src={pr.user.avatar_url} alt={pr.user.login} size={20} />
++                {pr.comments > 0 && (
++                  <span className="text-xs text-muted">{pr.comments}</span>
++                )}
++              </div>
++              {findCheckpoint?.(pr.head.ref) && (
++                <Link
++                  href={`/${owner}/${repo}/checkpoints/${findCheckpoint(pr.head.ref)}`}
++                  onClick={(e) => e.stopPropagation()}
++                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-accent/30 bg-accent/10 px-2 py-1 text-xs text-accent-light transition-colors hover:bg-accent/20"
++                >
++                  See Checkpoint
++                </Link>
++              )}
++              <a
++                href={`https://github.com/${owner}/${repo}/pull/${pr.number}`}
++                target="_blank"
++                rel="noopener noreferrer"
++                onClick={(e) => e.stopPropagation()}
++                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-muted transition-colors hover:bg-surface-light hover:text-foreground"
++              >
++                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++                  <polyline points="15 3 21 3 21 9" />
++                  <line x1="10" y1="14" x2="21" y2="3" />
++                </svg>
++                See on GitHub
++              </a>
++            </div>
++          ))}
++        </div>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/repo/recent-commits-table.tsx b/src/components/repo/recent-commits-table.tsx
+new file mode 100644
+index 0000000..3b66a05
+--- /dev/null
++++ b/src/components/repo/recent-commits-table.tsx
+@@ -0,0 +1,147 @@
++"use client";
++
++import { useRouter } from "next/navigation";
++import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
++import { DataTable } from "@/components/ui/data-table";
++import { Avatar } from "@/components/ui/avatar";
++import { Skeleton } from "@/components/ui/skeleton";
++import { cn } from "@/lib/utils";
++import { formatDistanceToNow } from "date-fns";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++
++export function RecentCommitsTable() {
++  const router = useRouter();
++  const { items, isLoading } = useRecentCheckpoints();
++
++  if (isLoading) {
++    return <Skeleton className="h-48" />;
++  }
++
++  if (!items || items.length === 0) {
++    return null;
++  }
++
++  return (
++    <DataTable<RepoLatestCheckpoint>
++      data={items}
++      onRowClick={(item) =>
++        router.push(
++          `/${item.owner}/${item.repo}/checkpoints/${item.checkpoint.id}`
++        )
++      }
++      columns={[
++        {
++          key: "repo",
++          header: "Repository",
++          render: (item) => (
++            <span
++              className={cn(
++                "text-sm font-medium text-foreground",
++                item.commit === null && "opacity-40"
++              )}
++            >
++              {item.owner}/{item.repo}
++            </span>
++          ),
++          className: "w-48",
++        },
++        {
++          key: "message",
++          header: "Commit",
++          render: (item) => {
++            const stale = item.commit === null;
++            const text = (() => {
++              const msg = item.commit?.message;
++              if (msg && /^Implement the following plan/i.test(msg)) {
++                // Inline: "Implement the following plan: Title"
++                const inline = msg
++                  .split("\n")[0]
++                  .replace(/^Implement the following plan[:\s]*/i, "")
++                  .trim();
++                if (inline) return inline;
++                // Multi-line: title is a markdown heading in the body
++                const heading = msg
++                  .split("\n")
++                  .find((l) => /^#+\s/.test(l.trim()));
++                if (heading) return heading.trim().replace(/^#+\s*/, "");
++              }
++              return msg?.split("\n")[0] || item.summary || null;
++            })();
++            return (
++              <div className="flex items-center gap-2">
++                {stale && (
++                  <span className="group/warn relative shrink-0 cursor-help">
++                    &#x26A0;&#xFE0F;
++                    <span className="pointer-events-none invisible absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg group-hover/warn:visible">
++                      This commit no longer exists &mdash; likely rebased, squashed, or force-pushed
++                    </span>
++                  </span>
++                )}
++                {text && (
++                  <span
++                    className={cn(
++                      "truncate text-sm text-foreground",
++                      stale && "opacity-40"
++                    )}
++                  >
++                    {text}
++                  </span>
++                )}
++                <span
++                  className={cn(
++                    "shrink-0 font-mono text-xs text-muted",
++                    stale && "opacity-40"
++                  )}
++                >
++                  {item.checkpoint.commit_hash.slice(0, 7)}
++                </span>
++              </div>
++            );
++          },
++        },
++        {
++          key: "agent",
++          header: "Agent",
++          render: (item) => (
++            <div
++              className={cn(
++                "flex items-center gap-2",
++                item.commit === null && "opacity-40"
++              )}
++            >
++              <Avatar
++                src={item.commit?.author?.avatar_url ?? null}
++                alt={item.commit?.author?.login ?? item.checkpoint.agent}
++                size={20}
++              />
++              <span className="whitespace-nowrap text-sm text-muted">
++                {item.checkpoint.agent}
++              </span>
++              <span className="font-mono text-xs text-accent-light">
++                {item.checkpoint.agent_percent}%
++              </span>
++            </div>
++          ),
++          className: "w-52",
++        },
++        {
++          key: "date",
++          header: "When",
++          render: (item) => (
++            <span
++              className={cn(
++                "text-sm text-muted",
++                item.commit === null && "opacity-40"
++              )}
++            >
++              {formatDistanceToNow(new Date(item.checkpoint.created_at), {
++                addSuffix: true,
++              })}
++            </span>
++          ),
++          className: "w-36",
++        },
++      ]}
++    />
++  );
++}
+diff --git a/src/components/repo/repo-sidebar-info.tsx b/src/components/repo/repo-sidebar-info.tsx
+new file mode 100644
+index 0000000..c1d4c10
+--- /dev/null
++++ b/src/components/repo/repo-sidebar-info.tsx
+@@ -0,0 +1,117 @@
++import { Badge } from "@/components/ui/badge";
++import { ContributorAvatars } from "./contributor-avatars";
++import { formatDistanceToNow } from "date-fns";
++import type { RepoDetail, Contributor } from "@/types/repository";
++
++interface RepoSidebarInfoProps {
++  repo: RepoDetail;
++  contributors?: Contributor[];
++  activityChart?: React.ReactNode;
++}
++
++function formatSize(sizeKB: number): string {
++  if (sizeKB < 1024) return `${sizeKB} KB`;
++  return `${(sizeKB / 1024).toFixed(1)} MB`;
++}
++
++export function RepoSidebarInfo({ repo, contributors, activityChart }: RepoSidebarInfoProps) {
++  return (
++    <div className="space-y-5">
++      {/* Description */}
++      {repo.description && (
++        <p className="text-sm text-foreground leading-relaxed">
++          {repo.description}
++        </p>
++      )}
++
++      {/* Topics */}
++      {repo.topics.length > 0 && (
++        <div className="flex flex-wrap gap-1.5">
++          {repo.topics.map((topic) => (
++            <Badge key={topic} variant="default" className="text-xs">
++              {topic}
++            </Badge>
++          ))}
++        </div>
++      )}
++
++      {/* Quick actions */}
++      <div className="flex gap-2">
++        <a
++          href={repo.html_url}
++          target="_blank"
++          rel="noopener noreferrer"
++          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-surface-light"
++        >
++          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
++            <polyline points="15 3 21 3 21 9" />
++            <line x1="10" y1="14" x2="21" y2="3" />
++          </svg>
++          Open on GitHub
++        </a>
++      </div>
++
++      {/* Metadata */}
++      <div className="space-y-3 border-t border-border pt-4">
++        <MetaRow label="Language" value={repo.language ?? "—"} />
++        <MetaRow label="License" value={repo.license ?? "None"} />
++        <MetaRow label="Default branch" value={repo.default_branch} mono />
++        <MetaRow
++          label="Last push"
++          value={formatDistanceToNow(new Date(repo.pushed_at), { addSuffix: true })}
++        />
++        <MetaRow label="Size" value={formatSize(repo.size)} />
++        {repo.homepage && (
++          <MetaRow
++            label="Homepage"
++            value={
++              <a
++                href={repo.homepage}
++                target="_blank"
++                rel="noopener noreferrer"
++                className="text-info hover:underline"
++              >
++                {repo.homepage.replace(/^https?:\/\//, "")}
++              </a>
++            }
++          />
++        )}
++      </div>
++
++      {/* Checkpoint activity */}
++      {activityChart && (
++        <div className="border-t border-border pt-4">{activityChart}</div>
++      )}
++
++      {/* Contributors */}
++      {contributors && contributors.length > 0 && (
++        <div className="space-y-3 border-t border-border pt-4">
++          <h4 className="text-xs font-medium uppercase tracking-wider text-muted">
++            Contributors
++          </h4>
++          <ContributorAvatars contributors={contributors} />
++        </div>
++      )}
++    </div>
++  );
++}
++
++function MetaRow({
++  label,
++  value,
++  mono,
++}: {
++  label: string;
++  value: React.ReactNode;
++  mono?: boolean;
++}) {
++  return (
++    <div className="flex items-center justify-between text-sm">
++      <span className="text-muted">{label}</span>
++      <span className={mono ? "font-mono text-xs text-foreground" : "text-foreground"}>
++        {value}
++      </span>
++    </div>
++  );
++}
+diff --git a/src/components/repo/repo-stats-bar.tsx b/src/components/repo/repo-stats-bar.tsx
+new file mode 100644
+index 0000000..13c3940
+--- /dev/null
++++ b/src/components/repo/repo-stats-bar.tsx
+@@ -0,0 +1,26 @@
++import { StatCard } from "@/components/ui/stat-card";
++import type { RepoDetail } from "@/types/repository";
++
++interface RepoStatsBarProps {
++  repo: RepoDetail;
++  openPRs?: number;
++  openIssues?: number;
++}
++
++export function RepoStatsBar({ repo, openPRs, openIssues }: RepoStatsBarProps) {
++  return (
++    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
++      <StatCard label="Stars" value={repo.stargazers_count.toLocaleString()} />
++      <StatCard label="Forks" value={repo.forks_count.toLocaleString()} />
++      <StatCard label="Watchers" value={repo.watchers_count.toLocaleString()} />
++      <StatCard
++        label="Open PRs"
++        value={openPRs !== undefined ? openPRs.toLocaleString() : "—"}
++      />
++      <StatCard
++        label="Open Issues"
++        value={openIssues !== undefined ? openIssues.toLocaleString() : "—"}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/repo/state-filter.tsx b/src/components/repo/state-filter.tsx
+new file mode 100644
+index 0000000..ecefe21
+--- /dev/null
++++ b/src/components/repo/state-filter.tsx
+@@ -0,0 +1,44 @@
++"use client";
++
++import { cn } from "@/lib/utils";
++
++interface StateFilterProps {
++  state: "open" | "closed";
++  onChange: (state: "open" | "closed") => void;
++  openLabel?: string;
++  closedLabel?: string;
++}
++
++export function StateFilter({
++  state,
++  onChange,
++  openLabel = "Open",
++  closedLabel = "Closed",
++}: StateFilterProps) {
++  return (
++    <div className="inline-flex rounded-lg border border-border bg-surface">
++      <button
++        onClick={() => onChange("open")}
++        className={cn(
++          "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer",
++          state === "open"
++            ? "bg-accent/10 text-accent-light"
++            : "text-muted hover:text-foreground"
++        )}
++      >
++        {openLabel}
++      </button>
++      <button
++        onClick={() => onChange("closed")}
++        className={cn(
++          "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer border-l border-border",
++          state === "closed"
++            ? "bg-accent/10 text-accent-light"
++            : "text-muted hover:text-foreground"
++        )}
++      >
++        {closedLabel}
++      </button>
++    </div>
++  );
++}
+diff --git a/src/components/ui/badge.tsx b/src/components/ui/badge.tsx
+index 7b51d76..c387938 100644
+--- a/src/components/ui/badge.tsx
++++ b/src/components/ui/badge.tsx
+@@ -1,15 +1,36 @@
+ import { cn } from "@/lib/utils";
+ 
++type BadgeVariant = "default" | "success" | "danger" | "purple" | "muted";
++
+ interface BadgeProps {
+   children: React.ReactNode;
+   className?: string;
++  variant?: BadgeVariant;
+ }
+ 
+-export function Badge({ children, className }: BadgeProps) {
++const variantStyles: Record<BadgeVariant, string> = {
++  default:
++    "border-accent/30 bg-accent/10 text-accent-light",
++  success:
++    "border-success/30 bg-success/10 text-success",
++  danger:
++    "border-red-500/30 bg-red-500/10 text-red-400",
++  purple:
++    "border-purple-pr/30 bg-purple-pr/10 text-purple-pr",
++  muted:
++    "border-muted/30 bg-muted/10 text-muted",
++};
++
++export function Badge({
++  children,
++  className,
++  variant = "default",
++}: BadgeProps) {
+   return (
+     <span
+       className={cn(
+-        "inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent-light",
++        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium",
++        variantStyles[variant],
+         className
+       )}
+     >
+diff --git a/src/components/ui/checkpoint-actions.tsx b/src/components/ui/checkpoint-actions.tsx
+index dc9c8fd..b3c7b60 100644
+--- a/src/components/ui/checkpoint-actions.tsx
++++ b/src/components/ui/checkpoint-actions.tsx
+@@ -39,7 +39,7 @@ export function CheckpointActions({
+       <div className="shrink-0 rounded-lg border border-accent-orange/20 bg-accent-orange/5 p-3">
+         <button
+           onClick={() => handleCopy("resume", command)}
+-          className="inline-flex items-center gap-1.5 rounded-md border border-accent-orange/30 bg-accent-orange/15 px-2.5 py-1 text-xs font-medium text-accent-orange transition-colors hover:bg-accent-orange/25 cursor-pointer"
++          className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-md border border-accent-orange/30 bg-accent-orange/15 px-2.5 py-1 text-xs font-medium text-accent-orange transition-colors hover:bg-accent-orange/25 cursor-pointer"
+         >
+           <svg
+             width="14"
+@@ -56,7 +56,7 @@ export function CheckpointActions({
+           </svg>
+           {copied === "resume" ? "Copied!" : "Resume Claude Code Session"}
+         </button>
+-        <code className="mt-2 block rounded bg-surface px-2 py-1.5 font-mono text-[11px] text-muted">
++        <code className="mt-2 block whitespace-nowrap rounded bg-surface px-2 py-1.5 font-mono text-[11px] text-muted">
+           {command}
+         </code>
+       </div>
+diff --git a/src/components/ui/data-table.tsx b/src/components/ui/data-table.tsx
+index 191a099..3a5b5ef 100644
+--- a/src/components/ui/data-table.tsx
++++ b/src/components/ui/data-table.tsx
+@@ -11,6 +11,7 @@ interface DataTableProps<T> {
+   columns: Column<T>[];
+   data: T[];
+   onRowClick?: (item: T) => void;
++  rowClassName?: (item: T) => string;
+   className?: string;
+ }
+ 
+@@ -18,6 +19,7 @@ export function DataTable<T>({
+   columns,
+   data,
+   onRowClick,
++  rowClassName,
+   className,
+ }: DataTableProps<T>) {
+   return (
+@@ -50,7 +52,8 @@ export function DataTable<T>({
+               onClick={() => onRowClick?.(item)}
+               className={cn(
+                 "border-b border-border bg-surface/50 transition-colors last:border-b-0",
+-                onRowClick && "cursor-pointer hover:bg-surface-light"
++                onRowClick && "cursor-pointer hover:bg-surface-light",
++                rowClassName?.(item)
+               )}
+             >
+               {columns.map((col) => (
+diff --git a/src/components/ui/overview-stats.tsx b/src/components/ui/overview-stats.tsx
+new file mode 100644
+index 0000000..65834d0
+--- /dev/null
++++ b/src/components/ui/overview-stats.tsx
+@@ -0,0 +1,41 @@
++import type { OverviewStats } from "@/types/checkpoint";
++import { StatCard } from "@/components/ui/stat-card";
++
++interface OverviewStatsRowProps {
++  stats: OverviewStats;
++}
++
++export function OverviewStatsRow({ stats }: OverviewStatsRowProps) {
++  const weekTrend =
++    stats.prev_week > 0
++      ? Math.round(
++          ((stats.this_week - stats.prev_week) / stats.prev_week) * 100
++        )
++      : stats.this_week > 0
++        ? 100
++        : 0;
++
++  return (
++    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
++      <StatCard
++        label="Total Checkpoints"
++        value={stats.total_checkpoints}
++        subtitle={`across ${stats.active_repos} repo${stats.active_repos !== 1 ? "s" : ""}`}
++      />
++      <StatCard
++        label="This Week"
++        value={stats.this_week}
++        trend={weekTrend}
++      />
++      <StatCard
++        label="Avg AI Authorship"
++        value={`${stats.avg_agent_percent}%`}
++      />
++      <StatCard
++        label="Active Streak"
++        value={stats.streak_days}
++        unit={stats.streak_days === 1 ? "day" : "days"}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/ui/stat-card.tsx b/src/components/ui/stat-card.tsx
+index 672ffbf..55d8b5d 100644
+--- a/src/components/ui/stat-card.tsx
++++ b/src/components/ui/stat-card.tsx
+@@ -4,10 +4,12 @@ interface StatCardProps {
+   label: string;
+   value: string | number;
+   unit?: string;
++  subtitle?: string;
++  trend?: number;
+   className?: string;
+ }
+ 
+-export function StatCard({ label, value, unit, className }: StatCardProps) {
++export function StatCard({ label, value, unit, subtitle, trend, className }: StatCardProps) {
+   return (
+     <div
+       className={cn(
+@@ -23,7 +25,20 @@ export function StatCard({ label, value, unit, className }: StatCardProps) {
+           {value}
+         </span>
+         {unit && <span className="text-sm text-muted">{unit}</span>}
++        {trend !== undefined && trend !== 0 && (
++          <span
++            className={cn(
++              "ml-1 text-xs font-medium",
++              trend > 0 ? "text-green-400" : "text-red-400"
++            )}
++          >
++            {trend > 0 ? "\u2191" : "\u2193"} {Math.abs(trend)}%
++          </span>
++        )}
+       </div>
++      {subtitle && (
++        <p className="mt-1 text-xs text-muted">{subtitle}</p>
++      )}
+     </div>
+   );
+ }
+diff --git a/src/hooks/use-activity.ts b/src/hooks/use-activity.ts
+new file mode 100644
+index 0000000..5b01312
+--- /dev/null
++++ b/src/hooks/use-activity.ts
+@@ -0,0 +1,17 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { WeeklyActivity } from "@/types/repository";
++
++export function useActivity(owner: string, repo: string) {
++  const { data, error, isLoading } = useSWR<WeeklyActivity[]>(
++    `/api/github/repos/${owner}/${repo}/activity`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 60000 }
++  );
++
++  return {
++    activity: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-branches.ts b/src/hooks/use-branches.ts
+new file mode 100644
+index 0000000..61908f7
+--- /dev/null
++++ b/src/hooks/use-branches.ts
+@@ -0,0 +1,17 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { BranchSummary } from "@/lib/github/branches";
++
++export function useBranches(owner: string, repo: string) {
++  const { data, error, isLoading } = useSWR<BranchSummary[]>(
++    `/api/github/repos/${owner}/${repo}/branches`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 60000 }
++  );
++
++  return {
++    branches: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-checkpoints.ts b/src/hooks/use-checkpoints.ts
+index a6bdb56..d1b5dfd 100644
+--- a/src/hooks/use-checkpoints.ts
++++ b/src/hooks/use-checkpoints.ts
+@@ -1,12 +1,7 @@
+ import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
+ import type { CheckpointMetadata, Message } from "@/types/checkpoint";
+ 
+-const fetcher = async (url: string) => {
+-  const res = await fetch(url);
+-  if (!res.ok) throw new Error(`${res.status}`);
+-  return res.json();
+-};
+-
+ export function useCheckpoints(owner: string, repo: string) {
+   const { data, error, isLoading } = useSWR<CheckpointMetadata[]>(
+     `/api/github/repos/${owner}/${repo}/checkpoints`,
+diff --git a/src/hooks/use-commits.ts b/src/hooks/use-commits.ts
+new file mode 100644
+index 0000000..c7ded16
+--- /dev/null
++++ b/src/hooks/use-commits.ts
+@@ -0,0 +1,32 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { CommitSummary, CommitDetail } from "@/types/repository";
++
++export function useCommits(owner: string, repo: string, sha?: string) {
++  const params = sha ? `?sha=${encodeURIComponent(sha)}` : "";
++  const { data, error, isLoading } = useSWR<CommitSummary[]>(
++    `/api/github/repos/${owner}/${repo}/commits${params}`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 30000 }
++  );
++
++  return {
++    commits: data,
++    isLoading,
++    isError: !!error,
++  };
++}
++
++export function useCommit(owner: string, repo: string, sha: string) {
++  const { data, error, isLoading } = useSWR<CommitDetail>(
++    sha ? `/api/github/repos/${owner}/${repo}/commits/${sha}` : null,
++    fetcher,
++    { revalidateOnFocus: false }
++  );
++
++  return {
++    commit: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-contents.ts b/src/hooks/use-contents.ts
+new file mode 100644
+index 0000000..490eb00
+--- /dev/null
++++ b/src/hooks/use-contents.ts
+@@ -0,0 +1,25 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { TreeEntry, FileContent } from "@/types/repository";
++
++type ContentsResult =
++  | { type: "dir"; entries: TreeEntry[] }
++  | { type: "file"; file: FileContent };
++
++export function useContents(owner: string, repo: string, path: string = "") {
++  const apiPath = path
++    ? `/api/github/repos/${owner}/${repo}/contents/${path}`
++    : `/api/github/repos/${owner}/${repo}/contents`;
++
++  const { data, error, isLoading } = useSWR<ContentsResult>(
++    apiPath,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 30000 }
++  );
++
++  return {
++    contents: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-contributors.ts b/src/hooks/use-contributors.ts
+new file mode 100644
+index 0000000..9efc2c3
+--- /dev/null
++++ b/src/hooks/use-contributors.ts
+@@ -0,0 +1,17 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { Contributor } from "@/types/repository";
++
++export function useContributors(owner: string, repo: string) {
++  const { data, error, isLoading } = useSWR<Contributor[]>(
++    `/api/github/repos/${owner}/${repo}/contributors`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 60000 }
++  );
++
++  return {
++    contributors: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-issues.ts b/src/hooks/use-issues.ts
+new file mode 100644
+index 0000000..ca7b6c2
+--- /dev/null
++++ b/src/hooks/use-issues.ts
+@@ -0,0 +1,35 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { IssueSummary, IssueDetail } from "@/types/repository";
++
++export function useIssues(
++  owner: string,
++  repo: string,
++  state: "open" | "closed" | "all" = "open"
++) {
++  const { data, error, isLoading } = useSWR<IssueSummary[]>(
++    `/api/github/repos/${owner}/${repo}/issues?state=${state}`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 30000 }
++  );
++
++  return {
++    issues: data,
++    isLoading,
++    isError: !!error,
++  };
++}
++
++export function useIssue(owner: string, repo: string, number: number) {
++  const { data, error, isLoading } = useSWR<IssueDetail>(
++    `/api/github/repos/${owner}/${repo}/issues/${number}`,
++    fetcher,
++    { revalidateOnFocus: false }
++  );
++
++  return {
++    issue: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-pulls.ts b/src/hooks/use-pulls.ts
+new file mode 100644
+index 0000000..6f4a88e
+--- /dev/null
++++ b/src/hooks/use-pulls.ts
+@@ -0,0 +1,35 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { PullRequestSummary, PullRequestDetail } from "@/types/repository";
++
++export function usePulls(
++  owner: string,
++  repo: string,
++  state: "open" | "closed" | "all" = "open"
++) {
++  const { data, error, isLoading } = useSWR<PullRequestSummary[]>(
++    `/api/github/repos/${owner}/${repo}/pulls?state=${state}`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 30000 }
++  );
++
++  return {
++    pulls: data,
++    isLoading,
++    isError: !!error,
++  };
++}
++
++export function usePullRequest(owner: string, repo: string, number: number) {
++  const { data, error, isLoading } = useSWR<PullRequestDetail>(
++    `/api/github/repos/${owner}/${repo}/pulls/${number}`,
++    fetcher,
++    { revalidateOnFocus: false }
++  );
++
++  return {
++    pr: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-recent-commits.ts b/src/hooks/use-recent-commits.ts
+new file mode 100644
+index 0000000..7adccb9
+--- /dev/null
++++ b/src/hooks/use-recent-commits.ts
+@@ -0,0 +1,25 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++import type { OverviewStats } from "@/types/checkpoint";
++
++interface RecentCheckpointsResponse {
++  items: RepoLatestCheckpoint[];
++  heatmap: Record<string, number>;
++  stats: OverviewStats;
++}
++
++export function useRecentCheckpoints() {
++  const { data, error, isLoading } = useSWR<RecentCheckpointsResponse>(
++    "/api/github/repos/recent-commits",
++    fetcher
++  );
++
++  return {
++    items: data?.items,
++    heatmap: data?.heatmap,
++    stats: data?.stats,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-repo-detail.ts b/src/hooks/use-repo-detail.ts
+new file mode 100644
+index 0000000..be6d21d
+--- /dev/null
++++ b/src/hooks/use-repo-detail.ts
+@@ -0,0 +1,17 @@
++import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
++import type { RepoDetail } from "@/types/repository";
++
++export function useRepoDetail(owner: string, repo: string) {
++  const { data, error, isLoading } = useSWR<RepoDetail>(
++    `/api/github/repos/${owner}/${repo}`,
++    fetcher,
++    { revalidateOnFocus: false, dedupingInterval: 60000 }
++  );
++
++  return {
++    repo: data,
++    isLoading,
++    isError: !!error,
++  };
++}
+diff --git a/src/hooks/use-repos.ts b/src/hooks/use-repos.ts
+index 476e737..d1d696b 100644
+--- a/src/hooks/use-repos.ts
++++ b/src/hooks/use-repos.ts
+@@ -1,12 +1,7 @@
+ import useSWR from "swr";
++import { fetcher } from "@/lib/fetcher";
+ import type { RepoWithCheckpoints } from "@/types/checkpoint";
+ 
+-const fetcher = async (url: string) => {
+-  const res = await fetch(url);
+-  if (!res.ok) throw new Error(`${res.status}`);
+-  return res.json();
+-};
+-
+ export function useRepos() {
+   const { data, error, isLoading } = useSWR<RepoWithCheckpoints[]>(
+     "/api/github/repos",
+diff --git a/src/lib/fetcher.ts b/src/lib/fetcher.ts
+new file mode 100644
+index 0000000..15795ff
+--- /dev/null
++++ b/src/lib/fetcher.ts
+@@ -0,0 +1,5 @@
++export async function fetcher<T = unknown>(url: string): Promise<T> {
++  const res = await fetch(url);
++  if (!res.ok) throw new Error(`${res.status}`);
++  return res.json();
++}
+diff --git a/src/lib/github/activity.ts b/src/lib/github/activity.ts
+new file mode 100644
+index 0000000..6ae7639
+--- /dev/null
++++ b/src/lib/github/activity.ts
+@@ -0,0 +1,28 @@
++import { Octokit } from "@octokit/rest";
++import type { WeeklyActivity } from "@/types/repository";
++
++export async function getCommitActivity(
++  octokit: Octokit,
++  owner: string,
++  repo: string
++): Promise<WeeklyActivity[]> {
++  try {
++    const response = await octokit.repos.getCommitActivityStats({
++      owner,
++      repo,
++    });
++
++    // GitHub returns 202 when stats are being computed
++    if (response.status === 202 || !Array.isArray(response.data)) {
++      return [];
++    }
++
++    return (response.data || []).map((week) => ({
++      week: week.week,
++      total: week.total,
++      days: week.days,
++    }));
++  } catch {
++    return [];
++  }
++}
+diff --git a/src/lib/github/branches.ts b/src/lib/github/branches.ts
+new file mode 100644
+index 0000000..33d95f2
+--- /dev/null
++++ b/src/lib/github/branches.ts
+@@ -0,0 +1,24 @@
++import { Octokit } from "@octokit/rest";
++
++export interface BranchSummary {
++  name: string;
++  isDefault: boolean;
++}
++
++export async function listBranches(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  defaultBranch: string
++): Promise<BranchSummary[]> {
++  const { data } = await octokit.repos.listBranches({
++    owner,
++    repo,
++    per_page: 100,
++  });
++
++  return data.map((b) => ({
++    name: b.name,
++    isDefault: b.name === defaultBranch,
++  }));
++}
+diff --git a/src/lib/github/commits.ts b/src/lib/github/commits.ts
+new file mode 100644
+index 0000000..eecfd93
+--- /dev/null
++++ b/src/lib/github/commits.ts
+@@ -0,0 +1,83 @@
++import { Octokit } from "@octokit/rest";
++import type { CommitSummary, CommitDetail } from "@/types/repository";
++
++export async function listCommits(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  options?: { per_page?: number; sha?: string }
++): Promise<CommitSummary[]> {
++  const { data } = await octokit.repos.listCommits({
++    owner,
++    repo,
++    per_page: options?.per_page ?? 30,
++    sha: options?.sha,
++  });
++
++  return data.map((c) => ({
++    sha: c.sha,
++    message: c.commit.message,
++    author: c.author
++      ? {
++          login: c.author.login,
++          avatar_url: c.author.avatar_url,
++          html_url: c.author.html_url,
++        }
++      : null,
++    date: c.commit.author?.date ?? c.commit.committer?.date ?? "",
++    committer: c.committer
++      ? {
++          login: c.committer.login,
++          avatar_url: c.committer.avatar_url,
++          html_url: c.committer.html_url,
++        }
++      : null,
++  }));
++}
++
++export async function getCommit(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  sha: string
++): Promise<CommitDetail> {
++  const { data: c } = await octokit.repos.getCommit({
++    owner,
++    repo,
++    ref: sha,
++  });
++
++  return {
++    sha: c.sha,
++    message: c.commit.message,
++    author: c.author
++      ? {
++          login: c.author.login,
++          avatar_url: c.author.avatar_url,
++          html_url: c.author.html_url,
++        }
++      : null,
++    date: c.commit.author?.date ?? c.commit.committer?.date ?? "",
++    committer: c.committer
++      ? {
++          login: c.committer.login,
++          avatar_url: c.committer.avatar_url,
++          html_url: c.committer.html_url,
++        }
++      : null,
++    files: (c.files || []).map((f) => ({
++      filename: f.filename ?? "",
++      status: f.status ?? "modified",
++      additions: f.additions ?? 0,
++      deletions: f.deletions ?? 0,
++      changes: f.changes ?? 0,
++      patch: f.patch,
++    })),
++    stats: {
++      total: c.stats?.total ?? 0,
++      additions: c.stats?.additions ?? 0,
++      deletions: c.stats?.deletions ?? 0,
++    },
++    parents: (c.parents || []).map((p) => ({ sha: p.sha })),
++  };
++}
+diff --git a/src/lib/github/contents.ts b/src/lib/github/contents.ts
+new file mode 100644
+index 0000000..8ce5de6
+--- /dev/null
++++ b/src/lib/github/contents.ts
+@@ -0,0 +1,64 @@
++import { Octokit } from "@octokit/rest";
++import type { TreeEntry, FileContent } from "@/types/repository";
++
++export async function getContents(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  path: string = "",
++  ref?: string
++): Promise<{ type: "dir"; entries: TreeEntry[] } | { type: "file"; file: FileContent }> {
++  const { data } = await octokit.repos.getContent({
++    owner,
++    repo,
++    path,
++    ref,
++  });
++
++  // Directory listing
++  if (Array.isArray(data)) {
++    const entries: TreeEntry[] = data
++      .map((item) => ({
++        name: item.name,
++        path: item.path,
++        type: (item.type === "dir" ? "dir" : "file") as "file" | "dir",
++        size: item.size ?? undefined,
++        sha: item.sha,
++      }))
++      .sort((a, b) => {
++        // Directories first, then files
++        if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
++        return a.name.localeCompare(b.name);
++      });
++
++    return { type: "dir", entries };
++  }
++
++  // Single file
++  if (data.type === "file" && "content" in data) {
++    return {
++      type: "file",
++      file: {
++        name: data.name,
++        path: data.path,
++        content: Buffer.from(data.content, "base64").toString("utf-8"),
++        size: data.size,
++        sha: data.sha,
++        encoding: data.encoding,
++      },
++    };
++  }
++
++  // Submodule or symlink — return as empty file
++  return {
++    type: "file",
++    file: {
++      name: data.name,
++      path: data.path,
++      content: "",
++      size: data.size,
++      sha: data.sha,
++      encoding: "none",
++    },
++  };
++}
+diff --git a/src/lib/github/contributors.ts b/src/lib/github/contributors.ts
+new file mode 100644
+index 0000000..c23d2d8
+--- /dev/null
++++ b/src/lib/github/contributors.ts
+@@ -0,0 +1,25 @@
++import { Octokit } from "@octokit/rest";
++import type { Contributor } from "@/types/repository";
++
++export async function listContributors(
++  octokit: Octokit,
++  owner: string,
++  repo: string
++): Promise<Contributor[]> {
++  try {
++    const { data } = await octokit.repos.listContributors({
++      owner,
++      repo,
++      per_page: 30,
++    });
++
++    return (data || []).map((c) => ({
++      login: c.login ?? "unknown",
++      avatar_url: c.avatar_url ?? "",
++      html_url: c.html_url ?? "",
++      contributions: c.contributions ?? 0,
++    }));
++  } catch {
++    return [];
++  }
++}
+diff --git a/src/lib/github/issues.ts b/src/lib/github/issues.ts
+new file mode 100644
+index 0000000..cc0e69d
+--- /dev/null
++++ b/src/lib/github/issues.ts
+@@ -0,0 +1,87 @@
++import { Octokit } from "@octokit/rest";
++import type { IssueSummary, IssueDetail } from "@/types/repository";
++
++export async function listIssues(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  options?: { state?: "open" | "closed" | "all"; per_page?: number }
++): Promise<IssueSummary[]> {
++  const { data } = await octokit.issues.listForRepo({
++    owner,
++    repo,
++    state: options?.state ?? "open",
++    sort: "updated",
++    direction: "desc",
++    per_page: options?.per_page ?? 30,
++  });
++
++  // Filter out pull requests (GitHub includes PRs in the issues endpoint)
++  return data
++    .filter((issue) => !issue.pull_request)
++    .map((issue) => ({
++      number: issue.number,
++      title: issue.title,
++      state: issue.state as "open" | "closed",
++      user: {
++        login: issue.user?.login ?? "unknown",
++        avatar_url: issue.user?.avatar_url ?? "",
++        html_url: issue.user?.html_url ?? "",
++      },
++      labels: (issue.labels || [])
++        .filter((l): l is { id: number; name: string; color: string; description: string | null } => typeof l !== "string")
++        .map((l) => ({
++          id: l.id ?? 0,
++          name: l.name ?? "",
++          color: l.color ?? "000000",
++          description: l.description ?? null,
++        })),
++      created_at: issue.created_at,
++      updated_at: issue.updated_at,
++      closed_at: issue.closed_at ?? null,
++      comments: issue.comments,
++    }));
++}
++
++export async function getIssue(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  number: number
++): Promise<IssueDetail> {
++  const { data: issue } = await octokit.issues.get({
++    owner,
++    repo,
++    issue_number: number,
++  });
++
++  return {
++    number: issue.number,
++    title: issue.title,
++    state: issue.state as "open" | "closed",
++    user: {
++      login: issue.user?.login ?? "unknown",
++      avatar_url: issue.user?.avatar_url ?? "",
++      html_url: issue.user?.html_url ?? "",
++    },
++    labels: (issue.labels || [])
++      .filter((l): l is { id: number; name: string; color: string; description: string | null } => typeof l !== "string")
++      .map((l) => ({
++        id: l.id ?? 0,
++        name: l.name ?? "",
++        color: l.color ?? "000000",
++        description: l.description ?? null,
++      })),
++    created_at: issue.created_at,
++    updated_at: issue.updated_at,
++    closed_at: issue.closed_at ?? null,
++    comments: issue.comments,
++    body: issue.body ?? null,
++    assignees: (issue.assignees || []).map((a) => ({
++      login: a.login,
++      avatar_url: a.avatar_url,
++      html_url: a.html_url,
++    })),
++    milestone: issue.milestone ? { title: issue.milestone.title } : null,
++  };
++}
+diff --git a/src/lib/github/pulls.ts b/src/lib/github/pulls.ts
+new file mode 100644
+index 0000000..e3adc51
+--- /dev/null
++++ b/src/lib/github/pulls.ts
+@@ -0,0 +1,90 @@
++import { Octokit } from "@octokit/rest";
++import type { PullRequestSummary, PullRequestDetail } from "@/types/repository";
++
++export async function listPullRequests(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  options?: { state?: "open" | "closed" | "all"; per_page?: number }
++): Promise<PullRequestSummary[]> {
++  const { data } = await octokit.pulls.list({
++    owner,
++    repo,
++    state: options?.state ?? "open",
++    sort: "updated",
++    direction: "desc",
++    per_page: options?.per_page ?? 30,
++  });
++
++  return data.map((pr) => ({
++    number: pr.number,
++    title: pr.title,
++    state: pr.state as "open" | "closed",
++    merged: pr.merged_at !== null,
++    draft: pr.draft ?? false,
++    user: {
++      login: pr.user?.login ?? "unknown",
++      avatar_url: pr.user?.avatar_url ?? "",
++      html_url: pr.user?.html_url ?? "",
++    },
++    labels: (pr.labels || []).map((l) => ({
++      id: l.id ?? 0,
++      name: l.name ?? "",
++      color: l.color ?? "000000",
++      description: l.description ?? null,
++    })),
++    created_at: pr.created_at,
++    updated_at: pr.updated_at,
++    closed_at: pr.closed_at,
++    merged_at: pr.merged_at,
++    comments: (pr as unknown as { comments?: number }).comments ?? 0,
++    head: { ref: pr.head.ref },
++    base: { ref: pr.base.ref },
++  }));
++}
++
++export async function getPullRequest(
++  octokit: Octokit,
++  owner: string,
++  repo: string,
++  number: number
++): Promise<PullRequestDetail> {
++  const { data: pr } = await octokit.pulls.get({
++    owner,
++    repo,
++    pull_number: number,
++  });
++
++  return {
++    number: pr.number,
++    title: pr.title,
++    state: pr.state as "open" | "closed",
++    merged: pr.merged,
++    draft: pr.draft ?? false,
++    user: {
++      login: pr.user?.login ?? "unknown",
++      avatar_url: pr.user?.avatar_url ?? "",
++      html_url: pr.user?.html_url ?? "",
++    },
++    labels: (pr.labels || []).map((l) => ({
++      id: l.id ?? 0,
++      name: l.name ?? "",
++      color: l.color ?? "000000",
++      description: l.description ?? null,
++    })),
++    created_at: pr.created_at,
++    updated_at: pr.updated_at,
++    closed_at: pr.closed_at,
++    merged_at: pr.merged_at,
++    comments: pr.comments ?? 0,
++    head: { ref: pr.head.ref },
++    base: { ref: pr.base.ref },
++    body: pr.body,
++    additions: pr.additions,
++    deletions: pr.deletions,
++    changed_files: pr.changed_files,
++    mergeable: pr.mergeable,
++    commits: pr.commits,
++    review_comments: pr.review_comments,
++  };
++}
+diff --git a/src/lib/github/recent-commits.ts b/src/lib/github/recent-commits.ts
+new file mode 100644
+index 0000000..20dd2eb
+--- /dev/null
++++ b/src/lib/github/recent-commits.ts
+@@ -0,0 +1,138 @@
++import { Octokit } from "@octokit/rest";
++import { listCheckpoints } from "@/lib/github/checkpoints";
++import { listCommits } from "@/lib/github/commits";
++import type { CheckpointMetadata, OverviewStats } from "@/types/checkpoint";
++import type { RepoLatestCheckpoint } from "@/types/repository";
++
++const RECENT_LIMIT = 10;
++
++export interface RecentCheckpointsResult {
++  items: RepoLatestCheckpoint[];
++  heatmap: Record<string, number>;
++  stats: OverviewStats;
++}
++
++export async function getRecentCheckpointsForRepos(
++  octokit: Octokit,
++  repos: { owner: string; name: string }[]
++): Promise<RecentCheckpointsResult> {
++  const heatmap: Record<string, number> = {};
++
++  // Pass 1: fetch all checkpoints from every repo, collect heatmap data
++  const allCheckpoints: {
++    owner: string;
++    repo: string;
++    checkpoint: CheckpointMetadata;
++  }[] = [];
++
++  await Promise.allSettled(
++    repos.map(async (repo) => {
++      const checkpoints = await listCheckpoints(
++        octokit,
++        repo.owner,
++        repo.name
++      );
++
++      for (const cp of checkpoints) {
++        const date = cp.created_at.split("T")[0];
++        heatmap[date] = (heatmap[date] || 0) + 1;
++        allCheckpoints.push({ owner: repo.owner, repo: repo.name, checkpoint: cp });
++      }
++    })
++  );
++
++  // Sort newest-first and take the top N
++  allCheckpoints.sort(
++    (a, b) =>
++      new Date(b.checkpoint.created_at).getTime() -
++      new Date(a.checkpoint.created_at).getTime()
++  );
++  const top = allCheckpoints.slice(0, RECENT_LIMIT);
++
++  // Pass 2: enrich only the top checkpoints with commit + session data
++  const items = await Promise.all(
++    top.map(async ({ owner, repo, checkpoint }) => {
++      let commit = null;
++      try {
++        const commits = await listCommits(octokit, owner, repo, {
++          sha: checkpoint.commit_hash,
++          per_page: 1,
++        });
++        if (commits.length > 0) commit = commits[0];
++      } catch {
++        // Commit may no longer exist — that's fine
++      }
++
++      return {
++        owner,
++        repo,
++        checkpoint: {
++          id: checkpoint.id,
++          commit_hash: checkpoint.commit_hash,
++          branch: checkpoint.branch,
++          created_at: checkpoint.created_at,
++          agent: checkpoint.agent,
++          agent_percent: checkpoint.agent_percent,
++        },
++        commit,
++        summary: null,
++        session_duration_ms: null,
++      } satisfies RepoLatestCheckpoint;
++    })
++  );
++
++  // Compute overview stats from the full checkpoint list
++  const now = new Date();
++  const msPerDay = 86_400_000;
++  const weekAgo = now.getTime() - 7 * msPerDay;
++  const twoWeeksAgo = now.getTime() - 14 * msPerDay;
++
++  const uniqueRepos = new Set(
++    allCheckpoints.map((c) => `${c.owner}/${c.repo}`)
++  );
++
++  let thisWeek = 0;
++  let prevWeek = 0;
++  let agentPercentSum = 0;
++
++  for (const { checkpoint } of allCheckpoints) {
++    const t = new Date(checkpoint.created_at).getTime();
++    if (t >= weekAgo) thisWeek++;
++    else if (t >= twoWeeksAgo) prevWeek++;
++    agentPercentSum += checkpoint.agent_percent ?? 0;
++  }
++
++  const avgAgentPercent =
++    allCheckpoints.length > 0
++      ? Math.round(agentPercentSum / allCheckpoints.length)
++      : 0;
++
++  // Streak: walk backwards from today through consecutive days with activity
++  let streakDays = 0;
++  const todayStr = now.toISOString().split("T")[0];
++  const d = new Date(todayStr); // start of today (local)
++  // If today has no activity, check if yesterday does (allow "today hasn't happened yet")
++  if (!heatmap[todayStr]) {
++    d.setDate(d.getDate() - 1);
++  }
++  while (true) {
++    const key = d.toISOString().split("T")[0];
++    if (heatmap[key] && heatmap[key] > 0) {
++      streakDays++;
++      d.setDate(d.getDate() - 1);
++    } else {
++      break;
++    }
++  }
++
++  const stats: OverviewStats = {
++    total_checkpoints: allCheckpoints.length,
++    active_repos: uniqueRepos.size,
++    this_week: thisWeek,
++    prev_week: prevWeek,
++    avg_agent_percent: avgAgentPercent,
++    streak_days: streakDays,
++  };
++
++  return { items, heatmap, stats };
++}
+diff --git a/src/lib/github/repo-detail.ts b/src/lib/github/repo-detail.ts
+new file mode 100644
+index 0000000..9d1f3ae
+--- /dev/null
++++ b/src/lib/github/repo-detail.ts
+@@ -0,0 +1,30 @@
++import { Octokit } from "@octokit/rest";
++import type { RepoDetail } from "@/types/repository";
++
++export async function getRepoDetail(
++  octokit: Octokit,
++  owner: string,
++  repo: string
++): Promise<RepoDetail> {
++  const { data } = await octokit.repos.get({ owner, repo });
++
++  return {
++    owner: data.owner.login,
++    name: data.name,
++    description: data.description,
++    private: data.private,
++    language: data.language,
++    license: data.license?.spdx_id ?? null,
++    default_branch: data.default_branch,
++    stargazers_count: data.stargazers_count,
++    forks_count: data.forks_count,
++    watchers_count: data.subscribers_count,
++    open_issues_count: data.open_issues_count,
++    topics: data.topics ?? [],
++    homepage: data.homepage || null,
++    size: data.size,
++    avatar_url: data.owner.avatar_url,
++    html_url: data.html_url,
++    pushed_at: data.pushed_at ?? new Date().toISOString(),
++  };
++}
+diff --git a/src/types/checkpoint.ts b/src/types/checkpoint.ts
+index 030d1ba..796de76 100644
+--- a/src/types/checkpoint.ts
++++ b/src/types/checkpoint.ts
+@@ -24,6 +24,15 @@ export interface Message {
+   toolNames?: string[];
+ }
+ 
++export interface OverviewStats {
++  total_checkpoints: number;
++  active_repos: number;
++  this_week: number;
++  prev_week: number;
++  avg_agent_percent: number;
++  streak_days: number;
++}
++
+ export interface RepoWithCheckpoints {
+   owner: string;
+   name: string;
+diff --git a/src/types/repository.ts b/src/types/repository.ts
+new file mode 100644
+index 0000000..030a6b4
+--- /dev/null
++++ b/src/types/repository.ts
+@@ -0,0 +1,150 @@
++export interface RepoDetail {
++  owner: string;
++  name: string;
++  description: string | null;
++  private: boolean;
++  language: string | null;
++  license: string | null;
++  default_branch: string;
++  stargazers_count: number;
++  forks_count: number;
++  watchers_count: number;
++  open_issues_count: number;
++  topics: string[];
++  homepage: string | null;
++  size: number;
++  avatar_url: string;
++  html_url: string;
++  pushed_at: string;
++}
++
++export interface UserSummary {
++  login: string;
++  avatar_url: string;
++  html_url: string;
++}
++
++export interface CommitSummary {
++  sha: string;
++  message: string;
++  author: UserSummary | null;
++  date: string;
++  committer: UserSummary | null;
++}
++
++export interface CommitFileChange {
++  filename: string;
++  status: string;
++  additions: number;
++  deletions: number;
++  changes: number;
++  patch?: string;
++}
++
++export interface CommitDetail extends CommitSummary {
++  files: CommitFileChange[];
++  stats: {
++    total: number;
++    additions: number;
++    deletions: number;
++  };
++  parents: { sha: string }[];
++}
++
++export interface Label {
++  id: number;
++  name: string;
++  color: string;
++  description: string | null;
++}
++
++export interface PullRequestSummary {
++  number: number;
++  title: string;
++  state: "open" | "closed";
++  merged: boolean;
++  draft: boolean;
++  user: UserSummary;
++  labels: Label[];
++  created_at: string;
++  updated_at: string;
++  closed_at: string | null;
++  merged_at: string | null;
++  comments: number;
++  head: { ref: string };
++  base: { ref: string };
++}
++
++export interface PullRequestDetail extends PullRequestSummary {
++  body: string | null;
++  additions: number;
++  deletions: number;
++  changed_files: number;
++  mergeable: boolean | null;
++  commits: number;
++  review_comments: number;
++}
++
++export interface IssueSummary {
++  number: number;
++  title: string;
++  state: "open" | "closed";
++  user: UserSummary;
++  labels: Label[];
++  created_at: string;
++  updated_at: string;
++  closed_at: string | null;
++  comments: number;
++}
++
++export interface IssueDetail extends IssueSummary {
++  body: string | null;
++  assignees: UserSummary[];
++  milestone: { title: string } | null;
++}
++
++export interface TreeEntry {
++  name: string;
++  path: string;
++  type: "file" | "dir";
++  size?: number;
++  sha: string;
++}
++
++export interface FileContent {
++  name: string;
++  path: string;
++  content: string;
++  size: number;
++  sha: string;
++  encoding: string;
++}
++
++export interface Contributor {
++  login: string;
++  avatar_url: string;
++  html_url: string;
++  contributions: number;
++}
++
++export interface WeeklyActivity {
++  week: number;
++  total: number;
++  days: number[];
++}
++
++export interface RepoLatestCheckpoint {
++  owner: string;
++  repo: string;
++  checkpoint: {
++    id: string;
++    commit_hash: string;
++    branch: string;
++    created_at: string;
++    agent: string;
++    agent_percent: number;
++  };
++  commit: CommitSummary | null;
++  summary: string | null;
++  session_duration_ms: number | null;
++}
