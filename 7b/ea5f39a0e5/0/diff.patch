@@ -1,0 +1,360 @@
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index e76e7b9..14267f6 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+ import { useSession } from "next-auth/react";
+-import { useRepos } from "@/hooks/use-repos";
++import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
+ import { StatCard } from "@/components/ui/stat-card";
+ import { Heatmap } from "@/components/ui/heatmap";
+ import { EmptyState } from "@/components/ui/empty-state";
+@@ -15,36 +15,52 @@ function getGreeting(): string {
+   return "Evening";
+ }
+ 
++function formatDuration(ms: number): string {
++  const minutes = Math.round(ms / 60000);
++  if (minutes < 60) return `${minutes}m`;
++  const hours = Math.floor(minutes / 60);
++  const rem = minutes % 60;
++  if (rem === 0) return `${hours}h`;
++  return `${hours}h ${rem}m`;
++}
++
+ export default function OverviewPage() {
+   const { data: session } = useSession();
+-  const { repos, isLoading } = useRepos();
++  const { items, heatmap, isLoading } = useRecentCheckpoints();
+ 
+   const firstName = session?.user?.name?.split(" ")[0] || "there";
+-  const totalCheckpoints = repos?.reduce((sum, r) => sum + r.checkpoint_count, 0) ?? 0;
+-  const reposWithCheckpoints = repos?.filter((r) => r.checkpoint_count > 0).length ?? 0;
+ 
+-  // Build heatmap data from repo updated_at as a proxy (real data would come from checkpoints)
+-  const heatmapData: Record<string, number> = {};
+-  if (repos) {
+-    for (const repo of repos) {
+-      if (repo.checkpoint_count > 0) {
+-        const date = repo.updated_at.split("T")[0];
+-        heatmapData[date] = (heatmapData[date] || 0) + repo.checkpoint_count;
+-      }
+-    }
+-  }
++  // Checkpoints created in the last 24 hours
++  const now = Date.now();
++  const checkpoints24h =
++    items?.filter(
++      (item) =>
++        now - new Date(item.checkpoint.created_at).getTime() < 86_400_000
++    ).length ?? 0;
++
++  // Average session duration
++  const durations =
++    items
++      ?.map((item) => item.session_duration_ms)
++      .filter((d): d is number => d !== null && d > 0) ?? [];
++  const avgSessionMs =
++    durations.length > 0
++      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
++      : 0;
++
++  const heatmapData = heatmap ?? {};
++  const hasCheckpoints = (items?.length ?? 0) > 0;
+ 
+   if (isLoading) {
+     return (
+       <div className="space-y-6">
+         <Skeleton className="h-8 w-64" />
+-        <div className="grid grid-cols-4 gap-4">
+-          <Skeleton className="h-24" />
+-          <Skeleton className="h-24" />
+-          <Skeleton className="h-24" />
+-          <Skeleton className="h-24" />
++        <div className="flex gap-4">
++          <Skeleton className="h-24 w-44 shrink-0" />
++          <Skeleton className="h-24 w-44 shrink-0" />
++          <Skeleton className="h-24 flex-1" />
+         </div>
+-        <Skeleton className="h-40" />
++        <Skeleton className="h-48" />
+       </div>
+     );
+   }
+@@ -55,30 +71,28 @@ export default function OverviewPage() {
+         {getGreeting()}, {firstName}
+       </h2>
+ 
+-      <div className="grid grid-cols-4 gap-4">
+-        <StatCard label="Checkpoints" value={totalCheckpoints} />
+-        <StatCard label="Repositories" value={reposWithCheckpoints} />
++      <div className="flex gap-4">
+         <StatCard
+-          label="Total Repos"
+-          value={repos?.length ?? 0}
++          label="Checkpoints (24h)"
++          value={checkpoints24h}
++          className="w-44 shrink-0"
+         />
+         <StatCard
+-          label="Streak"
+-          value={Object.keys(heatmapData).length}
+-          unit="days"
++          label="Avg Session"
++          value={avgSessionMs > 0 ? formatDuration(avgSessionMs) : "--"}
++          className="w-44 shrink-0"
+         />
++        <Heatmap data={heatmapData} className="min-w-0 flex-1" />
+       </div>
+ 
+-      <Heatmap data={heatmapData} />
+-
+-      {reposWithCheckpoints > 0 && (
++      {hasCheckpoints && (
+         <div className="space-y-3">
+           <h3 className="text-sm font-medium text-muted">Recent Activity</h3>
+           <RecentCommitsTable />
+         </div>
+       )}
+ 
+-      {totalCheckpoints === 0 && (
++      {!hasCheckpoints && (
+         <EmptyState
+           title="No checkpoints yet"
+           description="Run partio commit in a repo to capture your first checkpoint."
+diff --git a/src/app/api/github/repos/recent-commits/route.ts b/src/app/api/github/repos/recent-commits/route.ts
+index 3f8f6ae..b430573 100644
+--- a/src/app/api/github/repos/recent-commits/route.ts
++++ b/src/app/api/github/repos/recent-commits/route.ts
+@@ -14,6 +14,6 @@ export async function GET() {
+   const repos = await listReposWithCheckpoints(octokit);
+   const checkpointRepos = repos.filter((r) => r.checkpoint_count > 0);
+ 
+-  const results = await getRecentCheckpointsForRepos(octokit, checkpointRepos);
+-  return NextResponse.json(results);
++  const result = await getRecentCheckpointsForRepos(octokit, checkpointRepos);
++  return NextResponse.json(result);
+ }
+diff --git a/src/components/repo/recent-commits-table.tsx b/src/components/repo/recent-commits-table.tsx
+index 70e55ff..a0db310 100644
+--- a/src/components/repo/recent-commits-table.tsx
++++ b/src/components/repo/recent-commits-table.tsx
+@@ -5,6 +5,7 @@ import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
+ import { DataTable } from "@/components/ui/data-table";
+ import { Avatar } from "@/components/ui/avatar";
+ import { Skeleton } from "@/components/ui/skeleton";
++import { cn } from "@/lib/utils";
+ import { formatDistanceToNow } from "date-fns";
+ import type { RepoLatestCheckpoint } from "@/types/repository";
+ 
+@@ -28,13 +29,17 @@ export function RecentCommitsTable() {
+           `/${item.owner}/${item.repo}/checkpoints/${item.checkpoint.id}`
+         )
+       }
+-      rowClassName={(item) => (item.commit === null ? "opacity-40" : "")}
+       columns={[
+         {
+           key: "repo",
+           header: "Repository",
+           render: (item) => (
+-            <span className="text-sm font-medium text-foreground">
++            <span
++              className={cn(
++                "text-sm font-medium text-foreground",
++                item.commit === null && "opacity-40"
++              )}
++            >
+               {item.owner}/{item.repo}
+             </span>
+           ),
+@@ -44,16 +49,35 @@ export function RecentCommitsTable() {
+           key: "message",
+           header: "Commit",
+           render: (item) => {
++            const stale = item.commit === null;
+             const text =
+               item.summary || item.commit?.message.split("\n")[0] || null;
+             return (
+               <div className="flex items-center gap-2">
++                {stale && (
++                  <span className="group/warn relative shrink-0 cursor-help">
++                    &#x26A0;&#xFE0F;
++                    <span className="pointer-events-none invisible absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg group-hover/warn:visible">
++                      This commit no longer exists &mdash; likely rebased, squashed, or force-pushed
++                    </span>
++                  </span>
++                )}
+                 {text && (
+-                  <span className="truncate text-sm text-foreground">
++                  <span
++                    className={cn(
++                      "truncate text-sm text-foreground",
++                      stale && "opacity-40"
++                    )}
++                  >
+                     {text}
+                   </span>
+                 )}
+-                <span className="shrink-0 font-mono text-xs text-muted">
++                <span
++                  className={cn(
++                    "shrink-0 font-mono text-xs text-muted",
++                    stale && "opacity-40"
++                  )}
++                >
+                   {item.checkpoint.commit_hash.slice(0, 7)}
+                 </span>
+               </div>
+@@ -64,7 +88,12 @@ export function RecentCommitsTable() {
+           key: "agent",
+           header: "Agent",
+           render: (item) => (
+-            <div className="flex items-center gap-2">
++            <div
++              className={cn(
++                "flex items-center gap-2",
++                item.commit === null && "opacity-40"
++              )}
++            >
+               <Avatar
+                 src={item.commit?.author?.avatar_url ?? null}
+                 alt={item.commit?.author?.login ?? item.checkpoint.agent}
+@@ -84,7 +113,12 @@ export function RecentCommitsTable() {
+           key: "date",
+           header: "When",
+           render: (item) => (
+-            <span className="text-sm text-muted">
++            <span
++              className={cn(
++                "text-sm text-muted",
++                item.commit === null && "opacity-40"
++              )}
++            >
+               {formatDistanceToNow(new Date(item.checkpoint.created_at), {
+                 addSuffix: true,
+               })}
+diff --git a/src/hooks/use-recent-commits.ts b/src/hooks/use-recent-commits.ts
+index 2a2bb42..5236588 100644
+--- a/src/hooks/use-recent-commits.ts
++++ b/src/hooks/use-recent-commits.ts
+@@ -2,14 +2,20 @@ import useSWR from "swr";
+ import { fetcher } from "@/lib/fetcher";
+ import type { RepoLatestCheckpoint } from "@/types/repository";
+ 
++interface RecentCheckpointsResponse {
++  items: RepoLatestCheckpoint[];
++  heatmap: Record<string, number>;
++}
++
+ export function useRecentCheckpoints() {
+-  const { data, error, isLoading } = useSWR<RepoLatestCheckpoint[]>(
++  const { data, error, isLoading } = useSWR<RecentCheckpointsResponse>(
+     "/api/github/repos/recent-commits",
+     fetcher
+   );
+ 
+   return {
+-    items: data,
++    items: data?.items,
++    heatmap: data?.heatmap,
+     isLoading,
+     isError: !!error,
+   };
+diff --git a/src/lib/github/recent-commits.ts b/src/lib/github/recent-commits.ts
+index 0f3dcec..d983f46 100644
+--- a/src/lib/github/recent-commits.ts
++++ b/src/lib/github/recent-commits.ts
+@@ -4,10 +4,17 @@ import { listCommits } from "@/lib/github/commits";
+ import { getSessionData } from "@/lib/github/session";
+ import type { RepoLatestCheckpoint } from "@/types/repository";
+ 
++export interface RecentCheckpointsResult {
++  items: RepoLatestCheckpoint[];
++  heatmap: Record<string, number>;
++}
++
+ export async function getRecentCheckpointsForRepos(
+   octokit: Octokit,
+   repos: { owner: string; name: string }[]
+-): Promise<RepoLatestCheckpoint[]> {
++): Promise<RecentCheckpointsResult> {
++  const heatmap: Record<string, number> = {};
++
+   const results = await Promise.allSettled(
+     repos.map(async (repo) => {
+       const checkpoints = await listCheckpoints(
+@@ -17,6 +24,12 @@ export async function getRecentCheckpointsForRepos(
+       );
+       if (checkpoints.length === 0) return null;
+ 
++      // Collect all checkpoint dates for the heatmap
++      for (const cp of checkpoints) {
++        const date = cp.created_at.split("T")[0];
++        heatmap[date] = (heatmap[date] || 0) + 1;
++      }
++
+       const latest = checkpoints[0];
+ 
+       // Try to fetch the commit for context (message, author)
+@@ -31,8 +44,9 @@ export async function getRecentCheckpointsForRepos(
+         // Commit may no longer exist — that's fine
+       }
+ 
+-      // Extract the first human message from the session transcript as a summary
++      // Extract summary and session duration from the session transcript
+       let summary: string | null = null;
++      let session_duration_ms: number | null = null;
+       try {
+         const messages = await getSessionData(
+           octokit,
+@@ -47,6 +61,17 @@ export async function getRecentCheckpointsForRepos(
+           const text = firstHuman.content.split("\n")[0].trim();
+           summary = text.length > 100 ? text.slice(0, 100) + "…" : text;
+         }
++
++        // Compute session duration from message timestamps
++        const timestamps = messages
++          .map((m) => m.timestamp)
++          .filter((t) => t)
++          .map((t) => new Date(t).getTime())
++          .filter((t) => !isNaN(t));
++        if (timestamps.length >= 2) {
++          session_duration_ms =
++            Math.max(...timestamps) - Math.min(...timestamps);
++        }
+       } catch {
+         // Session data may not be available — that's fine
+       }
+@@ -64,11 +89,12 @@ export async function getRecentCheckpointsForRepos(
+         },
+         commit,
+         summary,
++        session_duration_ms,
+       } satisfies RepoLatestCheckpoint;
+     })
+   );
+ 
+-  return results
++  const items = results
+     .filter(
+       (r): r is PromiseFulfilledResult<RepoLatestCheckpoint> =>
+         r.status === "fulfilled" && r.value !== null
+@@ -79,4 +105,6 @@ export async function getRecentCheckpointsForRepos(
+         new Date(b.checkpoint.created_at).getTime() -
+         new Date(a.checkpoint.created_at).getTime()
+     );
++
++  return { items, heatmap };
+ }
+diff --git a/src/types/repository.ts b/src/types/repository.ts
+index 52838bc..030a6b4 100644
+--- a/src/types/repository.ts
++++ b/src/types/repository.ts
+@@ -146,4 +146,5 @@ export interface RepoLatestCheckpoint {
+   };
+   commit: CommitSummary | null;
+   summary: string | null;
++  session_duration_ms: number | null;
+ }
