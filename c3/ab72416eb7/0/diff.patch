@@ -1,0 +1,1472 @@
+diff --git a/src/app/(dashboard)/layout.tsx b/src/app/(dashboard)/layout.tsx
+index 02826e1..85de468 100644
+--- a/src/app/(dashboard)/layout.tsx
++++ b/src/app/(dashboard)/layout.tsx
+@@ -7,7 +7,7 @@ export default function DashboardLayout({
+   children: React.ReactNode;
+ }) {
+   return (
+-    <div className="min-h-screen bg-background">
++    <div className="min-h-screen" style={{ backgroundColor: 'var(--dashboard-bg)' }}>
+       <Sidebar />
+       <div className="pl-60">
+         <Topbar />
+diff --git a/src/app/(dashboard)/settings/loading.tsx b/src/app/(dashboard)/settings/loading.tsx
+new file mode 100644
+index 0000000..db659fa
+--- /dev/null
++++ b/src/app/(dashboard)/settings/loading.tsx
+@@ -0,0 +1,21 @@
++export default function SettingsLoading() {
++  return (
++    <div className="mx-auto max-w-5xl animate-pulse">
++      <div className="h-8 w-32 rounded bg-surface-light" />
++      <div className="mt-2 h-4 w-56 rounded bg-surface-light" />
++
++      <div className="mt-8">
++        <div className="h-6 w-20 rounded bg-surface-light" />
++        <div className="mt-4 flex gap-3">
++          <div className="h-10 w-72 rounded-lg bg-surface-light" />
++          <div className="h-10 w-40 rounded-lg bg-surface-light" />
++        </div>
++        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
++          {Array.from({ length: 12 }).map((_, i) => (
++            <div key={i} className="h-28 rounded-lg bg-surface-light" />
++          ))}
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/app/(dashboard)/settings/page.tsx b/src/app/(dashboard)/settings/page.tsx
+new file mode 100644
+index 0000000..9cd0d59
+--- /dev/null
++++ b/src/app/(dashboard)/settings/page.tsx
+@@ -0,0 +1,137 @@
++"use client";
++
++import { useState, useMemo } from "react";
++import { SearchInput } from "@/components/ui/search-input";
++import { ThemeCard, DefaultThemeCard } from "@/components/ui/theme-card";
++import { useTheme } from "@/components/providers/theme-provider";
++import { themeRegistry } from "@/lib/themes/registry";
++import { cn } from "@/lib/utils";
++
++type Filter = "all" | "dark" | "light";
++
++export default function SettingsPage() {
++  const {
++    activeThemeId,
++    loading,
++    backgroundEnabled,
++    applyTheme,
++    resetTheme,
++    toggleBackground,
++  } = useTheme();
++  const [search, setSearch] = useState("");
++  const [filter, setFilter] = useState<Filter>("all");
++
++  const filtered = useMemo(() => {
++    return themeRegistry.filter((t) => {
++      if (filter !== "all" && t.type !== filter) return false;
++      if (search) {
++        const q = search.toLowerCase();
++        return (
++          t.name.toLowerCase().includes(q) ||
++          t.author.toLowerCase().includes(q)
++        );
++      }
++      return true;
++    });
++  }, [search, filter]);
++
++  const filters: { label: string; value: Filter }[] = [
++    { label: "All", value: "all" },
++    { label: "Dark", value: "dark" },
++    { label: "Light", value: "light" },
++  ];
++
++  return (
++    <div className="mx-auto max-w-5xl">
++      <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
++      <p className="mt-1 text-sm text-muted">
++        Customize your dashboard theme
++      </p>
++
++      {/* ── Theme Section ──────────────────────────────────── */}
++      <div className="mt-8">
++        <h2 className="text-lg font-medium text-foreground">Theme</h2>
++        <p className="mt-1 text-sm text-muted">
++          Choose from {themeRegistry.length} OMARCHY themes
++        </p>
++
++        {/* Search + filters + wallpaper toggle */}
++        <div className="mt-4 flex flex-wrap items-center gap-3">
++          <SearchInput
++            value={search}
++            onChange={setSearch}
++            placeholder="Search themes..."
++            className="sm:w-72"
++          />
++          <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
++            {filters.map((f) => (
++              <button
++                key={f.value}
++                onClick={() => setFilter(f.value)}
++                className={cn(
++                  "rounded-md px-3 py-1 text-sm font-medium transition-colors",
++                  filter === f.value
++                    ? "bg-accent/15 text-accent-light"
++                    : "text-muted hover:text-foreground"
++                )}
++              >
++                {f.label}
++              </button>
++            ))}
++          </div>
++
++          {activeThemeId && (
++            <button
++              onClick={toggleBackground}
++              className={cn(
++                "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
++                backgroundEnabled
++                  ? "border-accent/40 bg-accent/15 text-accent-light"
++                  : "border-border bg-surface text-muted hover:text-foreground"
++              )}
++            >
++              <svg
++                width="14"
++                height="14"
++                viewBox="0 0 24 24"
++                fill="none"
++                stroke="currentColor"
++                strokeWidth="2"
++                strokeLinecap="round"
++                strokeLinejoin="round"
++              >
++                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
++                <circle cx="9" cy="9" r="2" />
++                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
++              </svg>
++              Wallpaper
++            </button>
++          )}
++        </div>
++
++        {/* Theme grid */}
++        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
++          <DefaultThemeCard
++            isActive={activeThemeId === null}
++            onClick={resetTheme}
++          />
++          {filtered.map((theme) => (
++            <ThemeCard
++              key={theme.id}
++              theme={theme}
++              isActive={activeThemeId === theme.id}
++              disabled={loading}
++              onClick={() => applyTheme(theme.id)}
++            />
++          ))}
++        </div>
++
++        {filtered.length === 0 && (
++          <p className="mt-8 text-center text-sm text-muted">
++            No themes match your search.
++          </p>
++        )}
++      </div>
++    </div>
++  );
++}
+diff --git a/src/app/api/themes/[themeId]/colors/route.ts b/src/app/api/themes/[themeId]/colors/route.ts
+new file mode 100644
+index 0000000..1801b25
+--- /dev/null
++++ b/src/app/api/themes/[themeId]/colors/route.ts
+@@ -0,0 +1,55 @@
++import { NextResponse } from "next/server";
++import { getThemeById } from "@/lib/themes/registry";
++import {
++  parseColorsToml,
++  parseAlacrittyToml,
++  parseGhosttyTheme,
++} from "@/lib/themes/parsers";
++import { mapToAppColors } from "@/lib/themes/mapper";
++
++export async function GET(
++  _request: Request,
++  { params }: { params: Promise<{ themeId: string }> }
++) {
++  const { themeId } = await params;
++  const theme = getThemeById(themeId);
++
++  if (!theme) {
++    return NextResponse.json({ error: "Theme not found" }, { status: 404 });
++  }
++
++  try {
++    const res = await fetch(theme.colorFileUrl, {
++      next: { revalidate: 86400 },
++    });
++
++    if (!res.ok) {
++      return NextResponse.json(
++        { error: "Failed to fetch theme colors" },
++        { status: 502 }
++      );
++    }
++
++    const text = await res.text();
++
++    let raw: Record<string, string>;
++    switch (theme.colorFormat) {
++      case "alacritty-toml":
++        raw = parseAlacrittyToml(text);
++        break;
++      case "ghostty":
++        raw = parseGhosttyTheme(text);
++        break;
++      default:
++        raw = parseColorsToml(text);
++    }
++
++    const colors = mapToAppColors(raw, theme.colorFormat);
++    return NextResponse.json(colors);
++  } catch {
++    return NextResponse.json(
++      { error: "Internal error processing theme" },
++      { status: 500 }
++    );
++  }
++}
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 57679c3..0300d19 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -1,6 +1,7 @@
+ @import "tailwindcss";
+ 
+ :root {
++  transition: background-color 0.3s ease, color 0.3s ease;
+   --background: #0a0a0b;
+   --foreground: #e5e5e5;
+   --muted: #a1a1aa;
+@@ -33,11 +34,23 @@
+ }
+ 
+ body {
+-  background: var(--background);
++  background-color: var(--background);
++  background-size: cover;
++  background-attachment: fixed;
++  background-position: center;
+   color: var(--foreground);
+   font-family: var(--font-sans), system-ui, sans-serif;
+ }
+ 
++/* Dashboard background — switches to semi-transparent when wallpaper is active */
++:root {
++  --dashboard-bg: var(--background);
++}
++
++html[data-wallpaper] {
++  --dashboard-bg: color-mix(in srgb, var(--background) 80%, transparent);
++}
++
+ ::selection {
+   background: var(--accent);
+   color: white;
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index dd78416..c387bda 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -1,6 +1,7 @@
+ import type { Metadata } from "next";
+ import { Inter, JetBrains_Mono } from "next/font/google";
+ import { SessionProvider } from "@/components/providers/session-provider";
++import { ThemeProvider } from "@/components/providers/theme-provider";
+ import "./globals.css";
+ 
+ const inter = Inter({
+@@ -28,7 +29,9 @@ export default function RootLayout({
+       <body
+         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+       >
+-        <SessionProvider>{children}</SessionProvider>
++        <SessionProvider>
++          <ThemeProvider>{children}</ThemeProvider>
++        </SessionProvider>
+       </body>
+     </html>
+   );
+diff --git a/src/components/layout/sidebar.tsx b/src/components/layout/sidebar.tsx
+index 204b053..3eea1d2 100644
+--- a/src/components/layout/sidebar.tsx
++++ b/src/components/layout/sidebar.tsx
+@@ -25,6 +25,15 @@ function ReposIcon() {
+   );
+ }
+ 
++function SettingsIcon() {
++  return (
++    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
++      <circle cx="12" cy="12" r="3" />
++    </svg>
++  );
++}
++
+ export function Sidebar() {
+   const { data: session } = useSession();
+ 
+@@ -38,6 +47,7 @@ export function Sidebar() {
+       <nav className="flex-1 space-y-1 px-3 py-2">
+         <NavItem href="/" icon={<OverviewIcon />} label="Overview" />
+         <NavItem href="/repositories" icon={<ReposIcon />} label="Repositories" />
++        <NavItem href="/settings" icon={<SettingsIcon />} label="Settings" />
+       </nav>
+ 
+       {session?.user && (
+diff --git a/src/components/providers/theme-provider.tsx b/src/components/providers/theme-provider.tsx
+new file mode 100644
+index 0000000..2ebae90
+--- /dev/null
++++ b/src/components/providers/theme-provider.tsx
+@@ -0,0 +1,174 @@
++"use client";
++
++import {
++  createContext,
++  useCallback,
++  useContext,
++  useLayoutEffect,
++  useState,
++} from "react";
++import type { AppThemeColors, AppThemeColorKey } from "@/types/theme";
++import { DEFAULT_COLORS } from "@/types/theme";
++import { isLightColor } from "@/lib/themes/color-utils";
++import { getThemeById } from "@/lib/themes/registry";
++
++const STORAGE_KEY = "partio-theme-id";
++const COLORS_STORAGE_KEY = "partio-theme-colors";
++const BG_ENABLED_KEY = "partio-bg-enabled";
++const BG_URL_KEY = "partio-bg-url";
++
++interface ThemeContextValue {
++  activeThemeId: string | null;
++  loading: boolean;
++  backgroundEnabled: boolean;
++  applyTheme: (themeId: string) => Promise<void>;
++  resetTheme: () => void;
++  toggleBackground: () => void;
++}
++
++const ThemeContext = createContext<ThemeContextValue>({
++  activeThemeId: null,
++  loading: false,
++  backgroundEnabled: false,
++  applyTheme: async () => {},
++  resetTheme: () => {},
++  toggleBackground: () => {},
++});
++
++function setColorVars(colors: AppThemeColors) {
++  const root = document.documentElement;
++  for (const [key, value] of Object.entries(colors)) {
++    root.style.setProperty(`--${key}`, value);
++  }
++  if (isLightColor(colors.background)) {
++    root.classList.remove("dark");
++    root.classList.add("light");
++  } else {
++    root.classList.remove("light");
++    root.classList.add("dark");
++  }
++}
++
++function clearColorVars() {
++  const root = document.documentElement;
++  for (const key of Object.keys(DEFAULT_COLORS)) {
++    root.style.removeProperty(`--${key as AppThemeColorKey}`);
++  }
++  root.classList.remove("light");
++  root.classList.add("dark");
++}
++
++function applyWallpaper(url: string | null, enabled: boolean) {
++  const body = document.body;
++  const root = document.documentElement;
++  if (enabled && url) {
++    body.style.backgroundImage = `url("${url}")`;
++    root.setAttribute("data-wallpaper", "");
++  } else {
++    body.style.backgroundImage = "";
++    root.removeAttribute("data-wallpaper");
++  }
++}
++
++export function ThemeProvider({ children }: { children: React.ReactNode }) {
++  const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
++  const [loading, setLoading] = useState(false);
++  const [backgroundEnabled, setBackgroundEnabled] = useState(false);
++  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
++
++  // On mount: restore cached theme + wallpaper immediately
++  useLayoutEffect(() => {
++    const savedId = localStorage.getItem(STORAGE_KEY);
++    const savedColors = localStorage.getItem(COLORS_STORAGE_KEY);
++    if (savedId && savedColors) {
++      try {
++        const colors = JSON.parse(savedColors) as AppThemeColors;
++        setColorVars(colors);
++        setActiveThemeId(savedId);
++      } catch {
++        localStorage.removeItem(STORAGE_KEY);
++        localStorage.removeItem(COLORS_STORAGE_KEY);
++      }
++    }
++
++    const bgEnabled = localStorage.getItem(BG_ENABLED_KEY) === "true";
++    const bgUrl = localStorage.getItem(BG_URL_KEY);
++    setBackgroundEnabled(bgEnabled);
++    setBackgroundUrl(bgUrl);
++    applyWallpaper(bgUrl, bgEnabled);
++  }, []);
++
++  const applyTheme = useCallback(
++    async (themeId: string) => {
++      setLoading(true);
++      try {
++        const res = await fetch(`/api/themes/${themeId}/colors`);
++        if (!res.ok) throw new Error("Failed to fetch theme");
++        const colors: AppThemeColors = await res.json();
++        setColorVars(colors);
++        localStorage.setItem(STORAGE_KEY, themeId);
++        localStorage.setItem(COLORS_STORAGE_KEY, JSON.stringify(colors));
++        setActiveThemeId(themeId);
++
++        // Auto-enable the first background image for the new theme
++        const theme = getThemeById(themeId);
++        const firstBg = theme?.backgroundImages?.[0] ?? null;
++        const hasBg = !!firstBg;
++        setBackgroundUrl(firstBg);
++        setBackgroundEnabled(hasBg);
++        if (firstBg) {
++          localStorage.setItem(BG_URL_KEY, firstBg);
++        } else {
++          localStorage.removeItem(BG_URL_KEY);
++        }
++        localStorage.setItem(BG_ENABLED_KEY, String(hasBg));
++        applyWallpaper(firstBg, hasBg);
++      } catch (err) {
++        console.error("Failed to apply theme:", err);
++      } finally {
++        setLoading(false);
++      }
++    },
++    []
++  );
++
++  const resetTheme = useCallback(() => {
++    clearColorVars();
++    localStorage.removeItem(STORAGE_KEY);
++    localStorage.removeItem(COLORS_STORAGE_KEY);
++    localStorage.removeItem(BG_ENABLED_KEY);
++    localStorage.removeItem(BG_URL_KEY);
++    setActiveThemeId(null);
++    setBackgroundEnabled(false);
++    setBackgroundUrl(null);
++    applyWallpaper(null, false);
++  }, []);
++
++  const toggleBackground = useCallback(() => {
++    setBackgroundEnabled((prev) => {
++      const next = !prev;
++      localStorage.setItem(BG_ENABLED_KEY, String(next));
++      applyWallpaper(backgroundUrl, next);
++      return next;
++    });
++  }, [backgroundUrl]);
++
++  return (
++    <ThemeContext.Provider
++      value={{
++        activeThemeId,
++        loading,
++        backgroundEnabled,
++        applyTheme,
++        resetTheme,
++        toggleBackground,
++      }}
++    >
++      {children}
++    </ThemeContext.Provider>
++  );
++}
++
++export function useTheme() {
++  return useContext(ThemeContext);
++}
+diff --git a/src/components/ui/theme-card.tsx b/src/components/ui/theme-card.tsx
+new file mode 100644
+index 0000000..19b1af9
+--- /dev/null
++++ b/src/components/ui/theme-card.tsx
+@@ -0,0 +1,176 @@
++"use client";
++
++import { useState } from "react";
++import { cn } from "@/lib/utils";
++import type { ThemeEntry } from "@/types/theme";
++
++function HandIcon() {
++  return (
++    <svg
++      width="14"
++      height="14"
++      viewBox="0 0 24 24"
++      fill="none"
++      stroke="currentColor"
++      strokeWidth="2"
++      strokeLinecap="round"
++      strokeLinejoin="round"
++    >
++      <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
++      <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" />
++      <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
++      <path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
++    </svg>
++  );
++}
++
++interface ThemeCardProps {
++  theme: ThemeEntry;
++  isActive: boolean;
++  onClick: () => void;
++  disabled?: boolean;
++}
++
++export function ThemeCard({
++  theme,
++  isActive,
++  onClick,
++  disabled,
++}: ThemeCardProps) {
++  const [imgFailed, setImgFailed] = useState(false);
++  const bgImage = theme.backgroundImages?.[0];
++  const showImage = bgImage && !imgFailed;
++
++  return (
++    <button
++      onClick={onClick}
++      disabled={disabled}
++      className={cn(
++        "group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border text-left transition-all",
++        isActive
++          ? "border-accent ring-2 ring-accent/30"
++          : "border-border hover:border-muted"
++      )}
++    >
++      {/* Preview area */}
++      <div
++        className="relative h-24 overflow-hidden"
++        style={!showImage ? { backgroundColor: theme.preview.background } : undefined}
++      >
++        {showImage ? (
++          /* eslint-disable-next-line @next/next/no-img-element */
++          <img
++            src={bgImage}
++            alt={`${theme.name} background`}
++            onError={() => setImgFailed(true)}
++            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
++            loading="lazy"
++          />
++        ) : (
++          <div className="flex h-full items-center justify-between px-4">
++            <span
++              className="text-sm font-medium"
++              style={{ color: theme.preview.foreground }}
++            >
++              Aa
++            </span>
++            <div className="flex gap-1.5">
++              <div
++                className="h-4 w-4 rounded-full"
++                style={{ backgroundColor: theme.preview.accent }}
++              />
++              <div
++                className="h-4 w-4 rounded-full"
++                style={{
++                  backgroundColor: theme.preview.foreground,
++                  opacity: 0.4,
++                }}
++              />
++            </div>
++          </div>
++        )}
++
++        {/* Color dots overlay */}
++        <div className={cn(
++          "absolute bottom-1.5 right-1.5 flex gap-1",
++          showImage ? "opacity-100" : "opacity-0"
++        )}>
++          <div
++            className="h-3 w-3 rounded-full border border-white/20"
++            style={{ backgroundColor: theme.preview.background }}
++          />
++          <div
++            className="h-3 w-3 rounded-full border border-white/20"
++            style={{ backgroundColor: theme.preview.accent }}
++          />
++          <div
++            className="h-3 w-3 rounded-full border border-white/20"
++            style={{ backgroundColor: theme.preview.foreground }}
++          />
++        </div>
++
++        {/* Hand icon on hover */}
++        <div className="absolute inset-0 flex items-center justify-center bg-black/0 text-white/0 transition-all group-hover:bg-black/30 group-hover:text-white/80">
++          <HandIcon />
++        </div>
++      </div>
++
++      {/* Info */}
++      <div className="flex items-center justify-between bg-surface px-3 py-2">
++        <div className="min-w-0">
++          <p className="truncate text-sm font-medium text-foreground">
++            {theme.name}
++          </p>
++          <p className="truncate text-xs text-muted">{theme.author}</p>
++        </div>
++        {isActive && (
++          <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-accent" />
++        )}
++      </div>
++    </button>
++  );
++}
++
++interface DefaultThemeCardProps {
++  isActive: boolean;
++  onClick: () => void;
++}
++
++export function DefaultThemeCard({
++  isActive,
++  onClick,
++}: DefaultThemeCardProps) {
++  return (
++    <button
++      onClick={onClick}
++      className={cn(
++        "group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border text-left transition-all",
++        isActive
++          ? "border-accent ring-2 ring-accent/30"
++          : "border-border hover:border-muted"
++      )}
++    >
++      <div className="relative flex h-24 items-center justify-between bg-[#0a0a0b] px-4">
++        <span className="text-sm font-medium text-[#e5e5e5]">Aa</span>
++        <div className="flex gap-1.5">
++          <div className="h-4 w-4 rounded-full bg-[#7B2D8E]" />
++          <div className="h-4 w-4 rounded-full bg-[#e5e5e5] opacity-40" />
++        </div>
++        <div className="absolute inset-0 flex items-center justify-center bg-black/0 text-white/0 transition-all group-hover:bg-black/30 group-hover:text-white/80">
++          <HandIcon />
++        </div>
++      </div>
++      <div className="flex items-center justify-between bg-surface px-3 py-2">
++        <div className="min-w-0">
++          <p className="truncate text-sm font-medium text-foreground">
++            Default
++          </p>
++          <p className="truncate text-xs text-muted">Partio</p>
++        </div>
++        {isActive && (
++          <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-accent" />
++        )}
++      </div>
++    </button>
++  );
++}
+diff --git a/src/lib/themes/color-utils.ts b/src/lib/themes/color-utils.ts
+new file mode 100644
+index 0000000..575e29c
+--- /dev/null
++++ b/src/lib/themes/color-utils.ts
+@@ -0,0 +1,51 @@
++export function hexToRgb(hex: string): { r: number; g: number; b: number } {
++  const clean = hex.replace("#", "");
++  return {
++    r: parseInt(clean.substring(0, 2), 16),
++    g: parseInt(clean.substring(2, 4), 16),
++    b: parseInt(clean.substring(4, 6), 16),
++  };
++}
++
++export function rgbToHex(r: number, g: number, b: number): string {
++  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
++  return (
++    "#" +
++    [clamp(r), clamp(g), clamp(b)]
++      .map((v) => v.toString(16).padStart(2, "0"))
++      .join("")
++  );
++}
++
++export function lightenColor(hex: string, percent: number): string {
++  const { r, g, b } = hexToRgb(hex);
++  const factor = percent / 100;
++  return rgbToHex(
++    r + (255 - r) * factor,
++    g + (255 - g) * factor,
++    b + (255 - b) * factor
++  );
++}
++
++export function darkenColor(hex: string, percent: number): string {
++  const { r, g, b } = hexToRgb(hex);
++  const factor = 1 - percent / 100;
++  return rgbToHex(r * factor, g * factor, b * factor);
++}
++
++export function mixColors(hex1: string, hex2: string, weight = 0.5): string {
++  const c1 = hexToRgb(hex1);
++  const c2 = hexToRgb(hex2);
++  return rgbToHex(
++    c1.r * weight + c2.r * (1 - weight),
++    c1.g * weight + c2.g * (1 - weight),
++    c1.b * weight + c2.b * (1 - weight)
++  );
++}
++
++export function isLightColor(hex: string): boolean {
++  const { r, g, b } = hexToRgb(hex);
++  // Relative luminance formula
++  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
++  return luminance > 0.5;
++}
+diff --git a/src/lib/themes/mapper.ts b/src/lib/themes/mapper.ts
+new file mode 100644
+index 0000000..6df0315
+--- /dev/null
++++ b/src/lib/themes/mapper.ts
+@@ -0,0 +1,61 @@
++import type { AppThemeColors } from "@/types/theme";
++import { lightenColor, darkenColor, mixColors } from "./color-utils";
++
++type ColorFormat = "colors-toml" | "alacritty-toml" | "ghostty";
++
++export function mapToAppColors(
++  raw: Record<string, string>,
++  format: ColorFormat
++): AppThemeColors {
++  if (format === "alacritty-toml") {
++    return mapAlacrittyColors(raw);
++  }
++  // colors-toml and ghostty use the same key structure (colorN, background, foreground)
++  return mapOfficialColors(raw);
++}
++
++function mapOfficialColors(raw: Record<string, string>): AppThemeColors {
++  const bg = raw.background || "#0a0a0b";
++  const fg = raw.foreground || "#e5e5e5";
++  const accent = raw.accent || raw.color4 || "#7B2D8E";
++  const surface = raw.color0 || darkenColor(bg, 5);
++  const surfaceLight = raw.color8 || lightenColor(bg, 8);
++
++  return {
++    background: bg,
++    foreground: fg,
++    muted: raw.color7 || lightenColor(fg, -30),
++    accent,
++    "accent-light": lightenColor(accent, 15),
++    "accent-dark": darkenColor(accent, 20),
++    surface,
++    "surface-light": surfaceLight,
++    border: mixColors(surface, surfaceLight),
++    success: raw.color2 || "#22c55e",
++    warning: raw.color3 || "#eab308",
++    "accent-orange": raw.color11 || raw.color3 || "#d97706",
++  };
++}
++
++function mapAlacrittyColors(raw: Record<string, string>): AppThemeColors {
++  const bg = raw["primary.background"] || "#0a0a0b";
++  const fg = raw["primary.foreground"] || "#e5e5e5";
++  const accent = raw["normal.blue"] || "#7B2D8E";
++  const surface = raw["normal.black"] || darkenColor(bg, 5);
++  const surfaceLight = raw["bright.black"] || lightenColor(bg, 8);
++
++  return {
++    background: bg,
++    foreground: fg,
++    muted: raw["normal.white"] || lightenColor(fg, -30),
++    accent,
++    "accent-light": lightenColor(accent, 15),
++    "accent-dark": darkenColor(accent, 20),
++    surface,
++    "surface-light": surfaceLight,
++    border: mixColors(surface, surfaceLight),
++    success: raw["normal.green"] || "#22c55e",
++    warning: raw["normal.yellow"] || "#eab308",
++    "accent-orange": raw["bright.yellow"] || raw["normal.yellow"] || "#d97706",
++  };
++}
+diff --git a/src/lib/themes/parsers.ts b/src/lib/themes/parsers.ts
+new file mode 100644
+index 0000000..0b1befe
+--- /dev/null
++++ b/src/lib/themes/parsers.ts
+@@ -0,0 +1,64 @@
++/** Parse official OMARCHY colors.toml — flat key = "value" lines */
++export function parseColorsToml(text: string): Record<string, string> {
++  const colors: Record<string, string> = {};
++  for (const line of text.split("\n")) {
++    const trimmed = line.trim();
++    if (!trimmed || trimmed.startsWith("#")) continue;
++    const match = trimmed.match(/^(\w+)\s*=\s*"(#[0-9a-fA-F]{6})"/);
++    if (match) {
++      colors[match[1]] = match[2];
++    }
++  }
++  return colors;
++}
++
++/** Parse Alacritty-style TOML with [colors.primary], [colors.normal], [colors.bright] sections */
++export function parseAlacrittyToml(text: string): Record<string, string> {
++  const colors: Record<string, string> = {};
++  let currentSection = "";
++
++  for (const line of text.split("\n")) {
++    const trimmed = line.trim();
++    if (!trimmed || trimmed.startsWith("#")) continue;
++
++    const sectionMatch = trimmed.match(/^\[colors\.(\w+)\]/);
++    if (sectionMatch) {
++      currentSection = sectionMatch[1];
++      continue;
++    }
++
++    const kvMatch = trimmed.match(/^(\w+)\s*=\s*["']?(#[0-9a-fA-F]{6})["']?/);
++    if (kvMatch && currentSection) {
++      colors[`${currentSection}.${kvMatch[1]}`] = kvMatch[2];
++    }
++  }
++  return colors;
++}
++
++/** Parse Ghostty theme format — palette = N=#hex lines */
++export function parseGhosttyTheme(text: string): Record<string, string> {
++  const colors: Record<string, string> = {};
++  for (const line of text.split("\n")) {
++    const trimmed = line.trim();
++    if (!trimmed || trimmed.startsWith("#")) continue;
++
++    // palette = 0=#hex
++    const paletteMatch = trimmed.match(
++      /^palette\s*=\s*(\d+)=(#[0-9a-fA-F]{6})/
++    );
++    if (paletteMatch) {
++      colors[`color${paletteMatch[1]}`] = paletteMatch[2];
++      continue;
++    }
++
++    // background = #hex / foreground = #hex
++    const kvMatch = trimmed.match(
++      /^(background|foreground|cursor-color)\s*=\s*(#[0-9a-fA-F]{6})/
++    );
++    if (kvMatch) {
++      const key = kvMatch[1] === "cursor-color" ? "cursor" : kvMatch[1];
++      colors[key] = kvMatch[2];
++    }
++  }
++  return colors;
++}
+diff --git a/src/lib/themes/registry.ts b/src/lib/themes/registry.ts
+new file mode 100644
+index 0000000..ac98ca7
+--- /dev/null
++++ b/src/lib/themes/registry.ts
+@@ -0,0 +1,524 @@
++import type { ThemeEntry } from "@/types/theme";
++
++const OMARCHY_BASE =
++  "https://raw.githubusercontent.com/basecamp/omarchy/dev/themes";
++
++function official(
++  id: string,
++  name: string,
++  type: "dark" | "light",
++  preview: ThemeEntry["preview"],
++  bgFiles: string[] = []
++): ThemeEntry {
++  return {
++    id,
++    name,
++    type,
++    source: "official",
++    author: "Omarchy",
++    colorFileUrl: `${OMARCHY_BASE}/${id}/colors.toml`,
++    colorFormat: "colors-toml",
++    previewImageUrl: `${OMARCHY_BASE}/${id}/preview.png`,
++    backgroundImages: bgFiles.map(
++      (f) => `${OMARCHY_BASE}/${id}/backgrounds/${f}`
++    ),
++    preview,
++  };
++}
++
++// Map of community repos that have a preview image and what it's called
++const COMMUNITY_IMAGES: Record<string, string> = {
++  "catlee/omarchy-dracula-theme": "theme.png",
++  "bjarneo/omarchy-futurism-theme": "preview.png",
++  "bjarneo/omarchy-nes-theme": "theme.png",
++  "bjarneo/omarchy-ash-theme": "theme.png",
++  "bjarneo/omarchy-pulsar-theme": "theme.png",
++  "bjarneo/omarchy-aura-theme": "theme.png",
++  "bjarneo/omarchy-snow-theme": "preview.png",
++  "euandeas/omarchy-flexoki-dark-theme": "preview.png",
++  "Hydradevx/omarchy-azure-glow-theme": "preview.png",
++  "hoblin/omarchy-cobalt2-theme": "preview.png",
++};
++
++// Map of community repos that have background images
++const COMMUNITY_BACKGROUNDS: Record<string, string[]> = {
++  "catlee/omarchy-dracula-theme": [
++    "base.png",
++    "dracula-leaves-6272a4-dark.png",
++    "dracula-mnt-282a36.png",
++  ],
++  "bjarneo/omarchy-futurism-theme": [
++    "1-futurism.jpg",
++    "2-futurism.png",
++    "3-futurism.png",
++    "4-futurism.jpg",
++  ],
++  "bjarneo/omarchy-aura-theme": ["1.png", "2.png"],
++  "bjarneo/omarchy-pulsar-theme": ["1.jpg", "2.png", "3.png", "4.jpg", "5.jpg"],
++  "omacom-io/omarchy-synthwave84-theme": ["1-synthwave-84.jpg"],
++  "sc0ttman/omarchy-one-dark-pro-theme": [
++    "bg1.png",
++    "bg2.png",
++    "bg3.png",
++    "bg4.png",
++    "bg5.png",
++    "bg6.png",
++    "bg7.jpg",
++    "bg8.jpg",
++  ],
++};
++
++function community(
++  id: string,
++  name: string,
++  type: "dark" | "light",
++  author: string,
++  repo: string,
++  branch: string,
++  preview: ThemeEntry["preview"],
++  format: ThemeEntry["colorFormat"] = "alacritty-toml"
++): ThemeEntry {
++  const file = format === "colors-toml" ? "colors.toml" : "alacritty.toml";
++  const imageFile = COMMUNITY_IMAGES[repo];
++  const bgFiles = COMMUNITY_BACKGROUNDS[repo];
++  return {
++    id,
++    name,
++    type,
++    source: "community",
++    author,
++    colorFileUrl: `https://raw.githubusercontent.com/${repo}/${branch}/${file}`,
++    colorFormat: format,
++    previewImageUrl: imageFile
++      ? `https://raw.githubusercontent.com/${repo}/${branch}/${imageFile}`
++      : undefined,
++    backgroundImages: bgFiles?.map(
++      (f) => `https://raw.githubusercontent.com/${repo}/${branch}/backgrounds/${f}`
++    ),
++    preview,
++  };
++}
++
++export const themeRegistry: ThemeEntry[] = [
++  // ── Official Themes (Dark) ──────────────────────────────────────────
++  official(
++    "tokyo-night", "Tokyo Night", "dark",
++    { background: "#1a1b26", foreground: "#a9b1d6", accent: "#7aa2f7" },
++    ["0-swirl-buck.jpg", "1-sunset-lake.png", "2-pawel-czerwinski.jpg", "3-milad-fakurian.jpg"]
++  ),
++  official(
++    "catppuccin", "Catppuccin Mocha", "dark",
++    { background: "#1e1e2e", foreground: "#cdd6f4", accent: "#89b4fa" },
++    ["1-totoro.png", "2-waves.png", "3-blue-eye.png"]
++  ),
++  official(
++    "gruvbox", "Gruvbox", "dark",
++    { background: "#282828", foreground: "#d4be98", accent: "#7daea3" },
++    ["1-the-backwater.jpg", "2-leaves.jpg"]
++  ),
++  official(
++    "nord", "Nord", "dark",
++    { background: "#2e3440", foreground: "#d8dee9", accent: "#81a1c1" },
++    ["0-black-moon.jpg", "1-city-view.png", "2-night-hawks.png"]
++  ),
++  official(
++    "ethereal", "Ethereal", "dark",
++    { background: "#060B1E", foreground: "#ffcead", accent: "#7d82d9" },
++    ["1-cosmic.jpg", "2-meadow.jpg"]
++  ),
++  official(
++    "everforest", "Everforest", "dark",
++    { background: "#2d353b", foreground: "#d3c6aa", accent: "#7fbbb3" },
++    ["1-tree-tops.jpg"]
++  ),
++  official(
++    "hackerman", "Hackerman", "dark",
++    { background: "#0B0C16", foreground: "#ddf7ff", accent: "#82FB9C" },
++    ["1-synth-scape.jpg", "2-geometric.jpg"]
++  ),
++  official(
++    "kanagawa", "Kanagawa", "dark",
++    { background: "#1f1f28", foreground: "#dcd7ba", accent: "#7e9cd8" },
++    ["1-kanagawa.jpg"]
++  ),
++  official(
++    "matte-black", "Matte Black", "dark",
++    { background: "#121212", foreground: "#bebebe", accent: "#e68e0d" },
++    ["0-ship-at-sea.jpg", "1-dark-waters.jpg", "2-dot-hands.jpg"]
++  ),
++  official(
++    "miasma", "Miasma", "dark",
++    { background: "#222222", foreground: "#c2c2b0", accent: "#78824b" },
++    ["01-nature-of-fear.jpg", "02-crowned.jpg"]
++  ),
++  official(
++    "osaka-jade", "Osaka Jade", "dark",
++    { background: "#111c18", foreground: "#C1C497", accent: "#509475" },
++    ["1-glowing-city.jpg", "2-shaded-entrance.jpg", "3-mountain-moon.jpg"]
++  ),
++  official(
++    "ristretto", "Ristretto", "dark",
++    { background: "#2c2525", foreground: "#e6d9db", accent: "#f38d70" },
++    ["1-color-curves.jpg", "2-coffee-beans.jpg", "3-industrial-moon.jpg"]
++  ),
++  official(
++    "vantablack", "Vantablack", "dark",
++    { background: "#0d0d0d", foreground: "#ffffff", accent: "#8d8d8d" },
++    ["1-twisted-stairs.jpg", "2-layers-deep.jpg", "3-layers-stacked.jpg"]
++  ),
++
++  // ── Official Themes (Light) ─────────────────────────────────────────
++  official(
++    "catppuccin-latte", "Catppuccin Latte", "light",
++    { background: "#eff1f5", foreground: "#4c4f69", accent: "#1e66f5" },
++    ["1-color-fade.png"]
++  ),
++  official(
++    "rose-pine", "Rose Pine Dawn", "light",
++    { background: "#faf4ed", foreground: "#575279", accent: "#56949f" },
++    ["1-funky-shapes.jpg", "2-dot-map.png", "3-omarchy-plants.png"]
++  ),
++  official(
++    "flexoki-light", "Flexoki Light", "light",
++    { background: "#FFFCF0", foreground: "#100F0F", accent: "#205EA6" },
++    ["1-orb.png", "2-omarchy.png"]
++  ),
++  official(
++    "white", "White", "light",
++    { background: "#ffffff", foreground: "#000000", accent: "#6e6e6e" },
++    ["1-white.jpg", "2-white.jpg", "3-white.jpg"]
++  ),
++
++  // ── Community Themes (Dark) ─────────────────────────────────────────
++  community(
++    "dracula",
++    "Dracula",
++    "dark",
++    "catlee",
++    "catlee/omarchy-dracula-theme",
++    "main",
++    { background: "#282a36", foreground: "#f8f8f2", accent: "#bd93f9" }
++  ),
++  community(
++    "solarized",
++    "Solarized Dark",
++    "dark",
++    "Gazler",
++    "Gazler/omarchy-solarized-theme",
++    "master",
++    { background: "#002b36", foreground: "#839496", accent: "#268bd2" }
++  ),
++  community(
++    "one-dark-pro",
++    "One Dark Pro",
++    "dark",
++    "sc0ttman",
++    "sc0ttman/omarchy-one-dark-pro-theme",
++    "main",
++    { background: "#1e2229", foreground: "#abb2bf", accent: "#61afef" }
++  ),
++  community(
++    "synthwave84",
++    "Synthwave '84",
++    "dark",
++    "omacom-io",
++    "omacom-io/omarchy-synthwave84-theme",
++    "master",
++    { background: "#240037", foreground: "#ffffff", accent: "#0080ff" }
++  ),
++  community(
++    "aura",
++    "Aura",
++    "dark",
++    "bjarneo",
++    "bjarneo/omarchy-aura-theme",
++    "main",
++    { background: "#282A36", foreground: "#F8F8F2", accent: "#8BE9FD" }
++  ),
++  community(
++    "futurism",
++    "Futurism",
++    "dark",
++    "bjarneo",
++    "bjarneo/omarchy-futurism-theme",
++    "main",
++    { background: "#0A1428", foreground: "#F0F8FF", accent: "#FF40A3" },
++    "colors-toml"
++  ),
++  community(
++    "nes",
++    "NES",
++    "dark",
++    "bjarneo",
++    "bjarneo/omarchy-nes-theme",
++    "main",
++    { background: "#101010", foreground: "#CECFC9", accent: "#D93F37" }
++  ),
++  community(
++    "ash",
++    "Ash",
++    "dark",
++    "bjarneo",
++    "bjarneo/omarchy-ash-theme",
++    "main",
++    { background: "#121212", foreground: "#e0e0e0", accent: "#626262" }
++  ),
++  community(
++    "pulsar",
++    "Pulsar",
++    "dark",
++    "bjarneo",
++    "bjarneo/omarchy-pulsar-theme",
++    "main",
++    { background: "#0a0a0f", foreground: "#e0e0e8", accent: "#7c4dff" }
++  ),
++  community(
++    "flexoki-dark",
++    "Flexoki Dark",
++    "dark",
++    "euandeas",
++    "euandeas/omarchy-flexoki-dark-theme",
++    "main",
++    { background: "#100F0F", foreground: "#CECDC3", accent: "#205EA6" }
++  ),
++  community(
++    "rose-pine-dark",
++    "Rose Pine Dark",
++    "dark",
++    "guilhermetk",
++    "guilhermetk/omarchy-rose-pine-dark",
++    "main",
++    { background: "#191724", foreground: "#e0def4", accent: "#c4a7e7" }
++  ),
++  community(
++    "all-hallows-eve",
++    "All Hallow's Eve",
++    "dark",
++    "guilhermetk",
++    "guilhermetk/omarchy-all-hallows-eve-theme",
++    "main",
++    { background: "#1a1a2e", foreground: "#e0d8c0", accent: "#ff6600" }
++  ),
++  community(
++    "azure-glow",
++    "Azure Glow",
++    "dark",
++    "Hydradevx",
++    "Hydradevx/omarchy-azure-glow-theme",
++    "main",
++    { background: "#0a0e1a", foreground: "#c8d6e5", accent: "#00a8ff" }
++  ),
++  community(
++    "blue-ridge-dark",
++    "Blue Ridge Dark",
++    "dark",
++    "hipsterusername",
++    "hipsterusername/omarchy-blueridge-dark-theme",
++    "main",
++    { background: "#1a1b2e", foreground: "#d4d6e4", accent: "#5b8cff" }
++  ),
++  community(
++    "green-garden",
++    "Green Garden",
++    "dark",
++    "kalk-ak",
++    "kalk-ak/omarchy-green-garden-theme",
++    "main",
++    { background: "#1a2e1a", foreground: "#c8e0c8", accent: "#4caf50" }
++  ),
++  community(
++    "gold-rush",
++    "Gold Rush",
++    "dark",
++    "tahayvr",
++    "tahayvr/omarchy-gold-rush-theme",
++    "main",
++    { background: "#1a1612", foreground: "#e8d5b5", accent: "#ffd700" }
++  ),
++  community(
++    "mars",
++    "Mars",
++    "dark",
++    "steve-lohmeyer",
++    "steve-lohmeyer/omarchy-mars-theme",
++    "main",
++    { background: "#1a0a0a", foreground: "#e0c8c8", accent: "#ff4444" }
++  ),
++  community(
++    "midnight",
++    "Midnight",
++    "dark",
++    "JaxonWright",
++    "JaxonWright/omarchy-midnight-theme",
++    "main",
++    { background: "#0d1117", foreground: "#c9d1d9", accent: "#58a6ff" }
++  ),
++  community(
++    "monochrome",
++    "Monochrome",
++    "dark",
++    "Swarnim114",
++    "Swarnim114/omarchy-monochrome-theme",
++    "main",
++    { background: "#1a1a1a", foreground: "#d4d4d4", accent: "#808080" }
++  ),
++  community(
++    "space-monkey",
++    "Space Monkey",
++    "dark",
++    "TyRichards",
++    "TyRichards/omarchy-space-monkey-theme",
++    "main",
++    { background: "#1a1a2e", foreground: "#e0e0e0", accent: "#00ff88" }
++  ),
++  community(
++    "solarized-osaka",
++    "Solarized Osaka",
++    "dark",
++    "motorsss",
++    "motorsss/omarchy-solarizedosaka-theme",
++    "main",
++    { background: "#0d1117", foreground: "#839496", accent: "#268bd2" }
++  ),
++  community(
++    "waveform-dark",
++    "Waveform Dark",
++    "dark",
++    "hipsterusername",
++    "hipsterusername/omarchy-waveform-dark-theme",
++    "main",
++    { background: "#1a1a2e", foreground: "#d4d4e4", accent: "#ff6b9d" }
++  ),
++  community(
++    "vague",
++    "Vague",
++    "dark",
++    "Rnedlose",
++    "Rnedlose/omarchy-vague-theme",
++    "main",
++    { background: "#18191a", foreground: "#cdcdcd", accent: "#7a88cf" }
++  ),
++  community(
++    "void",
++    "Void",
++    "dark",
++    "vyrx-dev",
++    "vyrx-dev/omarchy-void-theme",
++    "main",
++    { background: "#0a0a0a", foreground: "#d0d0d0", accent: "#8b5cf6" }
++  ),
++  community(
++    "c64",
++    "C64",
++    "dark",
++    "scar45",
++    "scar45/omarchy-c64-theme",
++    "main",
++    { background: "#40318d", foreground: "#7869c4", accent: "#6c5eb5" }
++  ),
++  community(
++    "cobalt2",
++    "Cobalt2",
++    "dark",
++    "hoblin",
++    "hoblin/omarchy-cobalt2-theme",
++    "main",
++    { background: "#193549", foreground: "#ffffff", accent: "#ffc600" }
++  ),
++  community(
++    "akane",
++    "Akane",
++    "dark",
++    "Grenish",
++    "Grenish/omarchy-akane-theme",
++    "main",
++    { background: "#1a1a2e", foreground: "#e0c8c8", accent: "#e84057" }
++  ),
++  community(
++    "sunset-drive",
++    "Sunset Drive",
++    "dark",
++    "tahayvr",
++    "tahayvr/omarchy-sunset-drive-theme",
++    "main",
++    { background: "#1a1020", foreground: "#e8d0e0", accent: "#ff6b6b" }
++  ),
++  community(
++    "krishna",
++    "Krishna",
++    "dark",
++    "tanishenigma",
++    "tanishenigma/omarchy-krishna-theme",
++    "main",
++    { background: "#0d1117", foreground: "#c9d1d9", accent: "#ffd700" }
++  ),
++  community(
++    "felix",
++    "Felix",
++    "dark",
++    "TyRichards",
++    "TyRichards/omarchy-felix-theme",
++    "main",
++    { background: "#1e1e2e", foreground: "#d4d4d4", accent: "#f5a623" }
++  ),
++  community(
++    "super-game-bro",
++    "Super Game Bro",
++    "dark",
++    "TyRichards",
++    "TyRichards/omarchy-super-game-bro-theme",
++    "main",
++    { background: "#0f380f", foreground: "#9bbc0f", accent: "#8bac0f" }
++  ),
++  community(
++    "retropc",
++    "RetroPC",
++    "dark",
++    "rondilley",
++    "rondilley/omarchy-retropc-theme",
++    "main",
++    { background: "#1a1a1a", foreground: "#33ff33", accent: "#33ff33" }
++  ),
++
++  // ── Community Themes (Light) ────────────────────────────────────────
++  community(
++    "milky-matcha",
++    "Milky Matcha",
++    "light",
++    "hipsterusername",
++    "hipsterusername/omarchy-milkmatcha-light-theme",
++    "main",
++    { background: "#f4f1e8", foreground: "#5c6a53", accent: "#7a9461" }
++  ),
++  community(
++    "snow",
++    "Snow",
++    "light",
++    "bjarneo",
++    "bjarneo/omarchy-snow-theme",
++    "main",
++    { background: "#ffffff", foreground: "#0a0a0a", accent: "#0a0a0a" }
++  ),
++  community(
++    "solarized-light",
++    "Solarized Light",
++    "light",
++    "dfrico",
++    "dfrico/omarchy-solarized-light-theme",
++    "main",
++    { background: "#fdf6e3", foreground: "#657b83", accent: "#268bd2" }
++  ),
++  community(
++    "white-gold",
++    "White Gold",
++    "light",
++    "HANCORE-linux",
++    "HANCORE-linux/omarchy-whitegold-theme",
++    "main",
++    { background: "#fefefe", foreground: "#2e2e2e", accent: "#d4a574" }
++  ),
++];
++
++export function getThemeById(id: string): ThemeEntry | undefined {
++  return themeRegistry.find((t) => t.id === id);
++}
+diff --git a/src/types/theme.ts b/src/types/theme.ts
+new file mode 100644
+index 0000000..2a876bd
+--- /dev/null
++++ b/src/types/theme.ts
+@@ -0,0 +1,48 @@
++export interface ThemeEntry {
++  id: string;
++  name: string;
++  type: "dark" | "light";
++  source: "official" | "community";
++  author: string;
++  colorFileUrl: string;
++  colorFormat: "colors-toml" | "alacritty-toml" | "ghostty";
++  previewImageUrl?: string;
++  backgroundImages?: string[];
++  preview: {
++    background: string;
++    foreground: string;
++    accent: string;
++  };
++}
++
++export interface AppThemeColors {
++  background: string;
++  foreground: string;
++  muted: string;
++  accent: string;
++  "accent-light": string;
++  "accent-dark": string;
++  surface: string;
++  "surface-light": string;
++  border: string;
++  success: string;
++  warning: string;
++  "accent-orange": string;
++}
++
++export type AppThemeColorKey = keyof AppThemeColors;
++
++export const DEFAULT_COLORS: AppThemeColors = {
++  background: "#0a0a0b",
++  foreground: "#e5e5e5",
++  muted: "#a1a1aa",
++  accent: "#7B2D8E",
++  "accent-light": "#9B4DB0",
++  "accent-dark": "#5E1F6E",
++  surface: "#111113",
++  "surface-light": "#1a1a1e",
++  border: "#27272a",
++  success: "#22c55e",
++  warning: "#eab308",
++  "accent-orange": "#d97706",
++};
