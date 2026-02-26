@@ -37,7 +37,12 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-1 px-3 py-2">
         <NavItem href="/" icon={<OverviewIcon />} label="Overview" />
-        <NavItem href="/repositories" icon={<ReposIcon />} label="Repositories" />
+        <NavItem
+          href="/repositories"
+          icon={<ReposIcon />}
+          label="Repositories"
+          match={(p) => p.startsWith("/repositories") || /^\/[^/]+\/[^/]+/.test(p)}
+        />
       </nav>
 
       {session?.user && (

@@ -8,11 +8,16 @@ interface NavItemProps {
   href: string;
   icon: React.ReactNode;
   label: string;
+  match?: (pathname: string) => boolean;
 }
 
-export function NavItem({ href, icon, label }: NavItemProps) {
+export function NavItem({ href, icon, label, match }: NavItemProps) {
   const pathname = usePathname();
-  const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = match
+    ? match(pathname)
+    : href === "/"
+      ? pathname === "/"
+      : pathname.startsWith(href);
 
   return (
     <Link

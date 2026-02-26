@@ -1,100 +1,160 @@
 "use client";
 
-import { use } from "react";
-import Link from "next/link";
+import { use, useMemo } from "react";
+import { useRepoDetail } from "@/hooks/use-repo-detail";
+import { useContributors } from "@/hooks/use-contributors";
 import { useCheckpoints } from "@/hooks/use-checkpoints";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { usePulls } from "@/hooks/use-pulls";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/ui/data-table";
+import { RepoSidebarInfo } from "@/components/repo/repo-sidebar-info";
+import { ActivityChart } from "@/components/repo/activity-chart";
+import { OpenPRsList } from "@/components/repo/open-prs-list";
 import { formatDistanceToNow } from "date-fns";
+import type { CheckpointMetadata } from "@/types/checkpoint";
+import type { WeeklyActivity } from "@/types/repository";
 
-export default function RepoDetailPage({
+export default function OverviewPage({
   params,
 }: {
   params: Promise<{ owner: string; repo: string }>;
 }) {
   const { owner, repo } = use(params);
-  const { checkpoints, isLoading } = useCheckpoints(owner, repo);
+  const { repo: repoDetail, isLoading: repoLoading } = useRepoDetail(
+    owner,
+    repo
+  );
+  const { contributors } = useContributors(owner, repo);
+  const { checkpoints, isLoading: checkpointsLoading } = useCheckpoints(
+    owner,
+    repo
+  );
+  const { pulls } = usePulls(owner, repo, "open");
 
-  if (isLoading) {
+  // Build weekly checkpoint activity from checkpoint dates
+  const checkpointActivity: WeeklyActivity[] = useMemo(() => {
+    if (!checkpoints || checkpoints.length === 0) return [];
+    const weeks: Record<number, number> = {};
+    for (const cp of checkpoints) {
+      const date = new Date(cp.created_at);
+      const day = date.getDay();
+      const weekStart = new Date(date);
+      weekStart.setDate(weekStart.getDate() - day);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekKey = Math.floor(weekStart.getTime() / 1000);
+      weeks[weekKey] = (weeks[weekKey] || 0) + 1;
+    }
+    return Object.entries(weeks)
+      .map(([week, total]) => ({ week: Number(week), total, days: [] }))
+      .sort((a, b) => a.week - b.week);
+  }, [checkpoints]);
+
+  const recentCheckpoints = checkpoints?.slice(0, 10) ?? [];
+
+  if (repoLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-5 w-48" />
-        <Skeleton className="h-8 w-64" />
-        <div className="space-y-2">
-          <Skeleton className="h-16" />
-          <Skeleton className="h-16" />
-          <Skeleton className="h-16" />
-        </div>
+        <Skeleton className="h-20" />
+        <Skeleton className="h-48" />
+      </div>
+    );
+  }
+
+  if (!repoDetail) {
+    return (
+      <div className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">
+        Failed to load repository details
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <Breadcrumb
-        items={[
-          { label: "Repositories", href: "/repositories" },
-          { label: owner, href: `/repositories` },
-          { label: repo },
-        ]}
-      />
-
-      <h2 className="text-lg font-semibold text-foreground">
-        {owner}/{repo}
-      </h2>
-
-      {!checkpoints || checkpoints.length === 0 ? (
-        <EmptyState
-          title="No checkpoints found"
-          description="This repository doesn't have any checkpoints on the partio/checkpoints/v1 branch yet."
+    <div className="flex gap-6">
+      {/* Left sidebar */}
+      <aside className="hidden w-72 shrink-0 lg:block">
+        <RepoSidebarInfo
+          repo={repoDetail}
+          contributors={contributors}
+          activityChart={
+            checkpointsLoading ? (
+              <Skeleton className="h-20" />
+            ) : (
+              <ActivityChart activity={checkpointActivity} />
+            )
+          }
         />
-      ) : (
-        <div className="space-y-2">
-          {checkpoints.map((cp) => (
-            <Link
-              key={cp.id}
-              href={`/${owner}/${repo}/${cp.id}`}
-              className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface-light"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm text-foreground">
-                    {cp.id}
-                  </span>
-                  <Badge>{cp.branch}</Badge>
-                  {cp.agent && (
-                    <span className="text-xs text-muted">{cp.agent}</span>
-                  )}
-                  {cp.plan_slug && (
-                    <Link
-                      href={`/${owner}/${repo}/${cp.id}?tab=plan`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center rounded-md bg-accent/10 border border-accent/20 px-1.5 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
-                    >
-                      Plan
-                    </Link>
-                  )}
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-sm text-accent-light">
-                    {cp.agent_percent}%
-                  </span>
-                  <span className="text-xs text-muted">
-                    {formatDistanceToNow(new Date(cp.created_at), {
-                      addSuffix: true,
-                    })}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-1.5 text-xs text-muted">
-                commit {cp.commit_hash.slice(0, 8)}
-              </div>
-            </Link>
-          ))}
+      </aside>
+
+      {/* Main content */}
+      <div className="min-w-0 flex-1 space-y-6">
+        {/* Recent checkpoints */}
+        {recentCheckpoints.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
+              Recent Checkpoints
+            </h3>
+            <DataTable<CheckpointMetadata>
+              data={recentCheckpoints}
+              onRowClick={(cp) =>
+                (window.location.href = `/${owner}/${repo}/checkpoints/${cp.id}`)
+              }
+              columns={[
+                {
+                  key: "agent",
+                  header: "Agent",
+                  render: (cp) => (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-foreground">
+                        {cp.agent}
+                      </span>
+                      <span className="font-mono text-xs text-accent-light">
+                        {cp.agent_percent}%
+                      </span>
+                    </div>
+                  ),
+                  className: "w-40",
+                },
+                {
+                  key: "commit",
+                  header: "Commit",
+                  render: (cp) => (
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-muted">
+                        {cp.commit_hash.slice(0, 7)}
+                      </span>
+                      <span className="text-sm text-muted">{cp.branch}</span>
+                    </div>
+                  ),
+                },
+                {
+                  key: "when",
+                  header: "When",
+                  render: (cp) => (
+                    <span className="whitespace-nowrap text-sm text-muted">
+                      {formatDistanceToNow(new Date(cp.created_at), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                  ),
+                  className: "w-44",
+                },
+              ]}
+            />
+          </div>
+        )}
+
+        {/* Open PRs */}
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted">
+            Open Pull Requests
+          </h3>
+          {pulls ? (
+            <OpenPRsList pulls={pulls} owner={owner} repo={repo} />
+          ) : (
+            <Skeleton className="h-32" />
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

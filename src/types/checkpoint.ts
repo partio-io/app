@@ -24,6 +24,15 @@ export interface Message {
   toolNames?: string[];
 }
 
+export interface OverviewStats {
+  total_checkpoints: number;
+  active_repos: number;
+  this_week: number;
+  prev_week: number;
+  avg_agent_percent: number;
+  streak_days: number;
+}
+
 export interface RepoWithCheckpoints {
   owner: string;
   name: string;

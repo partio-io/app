@@ -1,11 +1,6 @@
 import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 import type { CheckpointMetadata, Message } from "@/types/checkpoint";
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json();
-};
 
 export function useCheckpoints(owner: string, repo: string) {
   const { data, error, isLoading } = useSWR<CheckpointMetadata[]>(

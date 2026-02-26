@@ -39,7 +39,7 @@ export function CheckpointActions({
       <div className="shrink-0 rounded-lg border border-accent-orange/20 bg-accent-orange/5 p-3">
         <button
           onClick={() => handleCopy("resume", command)}
-          className="inline-flex items-center gap-1.5 rounded-md border border-accent-orange/30 bg-accent-orange/15 px-2.5 py-1 text-xs font-medium text-accent-orange transition-colors hover:bg-accent-orange/25 cursor-pointer"
+          className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-md border border-accent-orange/30 bg-accent-orange/15 px-2.5 py-1 text-xs font-medium text-accent-orange transition-colors hover:bg-accent-orange/25 cursor-pointer"
         >
           <svg
             width="14"
@@ -56,7 +56,7 @@ export function CheckpointActions({
           </svg>
           {copied === "resume" ? "Copied!" : "Resume Claude Code Session"}
         </button>
-        <code className="mt-2 block rounded bg-surface px-2 py-1.5 font-mono text-[11px] text-muted">
+        <code className="mt-2 block whitespace-nowrap rounded bg-surface px-2 py-1.5 font-mono text-[11px] text-muted">
           {command}
         </code>
       </div>
