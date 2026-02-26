@@ -1,0 +1,368 @@
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+index f9758e2..db5a0b6 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+@@ -212,7 +212,7 @@ export default function CheckpointDetailPage({
+           </span>
+         </button>
+         </div>
+-        <div className="absolute right-0 bottom-0">
++        <div className="absolute right-0 bottom-2">
+           <CheckpointActions checkpointId={checkpointId} plan={plan} activeTab={activeTab} />
+         </div>
+       </div>
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index 0d6a739..7590d01 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -1,9 +1,8 @@
+ "use client";
+ 
+-import { useState } from "react";
+ import { useSession } from "next-auth/react";
+ import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
+-import { StatCard } from "@/components/ui/stat-card";
++import { OverviewStatsRow } from "@/components/ui/overview-stats";
+ import { Heatmap } from "@/components/ui/heatmap";
+ import { EmptyState } from "@/components/ui/empty-state";
+ import { Skeleton } from "@/components/ui/skeleton";
+@@ -16,39 +15,12 @@ function getGreeting(): string {
+   return "Evening";
+ }
+ 
+-function formatDuration(ms: number): string {
+-  const minutes = Math.round(ms / 60000);
+-  if (minutes < 60) return `${minutes}m`;
+-  const hours = Math.floor(minutes / 60);
+-  const rem = minutes % 60;
+-  if (rem === 0) return `${hours}h`;
+-  return `${hours}h ${rem}m`;
+-}
+-
+ export default function OverviewPage() {
+   const { data: session } = useSession();
+-  const { items, heatmap, isLoading } = useRecentCheckpoints();
++  const { items, heatmap, stats, isLoading } = useRecentCheckpoints();
+ 
+   const firstName = session?.user?.name?.split(" ")[0] || "there";
+ 
+-  // Checkpoints created in the last 24 hours
+-  const [now] = useState(() => Date.now());
+-  const checkpoints24h =
+-    items?.filter(
+-      (item) =>
+-        now - new Date(item.checkpoint.created_at).getTime() < 86_400_000
+-    ).length ?? 0;
+-
+-  // Average session duration
+-  const durations =
+-    items
+-      ?.map((item) => item.session_duration_ms)
+-      .filter((d): d is number => d !== null && d > 0) ?? [];
+-  const avgSessionMs =
+-    durations.length > 0
+-      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+-      : 0;
+-
+   const heatmapData = heatmap ?? {};
+   const hasCheckpoints = (items?.length ?? 0) > 0;
+ 
+@@ -56,11 +28,13 @@ export default function OverviewPage() {
+     return (
+       <div className="space-y-6">
+         <Skeleton className="h-8 w-64" />
+-        <div className="flex gap-4">
+-          <Skeleton className="h-24 w-44 shrink-0" />
+-          <Skeleton className="h-24 w-44 shrink-0" />
+-          <Skeleton className="h-24 flex-1" />
++        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
++          <Skeleton className="h-24" />
++          <Skeleton className="h-24" />
++          <Skeleton className="h-24" />
++          <Skeleton className="h-24" />
+         </div>
++        <Skeleton className="h-32" />
+         <Skeleton className="h-48" />
+       </div>
+     );
+@@ -72,19 +46,9 @@ export default function OverviewPage() {
+         {getGreeting()}, {firstName}
+       </h2>
+ 
+-      <div className="flex gap-4">
+-        <StatCard
+-          label="Checkpoints (24h)"
+-          value={checkpoints24h}
+-          className="w-44 shrink-0"
+-        />
+-        <StatCard
+-          label="Avg Session"
+-          value={avgSessionMs > 0 ? formatDuration(avgSessionMs) : "--"}
+-          className="w-44 shrink-0"
+-        />
+-        <Heatmap data={heatmapData} className="min-w-0 flex-1" />
+-      </div>
++      {stats && <OverviewStatsRow stats={stats} />}
++
++      <Heatmap data={heatmapData} />
+ 
+       {hasCheckpoints && (
+         <div className="space-y-3">
+diff --git a/src/components/ui/overview-stats.tsx b/src/components/ui/overview-stats.tsx
+new file mode 100644
+index 0000000..65834d0
+--- /dev/null
++++ b/src/components/ui/overview-stats.tsx
+@@ -0,0 +1,41 @@
++import type { OverviewStats } from "@/types/checkpoint";
++import { StatCard } from "@/components/ui/stat-card";
++
++interface OverviewStatsRowProps {
++  stats: OverviewStats;
++}
++
++export function OverviewStatsRow({ stats }: OverviewStatsRowProps) {
++  const weekTrend =
++    stats.prev_week > 0
++      ? Math.round(
++          ((stats.this_week - stats.prev_week) / stats.prev_week) * 100
++        )
++      : stats.this_week > 0
++        ? 100
++        : 0;
++
++  return (
++    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
++      <StatCard
++        label="Total Checkpoints"
++        value={stats.total_checkpoints}
++        subtitle={`across ${stats.active_repos} repo${stats.active_repos !== 1 ? "s" : ""}`}
++      />
++      <StatCard
++        label="This Week"
++        value={stats.this_week}
++        trend={weekTrend}
++      />
++      <StatCard
++        label="Avg AI Authorship"
++        value={`${stats.avg_agent_percent}%`}
++      />
++      <StatCard
++        label="Active Streak"
++        value={stats.streak_days}
++        unit={stats.streak_days === 1 ? "day" : "days"}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/ui/stat-card.tsx b/src/components/ui/stat-card.tsx
+index 672ffbf..55d8b5d 100644
+--- a/src/components/ui/stat-card.tsx
++++ b/src/components/ui/stat-card.tsx
+@@ -4,10 +4,12 @@ interface StatCardProps {
+   label: string;
+   value: string | number;
+   unit?: string;
++  subtitle?: string;
++  trend?: number;
+   className?: string;
+ }
+ 
+-export function StatCard({ label, value, unit, className }: StatCardProps) {
++export function StatCard({ label, value, unit, subtitle, trend, className }: StatCardProps) {
+   return (
+     <div
+       className={cn(
+@@ -23,7 +25,20 @@ export function StatCard({ label, value, unit, className }: StatCardProps) {
+           {value}
+         </span>
+         {unit && <span className="text-sm text-muted">{unit}</span>}
++        {trend !== undefined && trend !== 0 && (
++          <span
++            className={cn(
++              "ml-1 text-xs font-medium",
++              trend > 0 ? "text-green-400" : "text-red-400"
++            )}
++          >
++            {trend > 0 ? "\u2191" : "\u2193"} {Math.abs(trend)}%
++          </span>
++        )}
+       </div>
++      {subtitle && (
++        <p className="mt-1 text-xs text-muted">{subtitle}</p>
++      )}
+     </div>
+   );
+ }
+diff --git a/src/hooks/use-recent-commits.ts b/src/hooks/use-recent-commits.ts
+index 5236588..7adccb9 100644
+--- a/src/hooks/use-recent-commits.ts
++++ b/src/hooks/use-recent-commits.ts
+@@ -1,10 +1,12 @@
+ import useSWR from "swr";
+ import { fetcher } from "@/lib/fetcher";
+ import type { RepoLatestCheckpoint } from "@/types/repository";
++import type { OverviewStats } from "@/types/checkpoint";
+ 
+ interface RecentCheckpointsResponse {
+   items: RepoLatestCheckpoint[];
+   heatmap: Record<string, number>;
++  stats: OverviewStats;
+ }
+ 
+ export function useRecentCheckpoints() {
+@@ -16,6 +18,7 @@ export function useRecentCheckpoints() {
+   return {
+     items: data?.items,
+     heatmap: data?.heatmap,
++    stats: data?.stats,
+     isLoading,
+     isError: !!error,
+   };
+diff --git a/src/lib/github/recent-commits.ts b/src/lib/github/recent-commits.ts
+index 46ef885..20dd2eb 100644
+--- a/src/lib/github/recent-commits.ts
++++ b/src/lib/github/recent-commits.ts
+@@ -1,8 +1,7 @@
+ import { Octokit } from "@octokit/rest";
+ import { listCheckpoints } from "@/lib/github/checkpoints";
+ import { listCommits } from "@/lib/github/commits";
+-import { getSessionData } from "@/lib/github/session";
+-import type { CheckpointMetadata } from "@/types/checkpoint";
++import type { CheckpointMetadata, OverviewStats } from "@/types/checkpoint";
+ import type { RepoLatestCheckpoint } from "@/types/repository";
+ 
+ const RECENT_LIMIT = 10;
+@@ -10,6 +9,7 @@ const RECENT_LIMIT = 10;
+ export interface RecentCheckpointsResult {
+   items: RepoLatestCheckpoint[];
+   heatmap: Record<string, number>;
++  stats: OverviewStats;
+ }
+ 
+ export async function getRecentCheckpointsForRepos(
+@@ -63,36 +63,6 @@ export async function getRecentCheckpointsForRepos(
+         // Commit may no longer exist — that's fine
+       }
+ 
+-      let summary: string | null = null;
+-      let session_duration_ms: number | null = null;
+-      try {
+-        const messages = await getSessionData(
+-          octokit,
+-          owner,
+-          repo,
+-          checkpoint.id
+-        );
+-        const firstHuman = messages.find(
+-          (m) => m.role === "human" || m.role === "user"
+-        );
+-        if (firstHuman) {
+-          const text = firstHuman.content.split("\n")[0].trim();
+-          summary = text.length > 100 ? text.slice(0, 100) + "\u2026" : text;
+-        }
+-
+-        const timestamps = messages
+-          .map((m) => m.timestamp)
+-          .filter((t) => t)
+-          .map((t) => new Date(t).getTime())
+-          .filter((t) => !isNaN(t));
+-        if (timestamps.length >= 2) {
+-          session_duration_ms =
+-            Math.max(...timestamps) - Math.min(...timestamps);
+-        }
+-      } catch {
+-        // Session data may not be available — that's fine
+-      }
+-
+       return {
+         owner,
+         repo,
+@@ -105,11 +75,64 @@ export async function getRecentCheckpointsForRepos(
+           agent_percent: checkpoint.agent_percent,
+         },
+         commit,
+-        summary,
+-        session_duration_ms,
++        summary: null,
++        session_duration_ms: null,
+       } satisfies RepoLatestCheckpoint;
+     })
+   );
+ 
+-  return { items, heatmap };
++  // Compute overview stats from the full checkpoint list
++  const now = new Date();
++  const msPerDay = 86_400_000;
++  const weekAgo = now.getTime() - 7 * msPerDay;
++  const twoWeeksAgo = now.getTime() - 14 * msPerDay;
++
++  const uniqueRepos = new Set(
++    allCheckpoints.map((c) => `${c.owner}/${c.repo}`)
++  );
++
++  let thisWeek = 0;
++  let prevWeek = 0;
++  let agentPercentSum = 0;
++
++  for (const { checkpoint } of allCheckpoints) {
++    const t = new Date(checkpoint.created_at).getTime();
++    if (t >= weekAgo) thisWeek++;
++    else if (t >= twoWeeksAgo) prevWeek++;
++    agentPercentSum += checkpoint.agent_percent ?? 0;
++  }
++
++  const avgAgentPercent =
++    allCheckpoints.length > 0
++      ? Math.round(agentPercentSum / allCheckpoints.length)
++      : 0;
++
++  // Streak: walk backwards from today through consecutive days with activity
++  let streakDays = 0;
++  const todayStr = now.toISOString().split("T")[0];
++  const d = new Date(todayStr); // start of today (local)
++  // If today has no activity, check if yesterday does (allow "today hasn't happened yet")
++  if (!heatmap[todayStr]) {
++    d.setDate(d.getDate() - 1);
++  }
++  while (true) {
++    const key = d.toISOString().split("T")[0];
++    if (heatmap[key] && heatmap[key] > 0) {
++      streakDays++;
++      d.setDate(d.getDate() - 1);
++    } else {
++      break;
++    }
++  }
++
++  const stats: OverviewStats = {
++    total_checkpoints: allCheckpoints.length,
++    active_repos: uniqueRepos.size,
++    this_week: thisWeek,
++    prev_week: prevWeek,
++    avg_agent_percent: avgAgentPercent,
++    streak_days: streakDays,
++  };
++
++  return { items, heatmap, stats };
+ }
+diff --git a/src/types/checkpoint.ts b/src/types/checkpoint.ts
+index 030d1ba..796de76 100644
+--- a/src/types/checkpoint.ts
++++ b/src/types/checkpoint.ts
+@@ -24,6 +24,15 @@ export interface Message {
+   toolNames?: string[];
+ }
+ 
++export interface OverviewStats {
++  total_checkpoints: number;
++  active_repos: number;
++  this_week: number;
++  prev_week: number;
++  avg_agent_percent: number;
++  streak_days: number;
++}
++
+ export interface RepoWithCheckpoints {
+   owner: string;
+   name: string;

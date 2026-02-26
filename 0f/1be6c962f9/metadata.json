@@ -1,0 +1,11 @@
+{
+  "id": "0f1be6c962f9",
+  "session_id": "41780781-8174-404f-87bc-ebe0b797e227",
+  "commit_hash": "24a8bbe0cc91c05946f20c7bf02a92e43badfa18",
+  "branch": "partio-app-ambition-ui",
+  "created_at": "2026-02-26T11:32:24+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "24a8bbe0cc91c05946f20c7bf02a92e43badfa18",
+  "plan_slug": "gentle-sparking-backus"
+}
