@@ -1,0 +1,11 @@
+{
+  "id": "a525c2af3c16",
+  "session_id": "6ed1a533-e9cf-419e-9a37-44e8e7bcc9a2",
+  "commit_hash": "4520cbdf541c1102e7387cc3db6dd7fe2cc5a5af",
+  "branch": "partio-final-ui-release",
+  "created_at": "2026-03-06T07:34:47+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "4520cbdf541c1102e7387cc3db6dd7fe2cc5a5af",
+  "plan_slug": "curious-purring-wilkinson"
+}

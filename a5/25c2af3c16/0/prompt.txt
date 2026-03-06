@@ -1,0 +1,15 @@
+We are going to do some @app/ improvmenets, specially related to "speed":
+
+You have available HAR files in /Users/arvos/Downloads
+
+- app.partio.io.har is ours
+- entire.io.har is the entire "overview" section
+
+They go very similar but they do have differences after all.
+
+I would like that we have a blazing fast experience, could you:
+
+- Evaluate our bottlenecks?
+- Evaluate what features from entire.io we should be doing that doesn't affect speed.
+
+Go for it my friend
