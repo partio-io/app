@@ -1,0 +1,11 @@
+{
+  "id": "5b46c92c28e1",
+  "session_id": "216dc95c-e7c8-483d-a0ef-61ca582e4d76",
+  "commit_hash": "2a427b5287ba155dc954ff367f43f8f427971be2",
+  "branch": "partio-final-ui-release",
+  "created_at": "2026-03-06T10:16:38+01:00",
+  "agent": "claude-code",
+  "agent_percent": 100,
+  "content_hash": "2a427b5287ba155dc954ff367f43f8f427971be2",
+  "plan_slug": "deep-herding-toast"
+}
