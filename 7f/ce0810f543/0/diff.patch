@@ -1,0 +1,578 @@
+diff --git a/public/squirrel/squirrel-02.png b/public/squirrel/squirrel-02.png
+new file mode 100644
+index 0000000..02544b1
+Binary files /dev/null and b/public/squirrel/squirrel-02.png differ
+diff --git a/public/squirrel/squirrel-03.png b/public/squirrel/squirrel-03.png
+new file mode 100644
+index 0000000..54cb8bf
+Binary files /dev/null and b/public/squirrel/squirrel-03.png differ
+diff --git a/public/squirrel/squirrel-05.png b/public/squirrel/squirrel-05.png
+new file mode 100644
+index 0000000..1ead648
+Binary files /dev/null and b/public/squirrel/squirrel-05.png differ
+diff --git a/public/squirrel/squirrel-07.png b/public/squirrel/squirrel-07.png
+new file mode 100644
+index 0000000..3b82f76
+Binary files /dev/null and b/public/squirrel/squirrel-07.png differ
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
+index 7eb705a..df6bb92 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/loading.tsx
+@@ -1,10 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function CheckpointDetailLoading() {
+-  return (
+-    <div className="space-y-4">
+-      <Skeleton className="h-8 w-96" />
+-      <Skeleton className="h-96" />
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading checkpoint details..." />;
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+index db5a0b6..edf5cc0 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/[checkpointId]/page.tsx
+@@ -10,6 +10,7 @@ import {
+   usePlan,
+ } from "@/hooks/use-checkpoints";
+ import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ import { TranscriptViewer } from "@/components/ui/transcript-viewer";
+ import { DiffViewer } from "@/components/ui/diff-viewer";
+ import { PlanViewer } from "@/components/ui/plan-viewer";
+@@ -76,12 +77,7 @@ export default function CheckpointDetailPage({
+   const fileCount = useMemo(() => countDiffFiles(diff), [diff]);
+ 
+   if (cpLoading) {
+-    return (
+-      <div className="space-y-4">
+-        <Skeleton className="h-8 w-96" />
+-        <Skeleton className="h-96" />
+-      </div>
+-    );
++    return <SquirrelLoader message="Loading checkpoint..." />;
+   }
+ 
+   if (!checkpoint) {
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx
+index bdd9293..a1fcca4 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/loading.tsx
+@@ -1,11 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function CheckpointsLoading() {
+-  return (
+-    <div className="space-y-2">
+-      <Skeleton className="h-16" />
+-      <Skeleton className="h-16" />
+-      <Skeleton className="h-16" />
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading checkpoints..." />;
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx b/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx
+index 9a9c238..73a87e2 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/checkpoints/page.tsx
+@@ -4,7 +4,7 @@ import { use, useMemo } from "react";
+ import Link from "next/link";
+ import { useCheckpoints, usePlan } from "@/hooks/use-checkpoints";
+ import { useCommits } from "@/hooks/use-commits";
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ import { EmptyState } from "@/components/ui/empty-state";
+ import { Badge } from "@/components/ui/badge";
+ import { formatDistanceToNow } from "date-fns";
+@@ -56,13 +56,7 @@ export default function CheckpointsPage({
+   }
+ 
+   if (isLoading) {
+-    return (
+-      <div className="space-y-2">
+-        <Skeleton className="h-16" />
+-        <Skeleton className="h-16" />
+-        <Skeleton className="h-16" />
+-      </div>
+-    );
++    return <SquirrelLoader message="Loading checkpoints..." />;
+   }
+ 
+   if (!checkpoints || checkpoints.length === 0) {
+diff --git a/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx
+index 62a54e1..df6859c 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/commits/loading.tsx
+@@ -1,11 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function CommitsLoading() {
+-  return (
+-    <div className="space-y-2">
+-      {Array.from({ length: 6 }).map((_, i) => (
+-        <Skeleton key={i} className="h-16" />
+-      ))}
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading commits..." />;
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx
+index fdffa31..5d47a4d 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/issues/loading.tsx
+@@ -1,11 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function IssuesLoading() {
+-  return (
+-    <div className="space-y-2">
+-      {Array.from({ length: 5 }).map((_, i) => (
+-        <Skeleton key={i} className="h-16" />
+-      ))}
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading issues..." />;
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/loading.tsx
+index 0b97788..5c17c17 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/loading.tsx
+@@ -1,19 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function RepoLoading() {
+-  return (
+-    <div className="space-y-4">
+-      <div className="flex items-center gap-3">
+-        <Skeleton className="h-8 w-8 rounded-full" />
+-        <Skeleton className="h-6 w-48" />
+-      </div>
+-      <Skeleton className="h-10 w-full" />
+-      <div className="grid grid-cols-5 gap-3">
+-        {Array.from({ length: 5 }).map((_, i) => (
+-          <Skeleton key={i} className="h-20" />
+-        ))}
+-      </div>
+-      <Skeleton className="h-48" />
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading repository..." />;
+ }
+diff --git a/src/app/(dashboard)/[owner]/[repo]/page.tsx b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+index a9de531..3f3e899 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/page.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/page.tsx
+@@ -6,12 +6,13 @@ import { useContributors } from "@/hooks/use-contributors";
+ import { useCheckpoints } from "@/hooks/use-checkpoints";
+ import { usePulls } from "@/hooks/use-pulls";
+ import { Skeleton } from "@/components/ui/skeleton";
+-import { DataTable } from "@/components/ui/data-table";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
++import { Badge } from "@/components/ui/badge";
+ import { RepoSidebarInfo } from "@/components/repo/repo-sidebar-info";
+ import { ActivityChart } from "@/components/repo/activity-chart";
+ import { OpenPRsList } from "@/components/repo/open-prs-list";
+ import { formatDistanceToNow } from "date-fns";
+-import type { CheckpointMetadata } from "@/types/checkpoint";
++import Link from "next/link";
+ import type { WeeklyActivity } from "@/types/repository";
+ 
+ export default function OverviewPage({
+@@ -52,12 +53,7 @@ export default function OverviewPage({
+   const recentCheckpoints = checkpoints?.slice(0, 10) ?? [];
+ 
+   if (repoLoading) {
+-    return (
+-      <div className="space-y-4">
+-        <Skeleton className="h-20" />
+-        <Skeleton className="h-48" />
+-      </div>
+-    );
++    return <SquirrelLoader message="Loading repository..." />;
+   }
+ 
+   if (!repoDetail) {
+@@ -93,53 +89,36 @@ export default function OverviewPage({
+             <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
+               Recent Checkpoints
+             </h3>
+-            <DataTable<CheckpointMetadata>
+-              data={recentCheckpoints}
+-              onRowClick={(cp) =>
+-                (window.location.href = `/${owner}/${repo}/checkpoints/${cp.id}`)
+-              }
+-              columns={[
+-                {
+-                  key: "agent",
+-                  header: "Agent",
+-                  render: (cp) => (
+-                    <div className="flex items-center gap-2">
+-                      <span className="text-sm text-foreground">
+-                        {cp.agent}
+-                      </span>
+-                      <span className="font-mono text-xs text-accent-light">
+-                        {cp.agent_percent}%
+-                      </span>
+-                    </div>
+-                  ),
+-                  className: "w-40",
+-                },
+-                {
+-                  key: "commit",
+-                  header: "Commit",
+-                  render: (cp) => (
+-                    <div className="flex items-center gap-2">
+-                      <span className="font-mono text-xs text-muted">
+-                        {cp.commit_hash.slice(0, 7)}
+-                      </span>
+-                      <span className="text-sm text-muted">{cp.branch}</span>
+-                    </div>
+-                  ),
+-                },
+-                {
+-                  key: "when",
+-                  header: "When",
+-                  render: (cp) => (
+-                    <span className="whitespace-nowrap text-sm text-muted">
++            <div className="space-y-2">
++              {recentCheckpoints.map((cp) => (
++                <Link
++                  key={cp.id}
++                  href={`/${owner}/${repo}/checkpoints/${cp.id}`}
++                  className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface-light"
++                >
++                  <div className="flex items-center gap-3">
++                    <Badge>{cp.branch}</Badge>
++                    <span className="font-mono text-xs text-muted">
++                      {cp.commit_hash.slice(0, 8)}
++                    </span>
++                    <span className="flex-1" />
++                    <span className="whitespace-nowrap text-xs text-muted">
+                       {formatDistanceToNow(new Date(cp.created_at), {
+                         addSuffix: true,
+                       })}
+                     </span>
+-                  ),
+-                  className: "w-44",
+-                },
+-              ]}
+-            />
++                  </div>
++                  <div className="mt-1.5 flex items-center gap-2 text-xs text-muted">
++                    <span className="text-sm font-medium text-foreground">
++                      {cp.agent}
++                    </span>
++                    <span className="font-mono text-xs text-accent-light">
++                      {cp.agent_percent}%
++                    </span>
++                  </div>
++                </Link>
++              ))}
++            </div>
+           </div>
+         )}
+ 
+diff --git a/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx b/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx
+index 1a7b7a9..ff86af9 100644
+--- a/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx
++++ b/src/app/(dashboard)/[owner]/[repo]/pulls/loading.tsx
+@@ -1,11 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function PullsLoading() {
+-  return (
+-    <div className="space-y-2">
+-      {Array.from({ length: 5 }).map((_, i) => (
+-        <Skeleton key={i} className="h-16" />
+-      ))}
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading pull requests..." />;
+ }
+diff --git a/src/app/(dashboard)/loading.tsx b/src/app/(dashboard)/loading.tsx
+index ac80262..dace56c 100644
+--- a/src/app/(dashboard)/loading.tsx
++++ b/src/app/(dashboard)/loading.tsx
+@@ -1,16 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function OverviewLoading() {
+-  return (
+-    <div className="space-y-6">
+-      <Skeleton className="h-8 w-64" />
+-      <div className="grid grid-cols-4 gap-4">
+-        <Skeleton className="h-24" />
+-        <Skeleton className="h-24" />
+-        <Skeleton className="h-24" />
+-        <Skeleton className="h-24" />
+-      </div>
+-      <Skeleton className="h-40" />
+-    </div>
+-  );
++  return <SquirrelLoader message="Fetching your dashboard..." />;
+ }
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index 715c779..77aac92 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -5,7 +5,7 @@ import { useRecentCheckpoints } from "@/hooks/use-recent-commits";
+ import { OverviewStatsRow } from "@/components/ui/overview-stats";
+ import { Heatmap } from "@/components/ui/heatmap";
+ import { EmptyState } from "@/components/ui/empty-state";
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ import { RecentCommitsTable } from "@/components/repo/recent-commits-table";
+ 
+ function getGreeting(): string {
+@@ -31,16 +31,7 @@ export default function OverviewPage() {
+       </h2>
+ 
+       {isLoading ? (
+-        <>
+-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+-            <Skeleton className="h-24" />
+-            <Skeleton className="h-24" />
+-            <Skeleton className="h-24" />
+-            <Skeleton className="h-24" />
+-          </div>
+-          <Skeleton className="h-32" />
+-          <Skeleton className="h-48" />
+-        </>
++        <SquirrelLoader message="Fetching your dashboard..." />
+       ) : (
+         <>
+           {stats && <OverviewStatsRow stats={stats} />}
+diff --git a/src/app/(dashboard)/repositories/loading.tsx b/src/app/(dashboard)/repositories/loading.tsx
+index 236aa03..3598f30 100644
+--- a/src/app/(dashboard)/repositories/loading.tsx
++++ b/src/app/(dashboard)/repositories/loading.tsx
+@@ -1,11 +1,5 @@
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ 
+ export default function RepositoriesLoading() {
+-  return (
+-    <div className="space-y-4">
+-      <Skeleton className="h-8 w-48" />
+-      <Skeleton className="h-10 w-80" />
+-      <Skeleton className="h-64" />
+-    </div>
+-  );
++  return <SquirrelLoader message="Loading repositories..." />;
+ }
+diff --git a/src/app/(dashboard)/repositories/page.tsx b/src/app/(dashboard)/repositories/page.tsx
+index c732399..18fdc49 100644
+--- a/src/app/(dashboard)/repositories/page.tsx
++++ b/src/app/(dashboard)/repositories/page.tsx
+@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
+ import { useRepos } from "@/hooks/use-repos";
+ import { SearchInput } from "@/components/ui/search-input";
+ import { DataTable } from "@/components/ui/data-table";
+-import { Skeleton } from "@/components/ui/skeleton";
++import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+ import { EmptyState } from "@/components/ui/empty-state";
+ import { formatDistanceToNow } from "date-fns";
+ import type { RepoWithCheckpoints } from "@/types/checkpoint";
+@@ -64,7 +64,7 @@ export default function RepositoriesPage() {
+       </div>
+ 
+       {isLoading ? (
+-        <Skeleton className="h-64" />
++        <SquirrelLoader message="Loading repositories..." />
+       ) : filtered.length === 0 ? (
+         <EmptyState
+           title="No repositories found"
+diff --git a/src/components/ui/squirrel-loader.tsx b/src/components/ui/squirrel-loader.tsx
+new file mode 100644
+index 0000000..7aed818
+--- /dev/null
++++ b/src/components/ui/squirrel-loader.tsx
+@@ -0,0 +1,46 @@
++"use client";
++
++import { useState, useEffect } from "react";
++import { cn } from "@/lib/utils";
++
++const frames = [
++  "/squirrel/squirrel-02.png",
++  "/squirrel/squirrel-03.png",
++  "/squirrel/squirrel-05.png",
++  "/squirrel/squirrel-07.png",
++];
++
++interface SquirrelLoaderProps {
++  message?: string;
++  className?: string;
++}
++
++export function SquirrelLoader({
++  message = "Loading...",
++  className,
++}: SquirrelLoaderProps) {
++  const [frame, setFrame] = useState(0);
++
++  useEffect(() => {
++    const interval = setInterval(() => {
++      setFrame((f) => (f + 1) % frames.length);
++    }, 600);
++    return () => clearInterval(interval);
++  }, []);
++
++  return (
++    <div
++      className={cn(
++        "flex flex-col items-center justify-center gap-4 py-16",
++        className
++      )}
++    >
++      <img
++        src={frames[frame]}
++        alt="Loading"
++        className="h-24 w-24 object-contain animate-bounce"
++      />
++      <p className="text-sm text-muted animate-pulse">{message}</p>
++    </div>
++  );
++}
+diff --git a/src/components/ui/transcript-viewer.tsx b/src/components/ui/transcript-viewer.tsx
+index be7d7d0..57c52b7 100644
+--- a/src/components/ui/transcript-viewer.tsx
++++ b/src/components/ui/transcript-viewer.tsx
+@@ -1,6 +1,10 @@
+ "use client";
+ 
+ import { useState } from "react";
++import ReactMarkdown from "react-markdown";
++import remarkGfm from "remark-gfm";
++import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
++import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+ import { cn } from "@/lib/utils";
+ import { ToolUsagePill } from "./tool-badge";
+ import type { Message } from "@/types/checkpoint";
+@@ -181,8 +185,115 @@ function MessageRow({ message, userName, userImage }: { message: Message; userNa
+           )}
+         </div>
+         {displayContent && (
+-          <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed">
+-            {displayContent}
++          <div className="text-sm text-foreground/90 leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
++            <ReactMarkdown
++              remarkPlugins={[remarkGfm]}
++              components={{
++                h1: ({ children }) => (
++                  <h1 className="text-lg font-semibold text-foreground mt-4 mb-2 first:mt-0">
++                    {children}
++                  </h1>
++                ),
++                h2: ({ children }) => (
++                  <h2 className="text-base font-semibold text-foreground mt-3 mb-1.5">
++                    {children}
++                  </h2>
++                ),
++                h3: ({ children }) => (
++                  <h3 className="text-sm font-semibold text-foreground mt-3 mb-1">
++                    {children}
++                  </h3>
++                ),
++                h4: ({ children }) => (
++                  <h4 className="text-sm font-semibold text-foreground mt-2 mb-1">
++                    {children}
++                  </h4>
++                ),
++                p: ({ children }) => (
++                  <p className="text-sm text-foreground/90 leading-relaxed mb-2">
++                    {children}
++                  </p>
++                ),
++                ul: ({ children }) => (
++                  <ul className="list-disc list-inside text-sm text-foreground/90 mb-2 space-y-0.5">
++                    {children}
++                  </ul>
++                ),
++                ol: ({ children }) => (
++                  <ol className="list-decimal list-inside text-sm text-foreground/90 mb-2 space-y-0.5">
++                    {children}
++                  </ol>
++                ),
++                li: ({ children }) => <li className="leading-relaxed">{children}</li>,
++                a: ({ href, children }) => (
++                  <a
++                    href={href}
++                    className="text-accent-light hover:underline"
++                    target="_blank"
++                    rel="noopener noreferrer"
++                  >
++                    {children}
++                  </a>
++                ),
++                code: ({ className, children }) => {
++                  const match = className?.match(/language-(\w+)/);
++                  if (match) {
++                    return (
++                      <SyntaxHighlighter
++                        style={oneDark}
++                        language={match[1]}
++                        customStyle={{
++                          margin: 0,
++                          borderRadius: "0.5rem",
++                          fontSize: "0.8125rem",
++                        }}
++                      >
++                        {String(children).replace(/\n$/, "")}
++                      </SyntaxHighlighter>
++                    );
++                  }
++                  return (
++                    <code className="rounded bg-surface-light border border-border px-1.5 py-0.5 text-xs font-mono text-foreground/90">
++                      {children}
++                    </code>
++                  );
++                },
++                pre: ({ children }) => (
++                  <div className="mb-2">{children}</div>
++                ),
++                blockquote: ({ children }) => (
++                  <blockquote className="border-l-2 border-accent/50 pl-3 text-sm text-muted italic mb-2">
++                    {children}
++                  </blockquote>
++                ),
++                table: ({ children }) => (
++                  <div className="overflow-x-auto mb-2">
++                    <table className="w-full text-sm border-collapse border border-border">
++                      {children}
++                    </table>
++                  </div>
++                ),
++                thead: ({ children }) => (
++                  <thead className="bg-surface-light">{children}</thead>
++                ),
++                th: ({ children }) => (
++                  <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">
++                    {children}
++                  </th>
++                ),
++                td: ({ children }) => (
++                  <td className="border border-border px-3 py-1.5 text-foreground/90">
++                    {children}
++                  </td>
++                ),
++                hr: () => <hr className="border-border my-3" />,
++                strong: ({ children }) => (
++                  <strong className="font-semibold text-foreground">{children}</strong>
++                ),
++              }}
++            >
++              {displayContent}
++            </ReactMarkdown>
+           </div>
+         )}
+         {!isHuman && toolNames.length > 0 && (
