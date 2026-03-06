@@ -1,8 +1,9 @@
 import { Octokit } from "@octokit/rest";
-import { listCheckpoints } from "@/lib/github/checkpoints";
+import { listCheckpointsFromEntries } from "@/lib/github/checkpoints";
 import { listCommits } from "@/lib/github/commits";
 import type { CheckpointMetadata, OverviewStats } from "@/types/checkpoint";
 import type { RepoLatestCheckpoint } from "@/types/repository";
+import type { MetadataEntry } from "@/lib/github/repos";
 
 const RECENT_LIMIT = 10;
 
@@ -14,7 +15,7 @@ export interface RecentCheckpointsResult {
 
 export async function getRecentCheckpointsForRepos(
   octokit: Octokit,
-  repos: { owner: string; name: string }[]
+  repos: { owner: string; name: string; _metadata_entries: MetadataEntry[] }[]
 ): Promise<RecentCheckpointsResult> {
   const heatmap: Record<string, number> = {};
 
@@ -27,10 +28,11 @@ export async function getRecentCheckpointsForRepos(
 
   await Promise.allSettled(
     repos.map(async (repo) => {
-      const checkpoints = await listCheckpoints(
+      const checkpoints = await listCheckpointsFromEntries(
         octokit,
         repo.owner,
-        repo.name
+        repo.name,
+        repo._metadata_entries
       );
 
       for (const cp of checkpoints) {

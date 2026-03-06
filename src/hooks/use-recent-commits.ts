@@ -12,7 +12,8 @@ interface RecentCheckpointsResponse {
 export function useRecentCheckpoints() {
   const { data, error, isLoading } = useSWR<RecentCheckpointsResponse>(
     "/api/github/repos/recent-commits",
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60_000 }
   );
 
   return {

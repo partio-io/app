@@ -10,6 +10,9 @@ export async function GET() {
   }
 
   const octokit = createOctokit(session.accessToken);
-  const repos = await listReposWithCheckpoints(octokit);
-  return NextResponse.json(repos);
+  const repos = await listReposWithCheckpoints(octokit, session.user?.login ?? "unknown");
+  const publicRepos = repos.map(
+    ({ _metadata_entries, ...rest }) => rest
+  );
+  return NextResponse.json(publicRepos);
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRepos } from "@/hooks/use-repos";
 import { SearchInput } from "@/components/ui/search-input";
 import { DataTable } from "@/components/ui/data-table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SquirrelLoader } from "@/components/ui/squirrel-loader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDistanceToNow } from "date-fns";
 import type { RepoWithCheckpoints } from "@/types/checkpoint";
@@ -42,16 +42,6 @@ export default function RepositoriesPage() {
       return matchesSearch && matchesFilter;
     });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-80" />
-        <Skeleton className="h-64" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">
@@ -73,7 +63,9 @@ export default function RepositoriesPage() {
         </button>
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <SquirrelLoader message="Loading repositories..." />
+      ) : filtered.length === 0 ? (
         <EmptyState
           title="No repositories found"
           description={

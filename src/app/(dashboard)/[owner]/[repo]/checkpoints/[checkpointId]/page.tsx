@@ -10,6 +10,7 @@ import {
   usePlan,
 } from "@/hooks/use-checkpoints";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SquirrelLoader } from "@/components/ui/squirrel-loader";
 import { TranscriptViewer } from "@/components/ui/transcript-viewer";
 import { DiffViewer } from "@/components/ui/diff-viewer";
 import { PlanViewer } from "@/components/ui/plan-viewer";
@@ -76,12 +77,7 @@ export default function CheckpointDetailPage({
   const fileCount = useMemo(() => countDiffFiles(diff), [diff]);
 
   if (cpLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-96" />
-        <Skeleton className="h-96" />
-      </div>
-    );
+    return <SquirrelLoader message="Loading checkpoint..." />;
   }
 
   if (!checkpoint) {

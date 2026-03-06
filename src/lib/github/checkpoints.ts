@@ -58,6 +58,37 @@ export async function listCheckpoints(
     );
 }
 
+export async function listCheckpointsFromEntries(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  entries: { path: string; sha: string }[]
+): Promise<CheckpointMetadata[]> {
+  const checkpoints = await Promise.allSettled(
+    entries.map(async (entry) => {
+      const { data: blob } = await octokit.git.getBlob({
+        owner,
+        repo,
+        file_sha: entry.sha,
+      });
+
+      const content = Buffer.from(blob.content, "base64").toString("utf-8");
+      return JSON.parse(content) as CheckpointMetadata;
+    })
+  );
+
+  return checkpoints
+    .filter(
+      (r): r is PromiseFulfilledResult<CheckpointMetadata> =>
+        r.status === "fulfilled"
+    )
+    .map((r) => r.value)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+}
+
 export async function getCheckpoint(
   octokit: Octokit,
   owner: string,
