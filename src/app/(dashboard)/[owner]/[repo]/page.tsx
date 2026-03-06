@@ -6,12 +6,13 @@ import { useContributors } from "@/hooks/use-contributors";
 import { useCheckpoints } from "@/hooks/use-checkpoints";
 import { usePulls } from "@/hooks/use-pulls";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTable } from "@/components/ui/data-table";
+import { SquirrelLoader } from "@/components/ui/squirrel-loader";
+import { Badge } from "@/components/ui/badge";
 import { RepoSidebarInfo } from "@/components/repo/repo-sidebar-info";
 import { ActivityChart } from "@/components/repo/activity-chart";
 import { OpenPRsList } from "@/components/repo/open-prs-list";
 import { formatDistanceToNow } from "date-fns";
-import type { CheckpointMetadata } from "@/types/checkpoint";
+import Link from "next/link";
 import type { WeeklyActivity } from "@/types/repository";
 
 export default function OverviewPage({
@@ -52,12 +53,7 @@ export default function OverviewPage({
   const recentCheckpoints = checkpoints?.slice(0, 10) ?? [];
 
   if (repoLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-20" />
-        <Skeleton className="h-48" />
-      </div>
-    );
+    return <SquirrelLoader message="Loading repository..." />;
   }
 
   if (!repoDetail) {
@@ -93,53 +89,36 @@ export default function OverviewPage({
             <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
               Recent Checkpoints
             </h3>
-            <DataTable<CheckpointMetadata>
-              data={recentCheckpoints}
-              onRowClick={(cp) =>
-                (window.location.href = `/${owner}/${repo}/checkpoints/${cp.id}`)
-              }
-              columns={[
-                {
-                  key: "agent",
-                  header: "Agent",
-                  render: (cp) => (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-foreground">
-                        {cp.agent}
-                      </span>
-                      <span className="font-mono text-xs text-accent-light">
-                        {cp.agent_percent}%
-                      </span>
-                    </div>
-                  ),
-                  className: "w-40",
-                },
-                {
-                  key: "commit",
-                  header: "Commit",
-                  render: (cp) => (
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-muted">
-                        {cp.commit_hash.slice(0, 7)}
-                      </span>
-                      <span className="text-sm text-muted">{cp.branch}</span>
-                    </div>
-                  ),
-                },
-                {
-                  key: "when",
-                  header: "When",
-                  render: (cp) => (
-                    <span className="whitespace-nowrap text-sm text-muted">
+            <div className="space-y-2">
+              {recentCheckpoints.map((cp) => (
+                <Link
+                  key={cp.id}
+                  href={`/${owner}/${repo}/checkpoints/${cp.id}`}
+                  className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface-light"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge>{cp.branch}</Badge>
+                    <span className="font-mono text-xs text-muted">
+                      {cp.commit_hash.slice(0, 8)}
+                    </span>
+                    <span className="flex-1" />
+                    <span className="whitespace-nowrap text-xs text-muted">
                       {formatDistanceToNow(new Date(cp.created_at), {
                         addSuffix: true,
                       })}
                     </span>
-                  ),
-                  className: "w-44",
-                },
-              ]}
-            />
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2 text-xs text-muted">
+                    <span className="text-sm font-medium text-foreground">
+                      {cp.agent}
+                    </span>
+                    <span className="font-mono text-xs text-accent-light">
+                      {cp.agent_percent}%
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 

@@ -4,7 +4,7 @@ import { use, useMemo } from "react";
 import Link from "next/link";
 import { useCheckpoints, usePlan } from "@/hooks/use-checkpoints";
 import { useCommits } from "@/hooks/use-commits";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SquirrelLoader } from "@/components/ui/squirrel-loader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
@@ -56,13 +56,7 @@ export default function CheckpointsPage({
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-2">
-        <Skeleton className="h-16" />
-        <Skeleton className="h-16" />
-        <Skeleton className="h-16" />
-      </div>
-    );
+    return <SquirrelLoader message="Loading checkpoints..." />;
   }
 
   if (!checkpoints || checkpoints.length === 0) {

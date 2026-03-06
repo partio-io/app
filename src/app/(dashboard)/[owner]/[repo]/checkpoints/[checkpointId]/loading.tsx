@@ -1,10 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { SquirrelLoader } from "@/components/ui/squirrel-loader";
 
 export default function CheckpointDetailLoading() {
-  return (
-    <div className="space-y-4">
-      <Skeleton className="h-8 w-96" />
-      <Skeleton className="h-96" />
-    </div>
-  );
+  return <SquirrelLoader message="Loading checkpoint details..." />;
 }

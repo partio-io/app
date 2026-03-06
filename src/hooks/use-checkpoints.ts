@@ -5,7 +5,8 @@ import type { CheckpointMetadata, Message } from "@/types/checkpoint";
 export function useCheckpoints(owner: string, repo: string) {
   const { data, error, isLoading } = useSWR<CheckpointMetadata[]>(
     `/api/github/repos/${owner}/${repo}/checkpoints`,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60_000 }
   );
 
   return {
@@ -18,7 +19,8 @@ export function useCheckpoints(owner: string, repo: string) {
 export function useCheckpoint(owner: string, repo: string, id: string) {
   const { data, error, isLoading } = useSWR<CheckpointMetadata>(
     `/api/github/repos/${owner}/${repo}/checkpoints/${id}`,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false }
   );
 
   return {
@@ -31,7 +33,8 @@ export function useCheckpoint(owner: string, repo: string, id: string) {
 export function useSession(owner: string, repo: string, id: string) {
   const { data, error, isLoading } = useSWR<Message[]>(
     `/api/github/repos/${owner}/${repo}/checkpoints/${id}/session`,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false }
   );
 
   return {
@@ -46,7 +49,8 @@ export function useDiff(owner: string, repo: string, checkpointId: string) {
     checkpointId
       ? `/api/github/repos/${owner}/${repo}/checkpoints/${checkpointId}/diff`
       : null,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false }
   );
 
   return {
@@ -61,7 +65,8 @@ export function usePlan(owner: string, repo: string, checkpointId: string) {
     checkpointId
       ? `/api/github/repos/${owner}/${repo}/checkpoints/${checkpointId}/plan`
       : null,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false }
   );
 
   return {
