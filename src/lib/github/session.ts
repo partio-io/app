@@ -49,14 +49,14 @@ export async function getSessionData(
     const MESSAGE_TYPES = new Set(["user", "human", "assistant"]);
 
     return lines
-      .map((line) => JSON.parse(line))
-      .filter((parsed: any) => MESSAGE_TYPES.has(parsed.type || parsed.role))
-      .map((parsed: any) => {
+      .map((line) => JSON.parse(line) as Record<string, unknown>)
+      .filter((parsed) => MESSAGE_TYPES.has((parsed.type || parsed.role) as string))
+      .map((parsed) => {
         return {
-          role: parsed.type || parsed.role || "unknown",
+          role: (parsed.type || parsed.role || "unknown") as string,
           content: stripSystemTags(extractText(parsed)),
-          timestamp: parsed.timestamp || "",
-          tokens: parsed.tokens,
+          timestamp: (parsed.timestamp || "") as string,
+          tokens: parsed.tokens as number | undefined,
         } satisfies Message;
       })
       .filter((msg) => msg.content.trim() !== "");
@@ -65,14 +65,15 @@ export async function getSessionData(
   }
 }
 
-function extractContentBlocks(blocks: any[]): string {
+function extractContentBlocks(blocks: unknown[]): string {
   return blocks
-    .map((block: any) => {
+    .map((block) => {
       if (typeof block === "string") return block;
-      if (block?.type === "text") return block.text || "";
-      if (block?.type === "tool_use")
-        return `[Tool: ${block.name || "unknown"}]`;
-      if (block?.type === "tool_result") return "";
+      const b = block as Record<string, unknown>;
+      if (b?.type === "text") return (b.text as string) || "";
+      if (b?.type === "tool_use")
+        return `[Tool: ${(b.name as string) || "unknown"}]`;
+      if (b?.type === "tool_result") return "";
       // Skip thinking, redacted_thinking, and unknown block types
       return "";
     })
@@ -96,7 +97,7 @@ function extractText(entry: Record<string, unknown>): string {
   // 2. Try message field
   if (entry.message != null) {
     if (typeof entry.message === "string") return entry.message;
-    const msg = entry.message as any;
+    const msg = entry.message as Record<string, unknown>;
     if (typeof msg.content === "string") return msg.content;
     if (Array.isArray(msg.content)) {
       return extractContentBlocks(msg.content);
@@ -107,7 +108,7 @@ function extractText(entry: Record<string, unknown>): string {
   if (entry.content != null) {
     if (typeof entry.content === "string") return entry.content;
     if (Array.isArray(entry.content)) {
-      return extractContentBlocks(entry.content as any[]);
+      return extractContentBlocks(entry.content as unknown[]);
     }
   }
 
