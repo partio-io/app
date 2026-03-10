@@ -1,0 +1,1244 @@
+diff --git a/.gitignore b/.gitignore
+index 417caaf..946c763 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -38,3 +38,7 @@ yarn-error.log*
+ *.tsbuildinfo
+ next-env.d.ts
+ .partio/settings.local.json
++
++# gif generation
++e2e/storage-state.json
++e2e/videos/
+diff --git a/e2e/gif-gen/auth-setup.ts b/e2e/gif-gen/auth-setup.ts
+new file mode 100644
+index 0000000..8687431
+--- /dev/null
++++ b/e2e/gif-gen/auth-setup.ts
+@@ -0,0 +1,49 @@
++/**
++ * One-time interactive login to save browser storage state.
++ *
++ * Run with: npm run gif:auth
++ *
++ * Opens a visible browser window at localhost:3000. Complete the GitHub OAuth
++ * login manually. Once you land on the dashboard, the script saves the session
++ * cookie to storage-state.json for headless runs.
++ */
++
++import { chromium } from "@playwright/test";
++import { BASE_URL, STORAGE_STATE_PATH, VIEWPORT } from "./config";
++
++async function main() {
++  const browser = await chromium.launch({ headless: false });
++  const context = await browser.newContext({ viewport: VIEWPORT });
++  const page = await context.newPage();
++
++  console.log(`Opening ${BASE_URL} — please log in via GitHub...`);
++  console.log("Complete the full login (including 2FA) in the browser window.");
++  console.log("The script will wait until you land on the dashboard.\n");
++  await page.goto(BASE_URL);
++
++  // Wait until we're back on localhost on an authenticated page (not /login).
++  // The GitHub OAuth flow navigates away from localhost entirely, so we need
++  // to check both the origin and the path.
++  await page.waitForURL(
++    (url) => {
++      const isLocalhost = url.origin === new URL(BASE_URL).origin;
++      const isNotLogin = !url.pathname.includes("/login");
++      return isLocalhost && isNotLogin;
++    },
++    { timeout: 300_000 }
++  );
++
++  // Give the session a moment to fully settle
++  await page.waitForTimeout(2000);
++
++  console.log("Authenticated! Saving storage state...");
++  await context.storageState({ path: STORAGE_STATE_PATH });
++  console.log(`Storage state saved to ${STORAGE_STATE_PATH}`);
++
++  await browser.close();
++}
++
++main().catch((err) => {
++  console.error(err);
++  process.exit(1);
++});
+diff --git a/e2e/gif-gen/config.ts b/e2e/gif-gen/config.ts
+new file mode 100644
+index 0000000..ecb9ae2
+--- /dev/null
++++ b/e2e/gif-gen/config.ts
+@@ -0,0 +1,22 @@
++import path from "path";
++
++export const BASE_URL = process.env.GIF_BASE_URL || "http://localhost:3000";
++
++export const VIEWPORT = { width: 1280, height: 800 };
++
++export const VIDEO_DIR = path.resolve(__dirname, "../videos");
++export const OUTPUT_DIR = path.resolve(__dirname, "../../../docs/images/app");
++export const STORAGE_STATE_PATH = path.resolve(
++  __dirname,
++  "../storage-state.json"
++);
++
++/** Default timing between actions (ms) */
++export const PAUSE = 800;
++/** Longer pause for letting content load */
++export const LOAD_PAUSE = 1500;
++
++/** Owner/repo to use in flows — override with GIF_OWNER and GIF_REPO env vars */
++export const GIF_OWNER = process.env.GIF_OWNER || "";
++export const GIF_REPO = process.env.GIF_REPO || "";
++export const GIF_CHECKPOINT_ID = process.env.GIF_CHECKPOINT_ID || "";
+diff --git a/e2e/gif-gen/flows/checkpoint.ts b/e2e/gif-gen/flows/checkpoint.ts
+new file mode 100644
+index 0000000..9acb78d
+--- /dev/null
++++ b/e2e/gif-gen/flows/checkpoint.ts
+@@ -0,0 +1,81 @@
++import type { BrowserContext, Page } from "@playwright/test";
++import {
++  BASE_URL,
++  GIF_CHECKPOINT_ID,
++  GIF_OWNER,
++  GIF_REPO,
++  LOAD_PAUSE,
++  PAUSE,
++} from "../config";
++
++/**
++ * Checkpoint detail flow: navigate to a checkpoint, explore Sessions tab
++ * (scroll, expand), Plan tab, and Files tab (expand diff).
++ */
++export async function checkpointFlow(
++  page: Page,
++  _context: BrowserContext
++): Promise<void> {
++  let checkpointUrl: string;
++
++  if (GIF_OWNER && GIF_REPO && GIF_CHECKPOINT_ID) {
++    checkpointUrl = `${BASE_URL}/${GIF_OWNER}/${GIF_REPO}/checkpoints/${GIF_CHECKPOINT_ID}`;
++  } else {
++    // Find a checkpoint by navigating through repos
++    await page.goto(`${BASE_URL}/repositories`, { waitUntil: "networkidle" });
++    await page.waitForTimeout(LOAD_PAUSE);
++
++    // Click first repo
++    const firstRow = page.locator("table tbody tr, [role='row']").first();
++    await firstRow.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++
++    // Go to checkpoints tab
++    const checkpointsTab = page.locator("a, button").filter({ hasText: /checkpoints/i }).first();
++    if (await checkpointsTab.isVisible()) {
++      await checkpointsTab.click();
++      await page.waitForTimeout(LOAD_PAUSE);
++    }
++
++    // Click first checkpoint
++    const firstCheckpoint = page.locator("a[href*='/checkpoints/']").first();
++    if (await firstCheckpoint.isVisible()) {
++      await firstCheckpoint.click();
++      await page.waitForTimeout(LOAD_PAUSE);
++    }
++
++    checkpointUrl = page.url();
++  }
++
++  // Navigate to the checkpoint
++  await page.goto(checkpointUrl, { waitUntil: "networkidle" });
++  await page.waitForTimeout(LOAD_PAUSE);
++
++  // Sessions tab (default) — scroll through transcript
++  await page.evaluate(() => window.scrollBy({ top: 300, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++  await page.evaluate(() => window.scrollBy({ top: 300, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Scroll back up
++  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Click Plan tab
++  const planTab = page.locator("button, a").filter({ hasText: /plan/i }).first();
++  if (await planTab.isVisible()) {
++    await planTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++    await page.evaluate(() => window.scrollBy({ top: 200, behavior: "smooth" }));
++    await page.waitForTimeout(PAUSE);
++  }
++
++  // Click Files tab
++  const filesTab = page.locator("button, a").filter({ hasText: /files/i }).first();
++  if (await filesTab.isVisible()) {
++    await filesTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++    await page.evaluate(() => window.scrollBy({ top: 300, behavior: "smooth" }));
++    await page.waitForTimeout(PAUSE);
++  }
++}
+diff --git a/e2e/gif-gen/flows/dashboard.ts b/e2e/gif-gen/flows/dashboard.ts
+new file mode 100644
+index 0000000..20b1dad
+--- /dev/null
++++ b/e2e/gif-gen/flows/dashboard.ts
+@@ -0,0 +1,32 @@
++import type { BrowserContext, Page } from "@playwright/test";
++import { BASE_URL, LOAD_PAUSE, PAUSE } from "../config";
++
++/**
++ * Dashboard overview flow: load dashboard, pause on stats, scroll through
++ * heatmap and recent commits.
++ */
++export async function dashboardFlow(
++  page: Page,
++  _context: BrowserContext
++): Promise<void> {
++  await page.goto(BASE_URL, { waitUntil: "networkidle" });
++
++  // Wait for dashboard content to be visible (stat cards)
++  await page.waitForSelector("text=Total Checkpoints", { timeout: 15000 });
++  await page.waitForTimeout(LOAD_PAUSE);
++
++  // Pause on stat cards
++  await page.waitForTimeout(PAUSE);
++
++  // Scroll down to reveal heatmap
++  await page.evaluate(() => window.scrollBy({ top: 300, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Scroll down to recent commits
++  await page.evaluate(() => window.scrollBy({ top: 400, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Scroll back to top
++  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++}
+diff --git a/e2e/gif-gen/flows/repo-detail.ts b/e2e/gif-gen/flows/repo-detail.ts
+new file mode 100644
+index 0000000..fc0aae8
+--- /dev/null
++++ b/e2e/gif-gen/flows/repo-detail.ts
+@@ -0,0 +1,73 @@
++import type { BrowserContext, Page } from "@playwright/test";
++import { BASE_URL, GIF_OWNER, GIF_REPO, LOAD_PAUSE, PAUSE } from "../config";
++
++/**
++ * Repo detail flow: navigate through all tabs — Overview, Checkpoints,
++ * Commits (change branch), PRs (filter), Code (browse files).
++ */
++export async function repoDetailFlow(
++  page: Page,
++  _context: BrowserContext
++): Promise<void> {
++  // Determine which repo to use
++  let repoUrl: string;
++  if (GIF_OWNER && GIF_REPO) {
++    repoUrl = `${BASE_URL}/${GIF_OWNER}/${GIF_REPO}`;
++  } else {
++    // Navigate to repos and click the first one
++    await page.goto(`${BASE_URL}/repositories`, { waitUntil: "networkidle" });
++    await page.waitForTimeout(LOAD_PAUSE);
++    const firstRow = page.locator("table tbody tr, [role='row']").first();
++    await firstRow.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++    repoUrl = page.url();
++  }
++
++  // Overview tab (default)
++  await page.goto(repoUrl, { waitUntil: "networkidle" });
++  await page.waitForTimeout(LOAD_PAUSE);
++
++  // Click Checkpoints tab
++  const checkpointsTab = page.locator("a, button").filter({ hasText: /checkpoints/i }).first();
++  if (await checkpointsTab.isVisible()) {
++    await checkpointsTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++  }
++
++  // Click Commits tab
++  const commitsTab = page.locator("a, button").filter({ hasText: /commits/i }).first();
++  if (await commitsTab.isVisible()) {
++    await commitsTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++
++    // Try to change branch
++    const branchSelector = page.locator("select, [role='combobox']").first();
++    if (await branchSelector.isVisible()) {
++      await branchSelector.click();
++      await page.waitForTimeout(PAUSE);
++      await page.keyboard.press("Escape");
++      await page.waitForTimeout(PAUSE / 2);
++    }
++  }
++
++  // Click PRs tab
++  const prsTab = page.locator("a, button").filter({ hasText: /prs|pull/i }).first();
++  if (await prsTab.isVisible()) {
++    await prsTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++  }
++
++  // Click Code tab
++  const codeTab = page.locator("a, button").filter({ hasText: /code/i }).first();
++  if (await codeTab.isVisible()) {
++    await codeTab.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++
++    // Click into a file/folder
++    const firstEntry = page.locator("table tbody tr, [role='row']").first();
++    if (await firstEntry.isVisible()) {
++      await firstEntry.click();
++      await page.waitForTimeout(LOAD_PAUSE);
++    }
++  }
++}
+diff --git a/e2e/gif-gen/flows/repositories.ts b/e2e/gif-gen/flows/repositories.ts
+new file mode 100644
+index 0000000..6f2df94
+--- /dev/null
++++ b/e2e/gif-gen/flows/repositories.ts
+@@ -0,0 +1,41 @@
++import type { BrowserContext, Page } from "@playwright/test";
++import { BASE_URL, LOAD_PAUSE, PAUSE } from "../config";
++
++/**
++ * Repositories flow: navigate to repos, search, toggle filter, click into a repo.
++ */
++export async function repositoriesFlow(
++  page: Page,
++  _context: BrowserContext
++): Promise<void> {
++  await page.goto(`${BASE_URL}/repositories`, { waitUntil: "networkidle" });
++  await page.waitForTimeout(LOAD_PAUSE);
++
++  // Type in the search box
++  const searchInput = page.locator('input[type="text"], input[type="search"]').first();
++  if (await searchInput.isVisible()) {
++    await searchInput.click();
++    await page.waitForTimeout(PAUSE / 2);
++    await searchInput.fill("partio");
++    await page.waitForTimeout(PAUSE);
++    await searchInput.clear();
++    await page.waitForTimeout(PAUSE / 2);
++  }
++
++  // Toggle to show all repos
++  const toggleButton = page.locator("button").filter({ hasText: /all repo/i }).first();
++  if (await toggleButton.isVisible()) {
++    await toggleButton.click();
++    await page.waitForTimeout(PAUSE);
++    // Toggle back
++    await toggleButton.click();
++    await page.waitForTimeout(PAUSE);
++  }
++
++  // Click the first repo row
++  const firstRow = page.locator("table tbody tr, [role='row']").first();
++  if (await firstRow.isVisible()) {
++    await firstRow.click();
++    await page.waitForTimeout(LOAD_PAUSE);
++  }
++}
+diff --git a/e2e/gif-gen/flows/settings.ts b/e2e/gif-gen/flows/settings.ts
+new file mode 100644
+index 0000000..8675474
+--- /dev/null
++++ b/e2e/gif-gen/flows/settings.ts
+@@ -0,0 +1,54 @@
++import type { BrowserContext, Page } from "@playwright/test";
++import { BASE_URL, LOAD_PAUSE, PAUSE } from "../config";
++
++/**
++ * Settings flow: search themes, filter to Dark, apply a theme, toggle wallpaper.
++ */
++export async function settingsFlow(
++  page: Page,
++  _context: BrowserContext
++): Promise<void> {
++  await page.goto(`${BASE_URL}/settings`, { waitUntil: "networkidle" });
++  await page.waitForTimeout(LOAD_PAUSE);
++
++  // Search for a theme
++  const searchInput = page.locator('input[type="text"], input[type="search"]').first();
++  if (await searchInput.isVisible()) {
++    await searchInput.click();
++    await page.waitForTimeout(PAUSE / 2);
++    await searchInput.fill("tokyo");
++    await page.waitForTimeout(PAUSE);
++    await searchInput.clear();
++    await page.waitForTimeout(PAUSE / 2);
++  }
++
++  // Click Dark filter
++  const darkFilter = page.locator("button").filter({ hasText: /^dark$/i }).first();
++  if (await darkFilter.isVisible()) {
++    await darkFilter.click();
++    await page.waitForTimeout(PAUSE);
++  }
++
++  // Scroll through themes
++  await page.evaluate(() => window.scrollBy({ top: 300, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Click a theme card (e.g., second card to apply it)
++  const themeCards = page.locator("[class*='theme'], [data-theme], [role='button']");
++  const cardCount = await themeCards.count();
++  if (cardCount > 1) {
++    await themeCards.nth(1).click();
++    await page.waitForTimeout(LOAD_PAUSE);
++  }
++
++  // Scroll back up
++  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
++  await page.waitForTimeout(PAUSE);
++
++  // Toggle wallpaper if available
++  const wallpaperToggle = page.locator("button, label").filter({ hasText: /wallpaper/i }).first();
++  if (await wallpaperToggle.isVisible()) {
++    await wallpaperToggle.click();
++    await page.waitForTimeout(PAUSE);
++  }
++}
+diff --git a/e2e/gif-gen/generate-gifs.ts b/e2e/gif-gen/generate-gifs.ts
+new file mode 100644
+index 0000000..886428e
+--- /dev/null
++++ b/e2e/gif-gen/generate-gifs.ts
+@@ -0,0 +1,165 @@
++/**
++ * Main orchestrator: runs each flow, records video, converts to GIF.
++ *
++ * Run with: npm run gif:generate
++ *
++ * Prerequisites:
++ *   - npm run gif:auth (one-time login)
++ *   - The app running at localhost:3000
++ *   - ffmpeg available on PATH
++ */
++
++import { chromium, type BrowserContext, type Page } from "@playwright/test";
++import { execSync } from "child_process";
++import fs from "fs";
++import path from "path";
++import {
++  BASE_URL,
++  OUTPUT_DIR,
++  STORAGE_STATE_PATH,
++  VIDEO_DIR,
++  VIEWPORT,
++} from "./config";
++import { dashboardFlow } from "./flows/dashboard";
++import { repositoriesFlow } from "./flows/repositories";
++import { repoDetailFlow } from "./flows/repo-detail";
++import { checkpointFlow } from "./flows/checkpoint";
++import { settingsFlow } from "./flows/settings";
++
++interface Flow {
++  name: string;
++  outputName: string;
++  run: (page: Page, context: BrowserContext) => Promise<void>;
++}
++
++const flows: Flow[] = [
++  { name: "Dashboard Overview", outputName: "dashboard-overview", run: dashboardFlow },
++  { name: "Repositories Browse", outputName: "repositories-browse", run: repositoriesFlow },
++  { name: "Repo Tabs", outputName: "repo-tabs", run: repoDetailFlow },
++  { name: "Checkpoint Detail", outputName: "checkpoint-detail", run: checkpointFlow },
++  { name: "Settings Themes", outputName: "settings-themes", run: settingsFlow },
++];
++
++function convertToGif(inputPath: string, outputPath: string) {
++  const palettePath = inputPath.replace(/\.\w+$/, "-palette.png");
++
++  // Pass 1: generate palette
++  execSync(
++    `ffmpeg -y -i "${inputPath}" -vf "fps=12,scale=1024:-1:flags=lanczos,palettegen=stats_mode=diff" "${palettePath}"`,
++    { stdio: "pipe" }
++  );
++
++  // Pass 2: convert with palette
++  execSync(
++    `ffmpeg -y -i "${inputPath}" -i "${palettePath}" -lavfi "fps=12,scale=1024:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5" "${outputPath}"`,
++    { stdio: "pipe" }
++  );
++
++  // Clean up palette
++  fs.unlinkSync(palettePath);
++}
++
++async function main() {
++  if (!fs.existsSync(STORAGE_STATE_PATH)) {
++    console.error(
++      "No storage state found. Run `npm run gif:auth` first to log in."
++    );
++    process.exit(1);
++  }
++
++  // Ensure output directories exist
++  fs.mkdirSync(VIDEO_DIR, { recursive: true });
++  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
++
++  const browser = await chromium.launch({ headless: true });
++
++  // Check auth in a non-recording context so it never appears in videos
++  const authContext = await browser.newContext({
++    storageState: STORAGE_STATE_PATH,
++    viewport: VIEWPORT,
++  });
++  const authPage = await authContext.newPage();
++  await authPage.goto(BASE_URL, { waitUntil: "networkidle" });
++  if (authPage.url().includes("/login")) {
++    console.error(
++      "Session expired. Run `npm run gif:auth` to re-authenticate."
++    );
++    await authContext.close();
++    await browser.close();
++    process.exit(1);
++  }
++  await authContext.close();
++
++  const only = process.env.GIF_ONLY;
++  const toRun = only
++    ? flows.filter((f) => f.outputName === only)
++    : flows;
++
++  if (only && toRun.length === 0) {
++    console.error(`No flow found matching GIF_ONLY="${only}"`);
++    console.error(`Available: ${flows.map((f) => f.outputName).join(", ")}`);
++    process.exit(1);
++  }
++
++  for (const flow of toRun) {
++    console.log(`\n--- Recording: ${flow.name} ---`);
++
++    const flowVideoDir = path.join(VIDEO_DIR, flow.outputName);
++    fs.mkdirSync(flowVideoDir, { recursive: true });
++
++    const context = await browser.newContext({
++      storageState: STORAGE_STATE_PATH,
++      viewport: VIEWPORT,
++      recordVideo: {
++        dir: flowVideoDir,
++        size: VIEWPORT,
++      },
++    });
++
++    const page = await context.newPage();
++
++    try {
++      await flow.run(page, context);
++    } catch (err) {
++      console.error(`Flow "${flow.name}" failed:`, err);
++    }
++
++    await page.close();
++    await context.close();
++
++    // Find the recorded video
++    const videos = fs
++      .readdirSync(flowVideoDir)
++      .filter((f) => f.endsWith(".webm"));
++    if (videos.length === 0) {
++      console.error(`No video recorded for ${flow.name}`);
++      continue;
++    }
++
++    const videoPath = path.join(flowVideoDir, videos[0]);
++    const gifPath = path.join(OUTPUT_DIR, `${flow.outputName}.gif`);
++
++    console.log(`Converting ${videoPath} → ${gifPath}`);
++    try {
++      convertToGif(videoPath, gifPath);
++      const stats = fs.statSync(gifPath);
++      console.log(
++        `  ✓ ${flow.outputName}.gif (${(stats.size / 1024 / 1024).toFixed(1)} MB)`
++      );
++    } catch (err) {
++      console.error(`  ✗ ffmpeg conversion failed:`, err);
++    }
++  }
++
++  await browser.close();
++
++  // Clean up video dir
++  fs.rmSync(VIDEO_DIR, { recursive: true, force: true });
++
++  console.log("\nDone! GIFs are in docs/images/app/");
++}
++
++main().catch((err) => {
++  console.error(err);
++  process.exit(1);
++});
+diff --git a/package-lock.json b/package-lock.json
+index 60d4d93..6acb13d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -25,6 +25,7 @@
+         "swr": "^2.3.3"
+       },
+       "devDependencies": {
++        "@playwright/test": "^1.52.0",
+         "@tailwindcss/postcss": "^4",
+         "@types/node": "^20",
+         "@types/react": "^19",
+@@ -32,6 +33,7 @@
+         "eslint": "^9",
+         "eslint-config-next": "16.1.6",
+         "tailwindcss": "^4",
++        "tsx": "^4.19.0",
+         "typescript": "5.9.3"
+       }
+     },
+@@ -359,6 +361,448 @@
+         "tslib": "^2.4.0"
+       }
+     },
++    "node_modules/@esbuild/aix-ppc64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.3.tgz",
++      "integrity": "sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "aix"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/android-arm": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.27.3.tgz",
++      "integrity": "sha512-i5D1hPY7GIQmXlXhs2w8AWHhenb00+GxjxRncS2ZM7YNVGNfaMxgzSGuO8o8SJzRc/oZwU2bcScvVERk03QhzA==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/android-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.27.3.tgz",
++      "integrity": "sha512-YdghPYUmj/FX2SYKJ0OZxf+iaKgMsKHVPF1MAq/P8WirnSpCStzKJFjOjzsW0QQ7oIAiccHdcqjbHmJxRb/dmg==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/android-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.27.3.tgz",
++      "integrity": "sha512-IN/0BNTkHtk8lkOM8JWAYFg4ORxBkZQf9zXiEOfERX/CzxW3Vg1ewAhU7QSWQpVIzTW+b8Xy+lGzdYXV6UZObQ==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/darwin-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.27.3.tgz",
++      "integrity": "sha512-Re491k7ByTVRy0t3EKWajdLIr0gz2kKKfzafkth4Q8A5n1xTHrkqZgLLjFEHVD+AXdUGgQMq+Godfq45mGpCKg==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/darwin-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.27.3.tgz",
++      "integrity": "sha512-vHk/hA7/1AckjGzRqi6wbo+jaShzRowYip6rt6q7VYEDX4LEy1pZfDpdxCBnGtl+A5zq8iXDcyuxwtv3hNtHFg==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/freebsd-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.27.3.tgz",
++      "integrity": "sha512-ipTYM2fjt3kQAYOvo6vcxJx3nBYAzPjgTCk7QEgZG8AUO3ydUhvelmhrbOheMnGOlaSFUoHXB6un+A7q4ygY9w==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/freebsd-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.27.3.tgz",
++      "integrity": "sha512-dDk0X87T7mI6U3K9VjWtHOXqwAMJBNN2r7bejDsc+j03SEjtD9HrOl8gVFByeM0aJksoUuUVU9TBaZa2rgj0oA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-arm": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.27.3.tgz",
++      "integrity": "sha512-s6nPv2QkSupJwLYyfS+gwdirm0ukyTFNl3KTgZEAiJDd+iHZcbTPPcWCcRYH+WlNbwChgH2QkE9NSlNrMT8Gfw==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.27.3.tgz",
++      "integrity": "sha512-sZOuFz/xWnZ4KH3YfFrKCf1WyPZHakVzTiqji3WDc0BCl2kBwiJLCXpzLzUBLgmp4veFZdvN5ChW4Eq/8Fc2Fg==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-ia32": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.27.3.tgz",
++      "integrity": "sha512-yGlQYjdxtLdh0a3jHjuwOrxQjOZYD/C9PfdbgJJF3TIZWnm/tMd/RcNiLngiu4iwcBAOezdnSLAwQDPqTmtTYg==",
++      "cpu": [
++        "ia32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-loong64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.27.3.tgz",
++      "integrity": "sha512-WO60Sn8ly3gtzhyjATDgieJNet/KqsDlX5nRC5Y3oTFcS1l0KWba+SEa9Ja1GfDqSF1z6hif/SkpQJbL63cgOA==",
++      "cpu": [
++        "loong64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-mips64el": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.27.3.tgz",
++      "integrity": "sha512-APsymYA6sGcZ4pD6k+UxbDjOFSvPWyZhjaiPyl/f79xKxwTnrn5QUnXR5prvetuaSMsb4jgeHewIDCIWljrSxw==",
++      "cpu": [
++        "mips64el"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-ppc64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.27.3.tgz",
++      "integrity": "sha512-eizBnTeBefojtDb9nSh4vvVQ3V9Qf9Df01PfawPcRzJH4gFSgrObw+LveUyDoKU3kxi5+9RJTCWlj4FjYXVPEA==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-riscv64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.27.3.tgz",
++      "integrity": "sha512-3Emwh0r5wmfm3ssTWRQSyVhbOHvqegUDRd0WhmXKX2mkHJe1SFCMJhagUleMq+Uci34wLSipf8Lagt4LlpRFWQ==",
++      "cpu": [
++        "riscv64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-s390x": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.27.3.tgz",
++      "integrity": "sha512-pBHUx9LzXWBc7MFIEEL0yD/ZVtNgLytvx60gES28GcWMqil8ElCYR4kvbV2BDqsHOvVDRrOxGySBM9Fcv744hw==",
++      "cpu": [
++        "s390x"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/linux-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.27.3.tgz",
++      "integrity": "sha512-Czi8yzXUWIQYAtL/2y6vogER8pvcsOsk5cpwL4Gk5nJqH5UZiVByIY8Eorm5R13gq+DQKYg0+JyQoytLQas4dA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/netbsd-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.27.3.tgz",
++      "integrity": "sha512-sDpk0RgmTCR/5HguIZa9n9u+HVKf40fbEUt+iTzSnCaGvY9kFP0YKBWZtJaraonFnqef5SlJ8/TiPAxzyS+UoA==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "netbsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/netbsd-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.27.3.tgz",
++      "integrity": "sha512-P14lFKJl/DdaE00LItAukUdZO5iqNH7+PjoBm+fLQjtxfcfFE20Xf5CrLsmZdq5LFFZzb5JMZ9grUwvtVYzjiA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "netbsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/openbsd-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.27.3.tgz",
++      "integrity": "sha512-AIcMP77AvirGbRl/UZFTq5hjXK+2wC7qFRGoHSDrZ5v5b8DK/GYpXW3CPRL53NkvDqb9D+alBiC/dV0Fb7eJcw==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openbsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/openbsd-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.27.3.tgz",
++      "integrity": "sha512-DnW2sRrBzA+YnE70LKqnM3P+z8vehfJWHXECbwBmH/CU51z6FiqTQTHFenPlHmo3a8UgpLyH3PT+87OViOh1AQ==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openbsd"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/openharmony-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.27.3.tgz",
++      "integrity": "sha512-NinAEgr/etERPTsZJ7aEZQvvg/A6IsZG/LgZy+81wON2huV7SrK3e63dU0XhyZP4RKGyTm7aOgmQk0bGp0fy2g==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openharmony"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/sunos-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.27.3.tgz",
++      "integrity": "sha512-PanZ+nEz+eWoBJ8/f8HKxTTD172SKwdXebZ0ndd953gt1HRBbhMsaNqjTyYLGLPdoWHy4zLU7bDVJztF5f3BHA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "sunos"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/win32-arm64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.27.3.tgz",
++      "integrity": "sha512-B2t59lWWYrbRDw/tjiWOuzSsFh1Y/E95ofKz7rIVYSQkUYBjfSgf6oeYPNWHToFRr2zx52JKApIcAS/D5TUBnA==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/win32-ia32": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.27.3.tgz",
++      "integrity": "sha512-QLKSFeXNS8+tHW7tZpMtjlNb7HKau0QDpwm49u0vUp9y1WOF+PEzkU84y9GqYaAVW8aH8f3GcBck26jh54cX4Q==",
++      "cpu": [
++        "ia32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@esbuild/win32-x64": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.27.3.tgz",
++      "integrity": "sha512-4uJGhsxuptu3OcpVAzli+/gWusVGwZZHTlS63hh++ehExkVT8SgiEf7/uC/PclrPPkLhZqGgCTjd0VWLo6xMqA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=18"
++      }
++    },
+     "node_modules/@eslint-community/eslint-utils": {
+       "version": "4.9.1",
+       "resolved": "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.9.1.tgz",
+@@ -1469,6 +1913,22 @@
+         "url": "https://github.com/sponsors/panva"
+       }
+     },
++    "node_modules/@playwright/test": {
++      "version": "1.58.2",
++      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.58.2.tgz",
++      "integrity": "sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "playwright": "1.58.2"
++      },
++      "bin": {
++        "playwright": "cli.js"
++      },
++      "engines": {
++        "node": ">=18"
++      }
++    },
+     "node_modules/@rtsao/scc": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/@rtsao/scc/-/scc-1.1.0.tgz",
+@@ -3527,6 +3987,48 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/esbuild": {
++      "version": "0.27.3",
++      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.27.3.tgz",
++      "integrity": "sha512-8VwMnyGCONIs6cWue2IdpHxHnAjzxnw2Zr7MkVxB2vjmQ2ivqGFb4LEG3SMnv0Gb2F/G/2yA8zUaiL1gywDCCg==",
++      "dev": true,
++      "hasInstallScript": true,
++      "license": "MIT",
++      "bin": {
++        "esbuild": "bin/esbuild"
++      },
++      "engines": {
++        "node": ">=18"
++      },
++      "optionalDependencies": {
++        "@esbuild/aix-ppc64": "0.27.3",
++        "@esbuild/android-arm": "0.27.3",
++        "@esbuild/android-arm64": "0.27.3",
++        "@esbuild/android-x64": "0.27.3",
++        "@esbuild/darwin-arm64": "0.27.3",
++        "@esbuild/darwin-x64": "0.27.3",
++        "@esbuild/freebsd-arm64": "0.27.3",
++        "@esbuild/freebsd-x64": "0.27.3",
++        "@esbuild/linux-arm": "0.27.3",
++        "@esbuild/linux-arm64": "0.27.3",
++        "@esbuild/linux-ia32": "0.27.3",
++        "@esbuild/linux-loong64": "0.27.3",
++        "@esbuild/linux-mips64el": "0.27.3",
++        "@esbuild/linux-ppc64": "0.27.3",
++        "@esbuild/linux-riscv64": "0.27.3",
++        "@esbuild/linux-s390x": "0.27.3",
++        "@esbuild/linux-x64": "0.27.3",
++        "@esbuild/netbsd-arm64": "0.27.3",
++        "@esbuild/netbsd-x64": "0.27.3",
++        "@esbuild/openbsd-arm64": "0.27.3",
++        "@esbuild/openbsd-x64": "0.27.3",
++        "@esbuild/openharmony-arm64": "0.27.3",
++        "@esbuild/sunos-x64": "0.27.3",
++        "@esbuild/win32-arm64": "0.27.3",
++        "@esbuild/win32-ia32": "0.27.3",
++        "@esbuild/win32-x64": "0.27.3"
++      }
++    },
+     "node_modules/escalade": {
+       "version": "3.2.0",
+       "resolved": "https://registry.npmjs.org/escalade/-/escalade-3.2.0.tgz",
+@@ -4201,6 +4703,20 @@
+         }
+       }
+     },
++    "node_modules/fsevents": {
++      "version": "2.3.2",
++      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
++      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
++      "hasInstallScript": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
++      }
++    },
+     "node_modules/function-bind": {
+       "version": "1.1.2",
+       "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+@@ -7167,6 +7683,38 @@
+         "url": "https://github.com/sponsors/jonschlinkert"
+       }
+     },
++    "node_modules/playwright": {
++      "version": "1.58.2",
++      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.58.2.tgz",
++      "integrity": "sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "playwright-core": "1.58.2"
++      },
++      "bin": {
++        "playwright": "cli.js"
++      },
++      "engines": {
++        "node": ">=18"
++      },
++      "optionalDependencies": {
++        "fsevents": "2.3.2"
++      }
++    },
++    "node_modules/playwright-core": {
++      "version": "1.58.2",
++      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.58.2.tgz",
++      "integrity": "sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==",
++      "devOptional": true,
++      "license": "Apache-2.0",
++      "bin": {
++        "playwright-core": "cli.js"
++      },
++      "engines": {
++        "node": ">=18"
++      }
++    },
+     "node_modules/possible-typed-array-names": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/possible-typed-array-names/-/possible-typed-array-names-1.1.0.tgz",
+@@ -8323,6 +8871,41 @@
+       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
+       "license": "0BSD"
+     },
++    "node_modules/tsx": {
++      "version": "4.21.0",
++      "resolved": "https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz",
++      "integrity": "sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "esbuild": "~0.27.0",
++        "get-tsconfig": "^4.7.5"
++      },
++      "bin": {
++        "tsx": "dist/cli.mjs"
++      },
++      "engines": {
++        "node": ">=18.0.0"
++      },
++      "optionalDependencies": {
++        "fsevents": "~2.3.3"
++      }
++    },
++    "node_modules/tsx/node_modules/fsevents": {
++      "version": "2.3.3",
++      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
++      "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
++      "dev": true,
++      "hasInstallScript": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
++      }
++    },
+     "node_modules/type-check": {
+       "version": "0.4.0",
+       "resolved": "https://registry.npmjs.org/type-check/-/type-check-0.4.0.tgz",
+diff --git a/package.json b/package.json
+index fe9fdc9..a2fb10c 100644
+--- a/package.json
++++ b/package.json
+@@ -6,7 +6,9 @@
+     "dev": "next dev",
+     "build": "next build",
+     "start": "next start",
+-    "lint": "eslint"
++    "lint": "eslint",
++    "gif:auth": "tsx e2e/gif-gen/auth-setup.ts",
++    "gif:generate": "tsx e2e/gif-gen/generate-gifs.ts"
+   },
+   "dependencies": {
+     "@octokit/rest": "^21.1.1",
+@@ -33,6 +35,8 @@
+     "eslint": "^9",
+     "eslint-config-next": "16.1.6",
+     "tailwindcss": "^4",
++    "@playwright/test": "^1.52.0",
++    "tsx": "^4.19.0",
+     "typescript": "5.9.3"
+   }
+ }
