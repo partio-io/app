@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gif:auth": "tsx e2e/gif-gen/auth-setup.ts",
+    "gif:generate": "tsx e2e/gif-gen/generate-gifs.ts"
   },
   "dependencies": {
     "@octokit/rest": "^21.1.1",
@@ -33,6 +35,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "@playwright/test": "^1.52.0",
+    "tsx": "^4.19.0",
     "typescript": "5.9.3"
   }
 }

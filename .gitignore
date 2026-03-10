@@ -38,3 +38,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .partio/settings.local.json
+
+# gif generation
+e2e/storage-state.json
+e2e/videos/
